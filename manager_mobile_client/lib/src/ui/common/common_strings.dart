@@ -1,0 +1,31 @@
+const ok = 'OK';
+const cancel = 'Отмена';
+const yes = 'Да';
+const no = 'Нет';
+const continue_ = 'Продолжить';
+const continueUppercase = 'ПРОДОЛЖИТЬ';
+const delete = 'Удалить';
+const confirm = 'Подтвердить';
+const confirmUppercase = 'ПОДТВЕРДИТЬ';
+const decline = 'Отказаться';
+const clone = 'Копировать';
+const pickOnMap = 'Выбрать на карте';
+const error = 'Ошибка';
+const processing = 'Обработка...';
+const saving = 'Сохранение...';
+const noRecords = 'Нет записей.';
+const notSpecified = 'Не указано';
+const all = 'Все';
+const showAll = 'Показать все';
+
+const errorOccurred = 'Произошла ошибка. Пожалуйста, повторите попытку позже.';
+const noInternet = 'Нет подключения к Интернету';
+const imageError = 'Ошибка загрузки';
+
+const name = 'Наименование';
+const address = 'Адрес';
+const tonnage = 'Тоннаж';
+const article = 'Товар';
+const personName = 'ФИО';
+const phoneNumber = 'Телефон';
+const time = 'Время';

@@ -1,0 +1,46 @@
+
+name: manager_mobile_client
+version: 1.25.3+50
+
+environment:
+  sdk: ">=2.6.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  collection:
+  http:
+  web_socket_channel:
+  path:
+  package_info:
+  shared_preferences:
+  connectivity:
+  url_launcher: ^6.1.7
+  cupertino_icons:
+  google_maps_flutter:
+  image_picker: ^0.8.6
+
+  tuple:
+  firebase_core: ^2.7.0
+  firebase_messaging: ^14.1.4
+  flutter_google_places:
+
+  flutter_app_badger:
+  audioplayers:
+  geohash:
+  photo_view:
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+  - assets/images/menu/
+  - assets/images/map/
+  - assets/images/markers/
+  - assets/sounds/notification.mp3
+  uses-material-design: true
