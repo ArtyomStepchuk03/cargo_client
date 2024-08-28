@@ -1,6 +1,6 @@
 
 name: manager_mobile_client
-version: 1.25.3+50
+version: 1.25.4+61
 
 environment:
   sdk: ">=2.6.0 <3.0.0"
@@ -11,6 +11,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
 
+  file: ^6.1.4
   collection:
   http:
   web_socket_channel:
@@ -24,8 +25,8 @@ dependencies:
   image_picker: ^0.8.6
 
   tuple:
-  firebase_core: ^2.7.0
-  firebase_messaging: ^14.1.4
+  firebase_core:
+  firebase_messaging:
   flutter_google_places:
 
   flutter_app_badger:

@@ -28,7 +28,7 @@ class CustomerDetailsState extends State<CustomerDetailsWidget> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    if (!widget.customer.internal && _status.inProgress) {
+    if (_status.inProgress) {
       _verify(context, widget.customer);
     }
   }
@@ -49,7 +49,7 @@ class CustomerDetailsState extends State<CustomerDetailsWidget> {
     return buildForm(children: [
       MultipleContactFormGroup(widget.customer.contacts ?? []),
       _buildInformationGroup(widget.customer),
-      if (!widget.customer.internal) _buildVerifyGroup(),
+      _buildVerifyGroup(),
     ]);
   }
 

@@ -49,7 +49,7 @@ class PushNotificationState extends State<PushNotificationWidget> {
   PushNotificationClient _client;
   UnreadMessageChecker _unreadMessageChecker;
   bool _handling;
-  final audioCache = AudioCache();
+  final audioPlayer = AudioPlayer();
 
   void _showLastMessage() async {
     final notification = await _client.popLaunchNotification();
@@ -106,7 +106,7 @@ class PushNotificationState extends State<PushNotificationWidget> {
     await _showGeneralNotificationDialog(notification.alert);
   }
 
-  void _playNotificationSound() => playSound(audioCache, 'notification');
+  void _playNotificationSound() => playSound(audioPlayer, 'notification');
   Future<void> _showGeneralNotificationDialog(PushNotificationAlert notificationAlert) async => await showInformationDialog(context, notificationAlert.body);
 
   Future<void> _handleNotification(PushNotification notification, bool active) async {
