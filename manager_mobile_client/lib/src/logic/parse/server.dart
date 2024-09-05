@@ -4,7 +4,7 @@ import 'package:manager_mobile_client/src/logic/http_utility/status_code.dart'
     as http_utility;
 
 class Server {
-  String baseUrl;
+  final String baseUrl;
   final Map<String, String> baseHeaders;
 
   Server(this.baseUrl, this.baseHeaders);
