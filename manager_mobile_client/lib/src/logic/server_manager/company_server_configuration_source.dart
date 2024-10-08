@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:manager_mobile_client/src/logic/exceptions/exceptions.dart';
 import 'package:manager_mobile_client/src/logic/http_utility/content_type.dart' as http_utility;
 import 'package:manager_mobile_client/src/logic/http_utility/status_code.dart' as http_utility;
 import 'package:manager_mobile_client/src/logic/parse/server_configuration.dart' as parse;
+import 'package:manager_mobile_client/src/logic/server_manager/default_server.dart';
 
 class CompanyServerInformation {
   final String name;
@@ -13,6 +15,9 @@ class CompanyServerInformation {
 
 class CompanyServerConfigurationSource {
   Future<List<CompanyServerInformation>> get() async {
+    if(kDebugMode){
+      return [CompanyServerInformation(name: "Develop",configuration: DefaultServerConfiguration.makeDevelop())];
+    }
     final headers = {'Content-Type': http_utility.contentTypeJson};
     final response = await http.get(Uri.parse('https://config.cargodeal.ru/companies.json'), headers: headers);
     if (http_utility.isServerError(response.statusCode)) {

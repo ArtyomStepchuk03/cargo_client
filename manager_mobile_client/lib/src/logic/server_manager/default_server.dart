@@ -1,7 +1,7 @@
 import 'package:manager_mobile_client/src/logic/parse/server_configuration.dart' as parse;
 
 extension DefaultServerConfiguration on parse.ServerConfiguration {
-  static parse.ServerConfiguration makeDefault() => makeProduction();
+  static parse.ServerConfiguration makeDefault() => makeDevelop();
 
   static parse.ServerConfiguration makeProduction() {
     return parse.ServerConfiguration(
@@ -13,7 +13,7 @@ extension DefaultServerConfiguration on parse.ServerConfiguration {
 
   static parse.ServerConfiguration makeDevelop() {
     return parse.ServerConfiguration(
-      baseUrl: 'https://dash.cargodeal.ru/cargodeal-dev/',
+      baseUrl: 'http://192.168.10.133:50003/cargodeal-dev/',
       applicationId: 'X3nvnkeAubR8L23s8BpzWELQ9uCRAXw0HfHxG9uU',
       clientKey: 'u2ylnpgBkJ52a6q7Ge4VyDJ9OFbUp53luKnzs0NF'
     );

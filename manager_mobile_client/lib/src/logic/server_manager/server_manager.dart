@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:manager_mobile_client/src/logic/parse/server_configuration.dart' as parse;
 import 'package:manager_mobile_client/src/logic/parse_live_query/live_query_manager.dart' as parse;
 import 'package:manager_mobile_client/src/logic/server_manager/server_manager_storage.dart';
@@ -13,7 +14,7 @@ class ServerManager {
   Future<void> load() async {
     print('Loading server configuration...');
     final storedServerConfiguration = await storage.getServerConfiguration();
-    if (storedServerConfiguration != null) {
+    if (storedServerConfiguration != null && !kDebugMode) {
       _setServer(storedServerConfiguration);
     } else {
       print('No stored server configuration. Using default.');
