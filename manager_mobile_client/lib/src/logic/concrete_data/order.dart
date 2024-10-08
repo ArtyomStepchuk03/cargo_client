@@ -25,11 +25,13 @@ class OrderType {
   final String raw;
 
   OrderType(this.raw);
+
   OrderType.normal() : this(null);
+
   OrderType.carriage() : this('carriage');
 
   @override
-  bool operator==(dynamic other) {
+  bool operator ==(dynamic other) {
     if (other is! OrderType) {
       return false;
     }
@@ -95,7 +97,9 @@ class Order extends Identifiable<String> {
 
   bool deleted;
 
-  Order() : distributedTonnage = 0, finishedTonnage = 0;
+  Order()
+      : distributedTonnage = 0,
+        finishedTonnage = 0;
 
   void assign(Order other) {
     id = other.id;
@@ -123,7 +127,7 @@ class Order extends Identifiable<String> {
     unfinishedTonnage = other.unfinishedTonnage;
     finishedTonnage = other.finishedTonnage;
     saleTariff = other.saleTariff;
-    salePriceType= other.salePriceType;
+    salePriceType = other.salePriceType;
     deliveryTariff = other.deliveryTariff;
     deliveryPriceType = other.deliveryPriceType;
     comment = other.comment;
@@ -140,7 +144,9 @@ class Order extends Identifiable<String> {
   static const className = 'Order';
 
   factory Order.decode(Decoder decoder) {
-    if (!decoder.isValid()) {return null;}
+    if (!decoder.isValid()) {
+      return null;
+    }
     final decoded = Order();
 
     decoded.id = decoder.decodeId();
@@ -149,19 +155,26 @@ class Order extends Identifiable<String> {
     decoded.type = decoder.decodeString('type');
     decoded.author = User.decode(decoder.getDecoder('author'));
 
-    decoded.articleBrand = ArticleBrand.decode(decoder.getDecoder('articleBrand'));
+    decoded.articleBrand =
+        ArticleBrand.decode(decoder.getDecoder('articleBrand'));
 
-    decoded.intermediary = Intermediary.decode(decoder.getDecoder('intermediary'));
+    decoded.intermediary =
+        Intermediary.decode(decoder.getDecoder('intermediary'));
 
     decoded.supplier = Supplier.decode(decoder.getDecoder('supplier'));
-    decoded.loadingPoint = LoadingPoint.decode(decoder.getDecoder('loadingPoint'));
-    decoded.loadingEntrance = Entrance.decode(decoder.getDecoder('loadingEntrance'));
+    decoded.loadingPoint =
+        LoadingPoint.decode(decoder.getDecoder('loadingPoint'));
+    decoded.loadingEntrance =
+        Entrance.decode(decoder.getDecoder('loadingEntrance'));
     decoded.loadingDate = decoder.decodeDate('loadingDate');
 
     decoded.customer = Customer.decode(decoder.getDecoder('customer'));
-    decoded.unloadingPoint = UnloadingPoint.decode(decoder.getDecoder('unloadingPoint'));
-    decoded.unloadingEntrance = Entrance.decode(decoder.getDecoder('unloadingEntrance'));
-    decoded.unloadingContact = Contact.decode(decoder.decodeMap('unloadingContact'));
+    decoded.unloadingPoint =
+        UnloadingPoint.decode(decoder.getDecoder('unloadingPoint'));
+    decoded.unloadingEntrance =
+        Entrance.decode(decoder.getDecoder('unloadingEntrance'));
+    decoded.unloadingContact =
+        Contact.decode(decoder.decodeMap('unloadingContact'));
     decoded.unloadingBeginDate = decoder.decodeDate('unloadingBeginDate');
     decoded.unloadingEndDate = decoder.decodeDate('unloadingEndDate');
 
@@ -173,17 +186,24 @@ class Order extends Identifiable<String> {
     decoded.finishedTonnage = decoder.decodeNumber('finishedTonnage');
 
     decoded.saleTariff = decoder.decodeNumber('saleTariff');
-    decoded.salePriceType = decoder.decodeEnumeration('salePriceType', PriceType.values);
+    decoded.salePriceType =
+        decoder.decodeEnumeration('salePriceType', PriceType.values);
     decoded.deliveryTariff = decoder.decodeNumber('deliveryTariff');
-    decoded.deliveryPriceType = decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
+    decoded.deliveryPriceType =
+        decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
     decoded.comment = decoder.decodeString('comment');
-    decoded.inactivityTimeInterval = decoder.decodeNumber('inactivityTimeInterval');
+    decoded.inactivityTimeInterval =
+        decoder.decodeNumber('inactivityTimeInterval');
 
     decoded.status = decoder.decodeString('status');
-    decoded.carriers = decoder.decodeObjectList('carriers', (Decoder decoder) => Carrier.decode(decoder));
-    decoded.carrierOffers = decoder.decodeObjectList('carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
-    decoded.offers = decoder.decodeObjectList('offers', (Decoder decoder) => Offer.decode(decoder));
-    decoded.historyRecords = decoder.decodeObjectList('historyRecords', (Decoder decoder) => OrderHistoryRecord.decode(decoder));
+    decoded.carriers = decoder.decodeObjectList(
+        'carriers', (Decoder decoder) => Carrier.decode(decoder));
+    decoded.carrierOffers = decoder.decodeObjectList(
+        'carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
+    decoded.offers = decoder.decodeObjectList(
+        'offers', (Decoder decoder) => Offer.decode(decoder));
+    decoded.historyRecords = decoder.decodeObjectList('historyRecords',
+        (Decoder decoder) => OrderHistoryRecord.decode(decoder));
     decoded.lastProgressDate = decoder.decodeDate('lastProgressDate');
 
     decoded.deleted = decoder.decodeBooleanDefault('deleted');
@@ -194,18 +214,24 @@ class Order extends Identifiable<String> {
   void encode(Encoder encoder) {
     encoder.encodeString('type', type);
 
-    encoder.encodePointer('articleBrand', ArticleBrand.className, articleBrand.id);
+    encoder.encodePointer(
+        'articleBrand', ArticleBrand.className, articleBrand.id);
 
-    encoder.encodePointer('intermediary', Intermediary.className, intermediary?.id);
+    encoder.encodePointer(
+        'intermediary', Intermediary.className, intermediary?.id);
 
     encoder.encodePointer('supplier', Supplier.className, supplier?.id);
-    encoder.encodePointer('loadingPoint', LoadingPoint.className, loadingPoint?.id);
-    encoder.encodePointer('loadingEntrance', Entrance.className, loadingEntrance?.id);
+    encoder.encodePointer(
+        'loadingPoint', LoadingPoint.className, loadingPoint?.id);
+    encoder.encodePointer(
+        'loadingEntrance', Entrance.className, loadingEntrance?.id);
     encoder.encodeDate('loadingDate', loadingDate);
 
     encoder.encodePointer('customer', Customer.className, customer?.id);
-    encoder.encodePointer('unloadingPoint', UnloadingPoint.className, unloadingPoint?.id);
-    encoder.encodePointer('unloadingEntrance', Entrance.className, unloadingEntrance?.id);
+    encoder.encodePointer(
+        'unloadingPoint', UnloadingPoint.className, unloadingPoint?.id);
+    encoder.encodePointer(
+        'unloadingEntrance', Entrance.className, unloadingEntrance?.id);
     encoder.encodeMap('unloadingContact', unloadingContact?.encode());
     encoder.encodeDate('unloadingBeginDate', unloadingBeginDate);
     encoder.encodeDate('unloadingEndDate', unloadingEndDate);
@@ -229,18 +255,28 @@ extension OrderUtility on Order {
     return offers.firstWhere((offer) => offer.trip != null, orElse: () => null);
   }
 
+  bool isQueue() {
+    if (offers.isEmpty) return false;
+    return offers.first.isQueue == true;
+  }
+
   CarrierOffer getCarrierOffer(Carrier carrier) {
     if (carrierOffers == null) {
       return null;
     }
-    return carrierOffers.firstWhere((carrierOffer) => carrierOffer.carrier == carrier, orElse: () => null);
+    return carrierOffers.firstWhere(
+        (carrierOffer) => carrierOffer.carrier == carrier,
+        orElse: () => null);
   }
 
   OrderHistoryRecord getTakenIntoWorkHistoryRecord() {
     if (historyRecords == null) {
       return null;
     }
-    return historyRecords.firstWhere((historyRecord) => historyRecord.action == OrderHistoryAction.takenIntoWork, orElse: () => null);
+    return historyRecords.firstWhere(
+        (historyRecord) =>
+            historyRecord.action == OrderHistoryAction.takenIntoWork,
+        orElse: () => null);
   }
 
   bool hasTripOnMinimumStage(TripStage tripStage) {
