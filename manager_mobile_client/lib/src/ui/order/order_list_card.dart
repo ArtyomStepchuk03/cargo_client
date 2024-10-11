@@ -12,6 +12,7 @@ import 'package:manager_mobile_client/src/ui/format/short_format.dart' as short;
 import 'package:manager_mobile_client/src/ui/format/stage.dart';
 import 'package:manager_mobile_client/src/ui/common/color.dart';
 import 'package:manager_mobile_client/src/ui/common/loading_list_view/list_card.dart';
+import 'package:manager_mobile_client/src/ui/order/order_data_source.dart';
 import 'order_list_strings.dart' as strings;
 
 class OrderListCard extends StatelessWidget {
@@ -103,6 +104,9 @@ class OrderListCard extends StatelessWidget {
   }
 
   Color _getCardBackgroundColor() {
+    if(order.consistency == AgreeOrderType.notAgree().raw){
+      return Color.fromARGB(0xff, 0xff, 0xc0, 0xcb);
+    }
     if (order.deleted) {
       return CommonColors.deletedBackground;
     }

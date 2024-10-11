@@ -1,12 +1,12 @@
-import 'dart:io';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' show hashValues;
 
 import 'package:manager_mobile_client/src/logic/coder/change_encoder.dart';
 import 'package:manager_mobile_client/src/logic/coder/decoder.dart';
 import 'package:manager_mobile_client/src/logic/coder/encoder.dart';
-import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/manager.dart';
+import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/core/date_utility.dart';
 import 'package:manager_mobile_client/src/logic/exceptions/exceptions.dart';
@@ -14,6 +14,7 @@ import 'package:manager_mobile_client/src/logic/parse/query_builder.dart' as par
 import 'package:manager_mobile_client/src/logic/parse/requests.dart' as parse;
 import 'package:manager_mobile_client/src/logic/parse_live_query/live_query_manager.dart' as parse;
 import 'package:manager_mobile_client/src/logic/server_manager/server_manager.dart';
+
 import 'utility.dart';
 
 export 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
@@ -21,17 +22,9 @@ export 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 export 'package:manager_mobile_client/src/logic/exceptions/exceptions.dart';
 export 'server_error.dart';
 
-enum OrderProgress {
-  notFullyDistributed,
-  notFullyFinished,
-  fullyFinished
-}
+enum OrderProgress { notFullyDistributed, notFullyFinished, fullyFinished }
 
-enum OrderOfferingStatus {
-  none,
-  carriersOnly,
-  drivers
-}
+enum OrderOfferingStatus { none, carriersOnly, drivers }
 
 enum OrderSortType {
   byDefault,
@@ -48,19 +41,39 @@ class OrderFilter {
   final OrderProgress progress;
   final OrderOfferingStatus offeringStatus;
 
-  OrderFilter.deleted() : deleted = true, progress = null, offeringStatus = null;
-  OrderFilter.allExceptDeleted() : deleted = false, progress = null, offeringStatus = null;
-  OrderFilter.notFullyDistributed([this.offeringStatus]) : deleted = false, progress = OrderProgress.notFullyDistributed;
-  OrderFilter.notFullyFinished() : deleted = false, progress = OrderProgress.notFullyFinished, offeringStatus = null;
-  OrderFilter.fullyFinished() : deleted = false, progress = OrderProgress.fullyFinished, offeringStatus = null;
+  OrderFilter.deleted()
+      : deleted = true,
+        progress = null,
+        offeringStatus = null;
+
+  OrderFilter.allExceptDeleted()
+      : deleted = false,
+        progress = null,
+        offeringStatus = null;
+
+  OrderFilter.notFullyDistributed([this.offeringStatus])
+      : deleted = false,
+        progress = OrderProgress.notFullyDistributed;
+
+  OrderFilter.notFullyFinished()
+      : deleted = false,
+        progress = OrderProgress.notFullyFinished,
+        offeringStatus = null;
+
+  OrderFilter.fullyFinished()
+      : deleted = false,
+        progress = OrderProgress.fullyFinished,
+        offeringStatus = null;
 
   @override
-  bool operator==(dynamic other) {
+  bool operator ==(dynamic other) {
     if (other is! OrderFilter) {
       return false;
     }
     final OrderFilter otherFilter = other;
-    return deleted == otherFilter.deleted && progress == otherFilter.progress && offeringStatus == otherFilter.offeringStatus;
+    return deleted == otherFilter.deleted &&
+        progress == otherFilter.progress &&
+        offeringStatus == otherFilter.offeringStatus;
   }
 
   @override
@@ -72,16 +85,25 @@ class OrderSort {
   final OrderSortType sortType;
   final String key;
 
-  OrderSort.byDefault(): sortType = OrderSortType.byDefault, key = 'lastProgressDate', sortDirection = OrderSortDirection.descending;
-  OrderSort.byUnloadingDate(): sortType = OrderSortType.byUnloadingDate, key = 'unloadingBeginDate', sortDirection = OrderSortDirection.descending;
+  OrderSort.byDefault()
+      : sortType = OrderSortType.byDefault,
+        key = 'lastProgressDate',
+        sortDirection = OrderSortDirection.descending;
+
+  OrderSort.byUnloadingDate()
+      : sortType = OrderSortType.byUnloadingDate,
+        key = 'unloadingBeginDate',
+        sortDirection = OrderSortDirection.descending;
 
   @override
-  bool operator==(dynamic other) {
+  bool operator ==(dynamic other) {
     if (other is! OrderSort) {
       return false;
     }
     final OrderSort otherSort = other;
-    return sortType == otherSort.sortType && sortDirection == otherSort.sortDirection && key == otherSort.key;
+    return sortType == otherSort.sortType &&
+        sortDirection == otherSort.sortDirection &&
+        key == otherSort.key;
   }
 
   @override
@@ -93,7 +115,9 @@ class TariffLimitInformation {
   num baseDeliveryTariff;
   num saleDiscount;
   num deliveryExtraCharge;
-  TariffLimitInformation(this.baseSaleTariff, this.baseDeliveryTariff, this.saleDiscount, this.deliveryExtraCharge);
+
+  TariffLimitInformation(this.baseSaleTariff, this.baseDeliveryTariff,
+      this.saleDiscount, this.deliveryExtraCharge);
 }
 
 class OrderServerAPI {
@@ -118,7 +142,8 @@ class OrderServerAPI {
     return order;
   }
 
-  Future<List<Order>> list(User user, DateTime sortDate, int limit, {OrderFilter filter, OrderSort sort}) async {
+  Future<List<Order>> list(User user, DateTime sortDate, int limit,
+      {OrderFilter filter, OrderSort sort}) async {
     final builder = _makeListQuery(user, filter: filter);
     if (builder == null) {
       return [];
@@ -131,13 +156,21 @@ class OrderServerAPI {
     builder.limit(limit);
 
     switch (sort.sortDirection) {
-      case OrderSortDirection.ascending: builder.addAscending(sort.key); break;
-      case OrderSortDirection.descending: builder.addDescending(sort.key); break;
-      default: break;
+      case OrderSortDirection.ascending:
+        builder.addAscending(sort.key);
+        break;
+      case OrderSortDirection.descending:
+        builder.addDescending(sort.key);
+        break;
+      default:
+        break;
     }
 
     final results = await builder.find(serverManager.server);
-    return results.map((json) => Order.decode(Decoder(json))).where((decoded) => decoded != null).toList();
+    return results
+        .map((json) => Order.decode(Decoder(json)))
+        .where((decoded) => decoded != null)
+        .toList();
   }
 
   Future<List<Order>> listReservations(User user, DateTime date) async {
@@ -145,7 +178,10 @@ class OrderServerAPI {
     builder.includeAll(_getBaseIncludes());
     builder.addDescending('lastProgressDate');
     final results = await builder.findAll(serverManager.server);
-    return results.map((json) => Order.decode(Decoder(json))).where((decoded) => decoded != null).toList();
+    return results
+        .map((json) => Order.decode(Decoder(json)))
+        .where((decoded) => decoded != null)
+        .toList();
   }
 
   Future<void> create(Order order, User user) async {
@@ -164,14 +200,17 @@ class OrderServerAPI {
     order.finishedTonnage = 0;
     order.undistributedTonnage = order.tonnage;
     order.unfinishedTonnage = order.tonnage;
-    final fetchedData = await parse.getById(serverManager.server, Order.className, id);
+    final fetchedData =
+        await parse.getById(serverManager.server, Order.className, id);
     final decoder = Decoder(fetchedData);
     if (decoder.isValid()) {
       order.createdAt = decoder.decodeCreatedAt();
       order.number = decoder.decodeNumber('number');
       order.author = User.decode(decoder.getDecoder('author'));
-      order.salePriceType = decoder.decodeEnumeration('salePriceType', PriceType.values);
-      order.deliveryPriceType = decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
+      order.salePriceType =
+          decoder.decodeEnumeration('salePriceType', PriceType.values);
+      order.deliveryPriceType =
+          decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
       order.status = decoder.decodeString('status');
     }
   }
@@ -189,14 +228,17 @@ class OrderServerAPI {
     reservation.undistributedTonnage = reservation.tonnage;
     reservation.unfinishedTonnage = reservation.tonnage;
     reservation.status = OrderStatus.supplyReserved;
-    final fetchedData = await parse.getById(serverManager.server, Order.className, id);
+    final fetchedData =
+        await parse.getById(serverManager.server, Order.className, id);
     final decoder = Decoder(fetchedData);
     if (decoder.isValid()) {
       reservation.createdAt = decoder.decodeCreatedAt();
       reservation.number = decoder.decodeNumber('number');
       reservation.author = User.decode(decoder.getDecoder('author'));
-      reservation.salePriceType = decoder.decodeEnumeration('salePriceType', PriceType.values);
-      reservation.deliveryPriceType = decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
+      reservation.salePriceType =
+          decoder.decodeEnumeration('salePriceType', PriceType.values);
+      reservation.deliveryPriceType =
+          decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
     }
   }
 
@@ -206,12 +248,15 @@ class OrderServerAPI {
     oldOrder.encode(Encoder(oldData));
     newOrder.encode(ChangeEncoder(Decoder(oldData), Encoder(newData)));
     if (newData.isNotEmpty) {
-      await parse.update(serverManager.server, Order.className, oldOrder.id, newData);
+      await parse.update(
+          serverManager.server, Order.className, oldOrder.id, newData);
     }
   }
 
   Future<void> fetch(Order order) async {
-    final data = await parse.getById(serverManager.server, Order.className, order.id, include: _getBaseIncludes());
+    final data = await parse.getById(
+        serverManager.server, Order.className, order.id,
+        include: _getBaseIncludes());
     final fetchedOrder = Order.decode(Decoder(data));
     if (fetchedOrder == null) {
       return;
@@ -220,7 +265,8 @@ class OrderServerAPI {
   }
 
   Future<void> fetchProgress(Order order) async {
-    final data = await parse.getById(serverManager.server, Order.className, order.id, include: [
+    final data = await parse
+        .getById(serverManager.server, Order.className, order.id, include: [
       'carriers',
       'carrierOffers',
       'carrierOffers.carrier',
@@ -248,15 +294,20 @@ class OrderServerAPI {
       order.unfinishedTonnage = decoder.decodeNumber('unfinishedTonnage');
       order.finishedTonnage = decoder.decodeNumber('finishedTonnage');
       order.status = decoder.decodeString('status');
-      order.carriers = decoder.decodeObjectList('carriers', (Decoder decoder) => Carrier.decode(decoder));
-      order.carrierOffers = decoder.decodeObjectList('carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
-      order.offers = decoder.decodeObjectList('offers', (Decoder decoder) => Offer.decode(decoder));
-      order.historyRecords = decoder.decodeObjectList('historyRecords', (Decoder decoder) => OrderHistoryRecord.decode(decoder));
+      order.carriers = decoder.decodeObjectList(
+          'carriers', (Decoder decoder) => Carrier.decode(decoder));
+      order.carrierOffers = decoder.decodeObjectList(
+          'carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
+      order.offers = decoder.decodeObjectList(
+          'offers', (Decoder decoder) => Offer.decode(decoder));
+      order.historyRecords = decoder.decodeObjectList('historyRecords',
+          (Decoder decoder) => OrderHistoryRecord.decode(decoder));
     }
   }
 
   Future<void> fetchCarriers(Order order) async {
-    final data = await parse.getById(serverManager.server, Order.className, order.id, include: [
+    final data = await parse
+        .getById(serverManager.server, Order.className, order.id, include: [
       'carriers',
       'carrierOffers',
       'carrierOffers.carrier',
@@ -268,9 +319,12 @@ class OrderServerAPI {
     final decoder = Decoder(data);
     if (decoder.isValid()) {
       order.status = decoder.decodeString('status');
-      order.carriers = decoder.decodeObjectList('carriers', (Decoder decoder) => Carrier.decode(decoder));
-      order.carrierOffers = decoder.decodeObjectList('carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
-      order.historyRecords = decoder.decodeObjectList('historyRecords', (Decoder decoder) => OrderHistoryRecord.decode(decoder));
+      order.carriers = decoder.decodeObjectList(
+          'carriers', (Decoder decoder) => Carrier.decode(decoder));
+      order.carrierOffers = decoder.decodeObjectList(
+          'carrierOffers', (Decoder decoder) => CarrierOffer.decode(decoder));
+      order.historyRecords = decoder.decodeObjectList('historyRecords',
+          (Decoder decoder) => OrderHistoryRecord.decode(decoder));
     }
   }
 
@@ -279,7 +333,8 @@ class OrderServerAPI {
       'orderNumber': order.number,
       'status': status,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_setOrderStatus', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_setOrderStatus', parameters);
     await fetchProgress(order);
   }
 
@@ -288,28 +343,29 @@ class OrderServerAPI {
       'orderNumbers': [order.number],
       'transportUnitIds': [transportUnit.id]
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_sendOffers', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_sendOffers', parameters);
     await fetchProgress(order);
   }
 
-  Future<void> assignTransportUnit(Order order, TransportUnit transportUnit) async {
+  Future<void> assignTransportUnit(
+      Order order, TransportUnit transportUnit) async {
     final parameters = {
       'orderNumber': order.number,
       'transportUnitId': transportUnit.id
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_assignTransportUnit', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_assignTransportUnit', parameters);
     await fetchProgress(order);
   }
 
   Future<void> assignCarrier(Order order, Carrier carrier) async {
     final parameters = {
       'orderNumbers': [order.number],
-      if (carrier != null)
-        'carrierIds': [carrier.id]
-      else
-        'carrierIds': null,
+      if (carrier != null) 'carrierIds': [carrier.id] else 'carrierIds': null,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_assignCarriers', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_assignCarriers', parameters);
     await fetchCarriers(order);
   }
 
@@ -317,7 +373,8 @@ class OrderServerAPI {
     final parameters = {
       'orderNumber': order.number,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_reserveOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_reserveOrder', parameters);
     await fetchCarriers(order);
   }
 
@@ -325,7 +382,8 @@ class OrderServerAPI {
     final parameters = {
       'orderNumber': order.number,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_takeOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_takeOrder', parameters);
     await fetchCarriers(order);
   }
 
@@ -333,17 +391,24 @@ class OrderServerAPI {
     final parameters = {
       'orderNumber': order.number,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_declineOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_declineOrder', parameters);
     await fetchCarriers(order);
   }
 
-  Future<void> finish(Order order, DateTime loadedDate, num loadedTonnage, File loadedPhoto, num distance, DateTime unloadedDate, num unloadedTonnage, File unloadedPhoto) async {
+  Future<void> finish(
+      Order order,
+      DateTime loadedDate,
+      num loadedTonnage,
+      File loadedPhoto,
+      num distance,
+      DateTime unloadedDate,
+      num unloadedTonnage,
+      File unloadedPhoto) async {
     var parameters = <String, dynamic>{
       'orderNumber': order.number,
-      if (loadedDate != null)
-        'loadedDate': loadedDate.millisecondsSinceEpoch,
-      if (loadedTonnage != null)
-        'loadedTonnage': loadedTonnage,
+      if (loadedDate != null) 'loadedDate': loadedDate.millisecondsSinceEpoch,
+      if (loadedTonnage != null) 'loadedTonnage': loadedTonnage,
       if (distance != null)
         'loadedAdditionalData': <String, dynamic>{'kilometers': distance},
       if (loadedPhoto != null)
@@ -353,15 +418,24 @@ class OrderServerAPI {
       if (unloadedPhoto != null)
         'unloadedPhoto': base64Encode(await unloadedPhoto.readAsBytes()),
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_finishOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_finishOrder', parameters);
     await fetchProgress(order);
+  }
+
+  Future<void> consistOrder(Order order) async {
+    final dataMap = <String, dynamic>{};
+    order.encode(Encoder(dataMap));
+    await parse.update(
+        serverManager.server, Order.className, order.id, dataMap);
   }
 
   Future<void> cancel(Order order) async {
     final parameters = {
       'orderNumber': order.number,
     };
-    await callCloudFunction(serverManager.server, 'Dispatcher_cancelOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Dispatcher_cancelOrder', parameters);
     await fetchProgress(order);
   }
 
@@ -369,7 +443,8 @@ class OrderServerAPI {
     final parameters = {
       'orderNumber': order.number,
     };
-    await callCloudFunction(serverManager.server, 'Customer_cancelOrder', parameters);
+    await callCloudFunction(
+        serverManager.server, 'Customer_cancelOrder', parameters);
   }
 
   Future<void> delete(Order order) async {
@@ -377,11 +452,24 @@ class OrderServerAPI {
     order.deleted = true;
   }
 
-  parse.LiveQuerySubscription<Order> subscribe(User user, {OrderFilter filter}) => serverManager.liveQueryManager.subscribe(_makeListQuery(user, filter: filter), (decoder) => Order.decode(decoder));
-  parse.LiveQuerySubscription<Order> subscribeToReservations(User user, DateTime date) => serverManager.liveQueryManager.subscribe(_makeReservationListQuery(user, date), (decoder) => Order.decode(decoder));
-  parse.LiveQuerySubscription<Order> subscribeToChanges(Order order) => serverManager.liveQueryManager.subscribeToObjectChanges(Order.className, order.id, (decoder) => Order.decode(decoder));
+  parse.LiveQuerySubscription<Order> subscribe(User user,
+          {OrderFilter filter}) =>
+      serverManager.liveQueryManager.subscribe(
+          _makeListQuery(user, filter: filter),
+          (decoder) => Order.decode(decoder));
 
-  void unsubscribe(parse.LiveQuerySubscription<Order> subscription) => serverManager.liveQueryManager.unsubscribe(subscription);
+  parse.LiveQuerySubscription<Order> subscribeToReservations(
+          User user, DateTime date) =>
+      serverManager.liveQueryManager.subscribe(
+          _makeReservationListQuery(user, date),
+          (decoder) => Order.decode(decoder));
+
+  parse.LiveQuerySubscription<Order> subscribeToChanges(Order order) =>
+      serverManager.liveQueryManager.subscribeToObjectChanges(
+          Order.className, order.id, (decoder) => Order.decode(decoder));
+
+  void unsubscribe(parse.LiveQuerySubscription<Order> subscription) =>
+      serverManager.liveQueryManager.unsubscribe(subscription);
 
   Future<String> _createForCustomer(Order order) async {
     final parameters = {
@@ -392,7 +480,8 @@ class OrderServerAPI {
       'tonnage': order.tonnage,
       'comment': order.comment,
     };
-    final result = await callCloudFunction(serverManager.server, 'Customer_makeOrder', parameters);
+    final result = await callCloudFunction(
+        serverManager.server, 'Customer_makeOrder', parameters);
     final id = result['id'];
     if (id is! String) {
       throw InvalidResponseException();
@@ -467,8 +556,10 @@ class OrderServerAPI {
       builder.doesNotExist('offers');
     }
 
-    builder.greaterThanOrEqualToDate('unloadingBeginDate', date.beginningOfDay.toUtc());
-    builder.lessThanDate('unloadingBeginDate', date.add(Duration(days: 1)).beginningOfDay.toUtc());
+    builder.greaterThanOrEqualToDate(
+        'unloadingBeginDate', date.beginningOfDay.toUtc());
+    builder.lessThanDate('unloadingBeginDate',
+        date.add(Duration(days: 1)).beginningOfDay.toUtc());
 
     return builder;
   }
@@ -477,10 +568,8 @@ class OrderServerAPI {
     return [
       'author',
       'author.carrier',
-
       'articleBrand',
       'articleBrand.type',
-
       'intermediary',
       'supplier',
       'loadingPoint',
@@ -490,7 +579,6 @@ class OrderServerAPI {
       'unloadingPoint',
       'unloadingPoint.manager',
       'unloadingEntrance',
-
       'carriers',
       'carrierOffers',
       'carrierOffers.carrier',

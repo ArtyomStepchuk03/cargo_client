@@ -1,25 +1,25 @@
-import 'package:manager_mobile_client/src/logic/core/identifiable.dart';
 import 'package:manager_mobile_client/src/logic/coder/decoder.dart';
 import 'package:manager_mobile_client/src/logic/coder/encoder.dart';
+import 'package:manager_mobile_client/src/logic/core/identifiable.dart';
 
-import 'user.dart';
-import 'article_shape.dart';
 import 'article_brand.dart';
-import 'intermediary.dart';
-import 'supplier.dart';
-import 'customer.dart';
-import 'offer.dart';
+import 'article_shape.dart';
 import 'carrier_offer.dart';
+import 'customer.dart';
+import 'intermediary.dart';
+import 'offer.dart';
 import 'order_history_record.dart';
+import 'supplier.dart';
+import 'user.dart';
 
-export 'article_shape.dart';
 export 'article_brand.dart';
-export 'intermediary.dart';
-export 'supplier.dart';
-export 'customer.dart';
-export 'offer.dart';
+export 'article_shape.dart';
 export 'carrier_offer.dart';
+export 'customer.dart';
+export 'intermediary.dart';
+export 'offer.dart';
 export 'order_history_record.dart';
+export 'supplier.dart';
 
 class OrderType {
   final String raw;
@@ -43,6 +43,29 @@ class OrderType {
   int get hashCode => raw.hashCode;
 }
 
+class AgreeOrderType {
+  final String raw;
+
+  AgreeOrderType(this.raw);
+
+  AgreeOrderType.agree() : this('agree');
+
+  AgreeOrderType.notAgree() : this('not_agree');
+
+  @override
+  bool operator ==(dynamic other) {
+    if (other is! AgreeOrderType) {
+      return false;
+    }
+    final AgreeOrderType agreeOrderType = other;
+    return raw == agreeOrderType.raw;
+  }
+
+  @override
+  int get hashCode => raw.hashCode;
+}
+
+
 class OrderStatus {
   static const customerRequest = 'customerRequest';
   static const supplyReserved = 'supplyReserved';
@@ -55,6 +78,7 @@ class Order extends Identifiable<String> {
   DateTime createdAt;
   int number;
   String type;
+  String consistency;
   User author;
 
   ArticleShape articleShape;
@@ -207,7 +231,7 @@ class Order extends Identifiable<String> {
     decoded.lastProgressDate = decoder.decodeDate('lastProgressDate');
 
     decoded.deleted = decoder.decodeBooleanDefault('deleted');
-
+    decoded.consistency = decoder.decodeString('consistency');
     return decoded;
   }
 
@@ -244,6 +268,7 @@ class Order extends Identifiable<String> {
     encoder.encodeNumber('deliveryPriceType', deliveryPriceType?.index);
     encoder.encodeString('comment', comment);
     encoder.encodeNumber('inactivityTimeInterval', inactivityTimeInterval);
+    encoder.encodeString('consistency', consistency);
   }
 }
 
@@ -256,7 +281,7 @@ extension OrderUtility on Order {
   }
 
   bool isQueue() {
-    if (offers.isEmpty) return false;
+    if (offers == null || offers.isEmpty) return false;
     return offers.first.isQueue == true;
   }
 

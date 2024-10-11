@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:manager_mobile_client/src/logic/server_api/order_server_api.dart';
-import 'package:manager_mobile_client/src/ui/common/dialogs/activity_dialog.dart';
-import 'package:manager_mobile_client/src/ui/common/dialogs/error_dialog.dart';
-import 'package:manager_mobile_client/src/ui/common/dialogs/confirm_dialog.dart';
-import 'package:manager_mobile_client/src/ui/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/src/ui/carrier/carrier_list_widget.dart';
+import 'package:manager_mobile_client/src/ui/common/dialogs/activity_dialog.dart';
+import 'package:manager_mobile_client/src/ui/common/dialogs/confirm_dialog.dart';
+import 'package:manager_mobile_client/src/ui/common/dialogs/error_dialog.dart';
+import 'package:manager_mobile_client/src/ui/dependency/dependency_holder.dart';
+
 import 'order_send_strings.dart' as strings;
 
 Widget buildCarrierSendWidget(BuildContext context, Order order, User user) {
   return CarrierListWidget(
     selecting: true,
     confirmButtonTitle: strings.sendFloatingActionButton,
-    onConfirm: (Carrier carrier) => _processOrderSending(context, order, user, carrier),
+    onConfirm: (Carrier carrier) =>
+        _processOrderSending(context, order, user, carrier),
   );
 }
 
-void _processOrderSending(BuildContext context, Order order, User user, Carrier carrier) async {
+void _processOrderSending(
+    BuildContext context, Order order, User user, Carrier carrier) async {
   final dependencyState = DependencyHolder.of(context);
   final serverAPI = dependencyState.network.serverAPI.orders;
 
@@ -32,6 +35,16 @@ void _processOrderSending(BuildContext context, Order order, User user, Carrier 
 
     final cancelOffers = _shouldCancelOffers(order);
     final cancelCarriers = _shouldCancelCarrierOffers(order, user);
+    final shouldConsist = _shouldConsist(order, user);
+
+    if (shouldConsist) {
+      final consist = await showContinueDialog(context, strings.needConsist,
+          confirmButtonTitle: strings.agreeButton);
+      if (consist) {
+        order.consistency = AgreeOrderType.agree().raw;
+        await serverAPI.consistOrder(order);
+      }
+    }
 
     if (cancelOffers || cancelCarriers) {
       Navigator.pop(context);
@@ -55,6 +68,14 @@ void _processOrderSending(BuildContext context, Order order, User user, Carrier 
   } on Exception {
     Navigator.pop(context);
     await showDefaultErrorDialog(context);
+  }
+}
+
+bool _shouldConsist(Order order, User user) {
+  if ([Role.dispatcher, Role.administrator, Role.manager].contains(user.role)) {
+    return order.consistency == AgreeOrderType.notAgree().raw;
+  } else {
+    return false;
   }
 }
 

@@ -1,4 +1,5 @@
 const orderType = 'Тип заказа';
+const agreeTitle = 'Статус заказа';
 const intermediary = 'Дилер';
 const loadingType = 'Тип загрузки';
 const supplier = 'Поставщик';

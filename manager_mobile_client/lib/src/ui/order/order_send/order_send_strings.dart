@@ -1,6 +1,8 @@
 export 'package:manager_mobile_client/src/ui/order/order_details/order_details_strings.dart';
 
+const agreeButton = 'Согласовать';
 const alreadySent = 'Заказ уже передан, повторная передача отменит все предыдущие. Продолжить?';
+const needConsist = 'Заказ не согласован с Заказчиком. Необходимо согласовать заказ перед передачей исполнителю.';
 const send = 'Передать';
 
 const admissionProblems = 'Проблема с экипажем';

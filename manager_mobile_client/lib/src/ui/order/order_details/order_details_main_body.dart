@@ -1,25 +1,27 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
+import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/core/date_utility.dart';
 import 'package:manager_mobile_client/src/logic/core/number_parse.dart';
 import 'package:manager_mobile_client/src/logic/core/time_parse.dart';
-import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
-import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/order/entrance_coordinate_mismatch.dart';
+import 'package:manager_mobile_client/src/ui/common/floating_action_button.dart';
 import 'package:manager_mobile_client/src/ui/common/form/form.dart';
 import 'package:manager_mobile_client/src/ui/common/form/form_fields.dart';
-import 'package:manager_mobile_client/src/ui/common/floating_action_button.dart';
-import 'package:manager_mobile_client/src/ui/format/safe_format.dart';
-import 'package:manager_mobile_client/src/ui/format/date.dart';
-import 'package:manager_mobile_client/src/ui/format/price_type.dart';
-import 'package:manager_mobile_client/src/ui/format/vehicle_equipment.dart';
-import 'package:manager_mobile_client/src/ui/format/order.dart';
-import 'package:manager_mobile_client/src/ui/validators/common_validators.dart';
-import 'package:manager_mobile_client/src/ui/validators/validators_strings.dart' as validators_strings;
 import 'package:manager_mobile_client/src/ui/dependency/dependency_holder.dart';
-import 'order_distance_form_row.dart';
-import 'order_details_strings.dart' as strings;
+import 'package:manager_mobile_client/src/ui/format/date.dart';
+import 'package:manager_mobile_client/src/ui/format/order.dart';
+import 'package:manager_mobile_client/src/ui/format/price_type.dart';
+import 'package:manager_mobile_client/src/ui/format/safe_format.dart';
+import 'package:manager_mobile_client/src/ui/format/vehicle_equipment.dart';
+import 'package:manager_mobile_client/src/ui/validators/common_validators.dart';
+import 'package:manager_mobile_client/src/ui/validators/validators_strings.dart'
+    as validators_strings;
+
 import 'order_details_form_fields.dart';
+import 'order_details_strings.dart' as strings;
+import 'order_distance_form_row.dart';
 
 class OrderDetailsMainBody extends StatefulWidget {
   final Order order;
@@ -27,7 +29,13 @@ class OrderDetailsMainBody extends StatefulWidget {
   final bool editing;
   final bool insetForFloatingActionButton;
 
-  OrderDetailsMainBody({Key key, this.order, this.user, this.editing = false, this.insetForFloatingActionButton = false}) : super(key: key);
+  OrderDetailsMainBody(
+      {Key key,
+      this.order,
+      this.user,
+      this.editing = false,
+      this.insetForFloatingActionButton = false})
+      : super(key: key);
 
   @override
   State<StatefulWidget> createState() => OrderDetailsMainBodyState(editing);
@@ -37,7 +45,9 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   OrderDetailsMainBodyState(bool editing) : _editing = editing;
 
   void setEditing(bool editing) => setState(() => _editing = editing);
+
   void update() => setState(() {});
+
   void reset() => _formKey.currentState.reset();
 
   Order validate() {
@@ -54,7 +64,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     order.tonnage = parseDecimal(_tonnageKey.currentState.value);
     order.distance = _distanceKey.currentState.distance;
 
-    if (widget.user.role != Role.customer) {
+    var userRole = widget.user.role;
+    if (userRole != Role.customer) {
       order.intermediary = _intermediaryKey.currentState.value;
       order.supplier = _supplierKey.currentState.value;
       order.loadingPoint = _loadingPointKey.currentState.value;
@@ -62,39 +73,52 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
       order.loadingDate = _loadingDateKey.currentState.value;
     }
 
-    if (widget.user.role == Role.customer) {
+    if (userRole == Role.customer) {
       order.customer = widget.user.customer;
     } else {
       order.customer = _customerKey.currentState.value;
     }
     order.unloadingPoint = _unloadingPointKey.currentState.value;
-    if (widget.user.role != Role.customer) {
+    if (userRole != Role.customer) {
       order.unloadingEntrance = _unloadingEntranceKey.currentState.value;
     }
     order.unloadingContact = _unloadingContactKey.currentState.value;
-    order.unloadingBeginDate = DateUtility.fromDatePartAndTime(_unloadingDateKey.currentState.value, parseHour(_unloadingTimeBeginKey.currentState.value));
-    order.unloadingEndDate = DateUtility.fromDatePartAndTime(_unloadingDateKey.currentState.value, parseHour(_unloadingTimeEndKey.currentState.value));
+    order.unloadingBeginDate = DateUtility.fromDatePartAndTime(
+        _unloadingDateKey.currentState.value,
+        parseHour(_unloadingTimeBeginKey.currentState.value));
+    order.unloadingEndDate = DateUtility.fromDatePartAndTime(
+        _unloadingDateKey.currentState.value,
+        parseHour(_unloadingTimeEndKey.currentState.value));
 
     if (widget.user.canManageOrderSalePrice()) {
       order.salePriceType = _salePriceTypeKey.currentState.value;
-      order.saleTariff = _saleTariffKey.currentState.value.isNotEmpty ? parseDecimal(_saleTariffKey.currentState.value) : null;
-    } else if (widget.user.role != Role.customer) {
+      order.saleTariff = _saleTariffKey.currentState.value.isNotEmpty
+          ? parseDecimal(_saleTariffKey.currentState.value)
+          : null;
+    } else if (userRole != Role.customer) {
       order.salePriceType = _customerKey.currentState.value.priceType;
     } else {
       order.salePriceType = widget.user.customer.priceType;
     }
-    if (widget.user.role != Role.customer) {
+    if (userRole != Role.customer) {
       order.deliveryPriceType = _deliveryPriceTypeKey.currentState.value;
-      order.deliveryTariff = _deliveryTariffKey.currentState.value.isNotEmpty ? parseDecimal(_deliveryTariffKey.currentState.value) : null;
+      order.deliveryTariff = _deliveryTariffKey.currentState.value.isNotEmpty
+          ? parseDecimal(_deliveryTariffKey.currentState.value)
+          : null;
     } else {
       order.deliveryPriceType = PriceType.notOneTime;
     }
 
-    order.comment = _commentKey.currentState.value == null || _commentKey.currentState.value.isEmpty ? null : _commentKey.currentState.value;
-    if (widget.user.role != Role.customer) {
-      order.inactivityTimeInterval = scanHours(_inactivityTimeIntervalKey.currentState.value);
+    order.comment = _commentKey.currentState.value == null ||
+            _commentKey.currentState.value.isEmpty
+        ? null
+        : _commentKey.currentState.value;
+    if (userRole != Role.customer) {
+      order.inactivityTimeInterval =
+          scanHours(_inactivityTimeIntervalKey.currentState.value);
     }
-
+    if ([Role.manager, Role.administrator, Role.dispatcher].contains(userRole))
+      order.consistency = _agreeTypeKey.currentState?.value?.raw;
     return order;
   }
 
@@ -120,6 +144,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   final _formKey = GlobalKey<ScrollableFormState>();
 
   final _typeKey = GlobalKey<EnumerationFormFieldState<OrderType>>();
+  final _agreeTypeKey = GlobalKey<EnumerationFormFieldState<AgreeOrderType>>();
   final _intermediaryKey = GlobalKey<LoadingListFormFieldState<Intermediary>>();
   final _loadingTypeKey = GlobalKey<EnumerationFormFieldState<LoadingType>>();
   final _supplierKey = GlobalKey<LoadingListFormFieldState<Supplier>>();
@@ -127,27 +152,32 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   final _loadingEntranceKey = GlobalKey<LoadingListFormFieldState<Entrance>>();
   final _loadingDateKey = GlobalKey<FormFieldState<DateTime>>();
   final _customerKey = GlobalKey<LoadingListFormFieldState<Customer>>();
-  final _unloadingPointKey = GlobalKey<LoadingListFormFieldState<UnloadingPoint>>();
-  final _unloadingEntranceKey = GlobalKey<LoadingListFormFieldState<Entrance>>();
+  final _unloadingPointKey =
+      GlobalKey<LoadingListFormFieldState<UnloadingPoint>>();
+  final _unloadingEntranceKey =
+      GlobalKey<LoadingListFormFieldState<Entrance>>();
   final _unloadingContactKey = GlobalKey<LoadingListFormFieldState<Contact>>();
   final _unloadingDateKey = GlobalKey<FormFieldState<DateTime>>();
   final _unloadingTimeBeginKey = GlobalKey<FormFieldState<String>>();
   final _unloadingTimeEndKey = GlobalKey<FormFieldState<String>>();
-  final _articleTypeListKey = GlobalKey<LoadingListFormFieldState<ArticleType>>();
+  final _articleTypeListKey =
+      GlobalKey<LoadingListFormFieldState<ArticleType>>();
   final _articleTypeKey = GlobalKey<CustomTextFormFieldState>();
   final _articleBrandKey = GlobalKey<LoadingListFormFieldState<ArticleBrand>>();
   final _tonnageKey = GlobalKey<FormFieldState<String>>();
   final _distanceKey = GlobalKey<OrderDistanceFormRowState>();
   final _salePriceTypeKey = GlobalKey<EnumerationFormFieldState<PriceType>>();
   final _saleTariffKey = GlobalKey<CustomTextFormFieldState>();
-  final _deliveryPriceTypeKey = GlobalKey<EnumerationFormFieldState<PriceType>>();
+  final _deliveryPriceTypeKey =
+      GlobalKey<EnumerationFormFieldState<PriceType>>();
   final _deliveryTariffKey = GlobalKey<CustomTextFormFieldState>();
   final _commentKey = GlobalKey<FormFieldState<String>>();
   final _inactivityTimeIntervalKey = GlobalKey<FormFieldState<String>>();
 
   Widget _buildUpperGroup(DependencyState dependencyState, Order order) {
     return buildFormGroup([
-      buildFormRow(Icons.local_shipping,
+      buildFormRow(
+        Icons.local_shipping,
         EnumerationFormField<OrderType>(
           key: _typeKey,
           initialValue: OrderType(order.type),
@@ -158,7 +188,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           enabled: _editing,
         ),
       ),
-      buildFormRow(Icons.business_center,
+      buildFormRow(
+        Icons.business_center,
         buildIntermediaryFormField(
           _intermediaryKey,
           order.intermediary,
@@ -174,7 +205,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     final configurationLoader = dependencyState.network.configurationLoader;
     return buildFormGroup([
       if (widget.user.role != Role.customer)
-        buildFormRow(Icons.assignment_ind,
+        buildFormRow(
+          Icons.assignment_ind,
           buildCustomerFormField(
             dependencyState: dependencyState,
             key: _customerKey,
@@ -184,46 +216,66 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             enabled: _editing,
           ),
         ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildUnloadingPointFormField(
           context: context,
           key: _unloadingPointKey,
           initialValue: order.unloadingPoint,
-          noteText: formatEquipmentRequirements(_unloadingPointKey.currentState != null ? _unloadingPointKey.currentState.value : widget.order.unloadingPoint),
+          noteText: formatEquipmentRequirements(
+              _unloadingPointKey.currentState != null
+                  ? _unloadingPointKey.currentState.value
+                  : widget.order.unloadingPoint),
           customerServerAPI: dependencyState.network.serverAPI.customers,
           cacheMap: dependencyState.caches.unloadingPoint,
-          customer: widget.user.role == Role.customer ? widget.user.customer : _customerKey.currentState != null ? _customerKey.currentState.value : order.customer,
+          customer: widget.user.role == Role.customer
+              ? widget.user.customer
+              : _customerKey.currentState != null
+                  ? _customerKey.currentState.value
+                  : order.customer,
           user: widget.user,
           onChanged: _handleUnloadingPointChanged,
           enabled: _editing,
         ),
       ),
       if (widget.user.role != Role.customer)
-        buildFormRow(Icons.location_on,
+        buildFormRow(
+          Icons.location_on,
           buildUnloadingEntranceFormField(
             key: _unloadingEntranceKey,
             initialValue: order.unloadingEntrance,
-            additionalErrorText: hasUnloadingEntranceCoordinateMismatch(order, configurationLoader.configuration) ? strings.coordinateMismatch : null,
-            unloadingPointServerAPI: dependencyState.network.serverAPI.unloadingPoints,
+            additionalErrorText: hasUnloadingEntranceCoordinateMismatch(
+                    order, configurationLoader.configuration)
+                ? strings.coordinateMismatch
+                : null,
+            unloadingPointServerAPI:
+                dependencyState.network.serverAPI.unloadingPoints,
             cacheMap: dependencyState.caches.unloadingEntrance,
-            unloadingPoint: _unloadingPointKey.currentState != null ? _unloadingPointKey.currentState.value : order.unloadingPoint,
+            unloadingPoint: _unloadingPointKey.currentState != null
+                ? _unloadingPointKey.currentState.value
+                : order.unloadingPoint,
             user: widget.user,
             enabled: _editing,
           ),
         ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildUnloadingContactFormField(
           context: context,
           key: _unloadingContactKey,
           initialValue: order.unloadingContact,
-          unloadingPointServerAPI: dependencyState.network.serverAPI.unloadingPoints,
+          unloadingPointServerAPI:
+              dependencyState.network.serverAPI.unloadingPoints,
           cacheMap: dependencyState.caches.unloadingContact,
-          unloadingPoint: _unloadingPointKey.currentState != null ? _unloadingPointKey.currentState.value : order.unloadingPoint,
+          unloadingPoint: _unloadingPointKey.currentState != null
+              ? _unloadingPointKey.currentState.value
+              : order.unloadingPoint,
           user: widget.user,
           editing: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         DateFormField(
           key: _unloadingDateKey,
           initialValue: order.unloadingBeginDate?.toLocal(),
@@ -233,29 +285,53 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           enabled: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildHourOnlyFormField(
           key: _unloadingTimeBeginKey,
           initialValue: order.unloadingBeginDate?.toLocal()?.hour,
           label: strings.unloadingTimeBegin,
-          validators: [RequiredValidator(), HourRangeBeginValidator.build(_unloadingTimeEndKey, validators_strings.timeGreaterThanEnd)],
+          validators: [
+            RequiredValidator(),
+            HourRangeBeginValidator.build(
+                _unloadingTimeEndKey, validators_strings.timeGreaterThanEnd)
+          ],
           enabled: _editing,
         ),
         buildHourOnlyFormField(
           key: _unloadingTimeEndKey,
-          initialValue: order.unloadingEndDate?.toLocal()?.hour ?? order.unloadingBeginDate?.toLocal()?.hour,
+          initialValue: order.unloadingEndDate?.toLocal()?.hour ??
+              order.unloadingBeginDate?.toLocal()?.hour,
           label: strings.unloadingTimeEnd,
-          validators: [RequiredValidator(), HourRangeEndValidator.build(_unloadingTimeBeginKey, validators_strings.timeLessThanBegin)],
+          validators: [
+            RequiredValidator(),
+            HourRangeEndValidator.build(
+                _unloadingTimeBeginKey, validators_strings.timeLessThanBegin)
+          ],
           enabled: _editing,
         ),
       ),
+      if ([Role.administrator, Role.dispatcher, Role.manager]
+          .contains(widget.user.role))
+        buildFormRow(
+            null,
+            EnumerationFormField<AgreeOrderType>(
+              key: _agreeTypeKey,
+              initialValue: AgreeOrderType(order.consistency),
+              values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
+              formatter: formatAgreeOrderType,
+              label: strings.agreeTitle,
+              validator: RequiredValidator(),
+              enabled: _editing,
+            ))
     ]);
   }
 
   Widget _buildSupplierGroup(DependencyState dependencyState, Order order) {
     final configurationLoader = dependencyState.network.configurationLoader;
     return buildFormGroup([
-      buildFormRow(Icons.location_city,
+      buildFormRow(
+        Icons.location_city,
         EnumerationFormField<LoadingType>(
           key: _loadingTypeKey,
           initialValue: _getInitialLoadingType(),
@@ -267,40 +343,54 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           enabled: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildSupplierFormField(
           dependencyState: dependencyState,
           key: _supplierKey,
           initialValue: order.supplier,
-          loadingType: _loadingTypeKey.currentState != null ? _loadingTypeKey.currentState.value : _getInitialLoadingType(),
+          loadingType: _loadingTypeKey.currentState != null
+              ? _loadingTypeKey.currentState.value
+              : _getInitialLoadingType(),
           user: widget.user,
           onChanged: _handleSupplierChanged,
           enabled: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildLoadingPointFormField(
           _loadingPointKey,
           order.loadingPoint,
           dependencyState.network.serverAPI.suppliers,
           dependencyState.caches.loadingPoint,
-          _supplierKey.currentState != null ? _supplierKey.currentState.value : order.supplier,
+          _supplierKey.currentState != null
+              ? _supplierKey.currentState.value
+              : order.supplier,
           _handleLoadingPointChanged,
           _editing,
         ),
       ),
-      buildFormRow(Icons.location_on,
+      buildFormRow(
+        Icons.location_on,
         buildLoadingEntranceFormField(
           key: _loadingEntranceKey,
           initialValue: order.loadingEntrance,
-          additionalErrorText: hasLoadingEntranceCoordinateMismatch(order, configurationLoader.configuration) ? strings.coordinateMismatch : null,
-          loadingPointServerAPI: dependencyState.network.serverAPI.loadingPoints,
+          additionalErrorText: hasLoadingEntranceCoordinateMismatch(
+                  order, configurationLoader.configuration)
+              ? strings.coordinateMismatch
+              : null,
+          loadingPointServerAPI:
+              dependencyState.network.serverAPI.loadingPoints,
           cacheMap: dependencyState.caches.loadingEntrance,
-          loadingPoint: _loadingPointKey.currentState != null ? _loadingPointKey.currentState.value : order.loadingPoint,
+          loadingPoint: _loadingPointKey.currentState != null
+              ? _loadingPointKey.currentState.value
+              : order.loadingPoint,
           enabled: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         DateFormField(
           key: _loadingDateKey,
           initialValue: order.loadingDate?.toLocal(),
@@ -317,7 +407,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   Widget _buildArticleGroup(DependencyState dependencyState, Order order) {
     return buildFormGroup([
       if (widget.user.role == Role.customer) ...[
-        buildFormRow(Icons.local_mall,
+        buildFormRow(
+          Icons.local_mall,
           buildArticleTypeFormField(
             _articleTypeListKey,
             order.articleBrand?.type,
@@ -327,36 +418,42 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             _editing,
           ),
         ),
-        buildFormRow(null,
+        buildFormRow(
+          null,
           buildArticleBrandFormField(
             _articleBrandKey,
             order.articleBrand,
             dependencyState.network.serverAPI.articleBrands,
             dependencyState.caches.articleBrand,
-            _articleTypeListKey.currentState != null ? _articleTypeListKey.currentState.value : order.articleBrand?.type,
+            _articleTypeListKey.currentState != null
+                ? _articleTypeListKey.currentState.value
+                : order.articleBrand?.type,
             _editing,
           ),
         ),
       ] else ...[
-        buildFormRow(Icons.local_mall,
+        buildFormRow(
+          Icons.local_mall,
           buildArticleTypeDisplayFormField(
-            _articleTypeKey,
-            order.articleBrand?.type
-          ),
+              _articleTypeKey, order.articleBrand?.type),
         ),
-        buildFormRow(null,
+        buildFormRow(
+          null,
           buildSupplierArticleBrandFormField(
             _articleBrandKey,
             order.articleBrand,
             dependencyState.network.serverAPI.suppliers,
             dependencyState.caches.supplierArticleBrand,
-            _supplierKey.currentState != null ? _supplierKey.currentState.value : order.supplier,
+            _supplierKey.currentState != null
+                ? _supplierKey.currentState.value
+                : order.supplier,
             _handleArticleBrandChanged,
             _editing,
           ),
         ),
       ],
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildCustomNumberFormField(
           key: _tonnageKey,
           initialValue: numberOrEmpty(order.tonnage),
@@ -368,8 +465,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
       OrderDistanceFormRow(
         key: _distanceKey,
         initialValue: order.distance,
-        loadingPoint: _loadingPointKey.currentState != null ? _loadingPointKey.currentState.value : order.loadingPoint,
-        unloadingPoint: _unloadingPointKey.currentState != null ? _unloadingPointKey.currentState.value : order.unloadingPoint,
+        loadingPoint: _loadingPointKey.currentState != null
+            ? _loadingPointKey.currentState.value
+            : order.loadingPoint,
+        unloadingPoint: _unloadingPointKey.currentState != null
+            ? _unloadingPointKey.currentState.value
+            : order.unloadingPoint,
         editing: _editing,
       ),
     ]);
@@ -378,7 +479,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   Widget _buildPriceGroup(DependencyState dependencyState, Order order) {
     return buildFormGroup([
       if (widget.user.canManageOrderSalePrice()) ...[
-        buildFormRow(Icons.account_balance_wallet,
+        buildFormRow(
+          Icons.account_balance_wallet,
           EnumerationFormField<PriceType>(
             key: _salePriceTypeKey,
             initialValue: order.salePriceType ?? order.customer?.priceType,
@@ -389,7 +491,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             enabled: _editing,
           ),
         ),
-        buildFormRow(null,
+        buildFormRow(
+          null,
           buildCustomNumberFormField(
             key: _saleTariffKey,
             initialValue: numberOrEmpty(order.saleTariff),
@@ -399,7 +502,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           ),
         ),
       ],
-      buildFormRow(Icons.account_balance_wallet,
+      buildFormRow(
+        Icons.account_balance_wallet,
         EnumerationFormField<PriceType>(
           key: _deliveryPriceTypeKey,
           initialValue: order.deliveryPriceType ?? PriceType.notOneTime,
@@ -410,7 +514,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           enabled: _editing,
         ),
       ),
-      buildFormRow(null,
+      buildFormRow(
+        null,
         buildCustomNumberFormField(
           key: _deliveryTariffKey,
           initialValue: numberOrEmpty(order.deliveryTariff),
@@ -422,9 +527,11 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     ]);
   }
 
-  Widget _buildMiscellaneousGroup(DependencyState dependencyState, Order order) {
+  Widget _buildMiscellaneousGroup(
+      DependencyState dependencyState, Order order) {
     return buildFormGroup([
-      buildFormRow(Icons.comment,
+      buildFormRow(
+        Icons.comment,
         CustomTextFormField(
           key: _commentKey,
           initialValue: textOrEmpty(order.comment),
@@ -433,10 +540,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
         ),
       ),
       if (widget.user.role != Role.customer)
-        buildFormRow(null,
+        buildFormRow(
+          null,
           buildCustomIntegerFormField(
             key: _inactivityTimeIntervalKey,
-            initialValue: formatHours(order.inactivityTimeInterval ?? defaultInactivityTimeInterval),
+            initialValue: formatHours(
+                order.inactivityTimeInterval ?? defaultInactivityTimeInterval),
             label: strings.inactivityTimeInterval,
             enabled: _editing,
           ),
@@ -457,7 +566,9 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
 
   void _handleCustomerChanged(Customer value) {
     _unloadingPointKey.currentState.value = null;
-    if (_salePriceTypeKey.currentState != null) _salePriceTypeKey.currentState.value = _customerKey.currentState.value.priceType;
+    if (_salePriceTypeKey.currentState != null)
+      _salePriceTypeKey.currentState.value =
+          _customerKey.currentState.value.priceType;
     setState(() {});
   }
 
@@ -467,7 +578,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   }
 
   void _handleUnloadingPointChanged(UnloadingPoint value) {
-    if (_unloadingEntranceKey.currentState != null) _unloadingEntranceKey.currentState.value = null;
+    if (_unloadingEntranceKey.currentState != null)
+      _unloadingEntranceKey.currentState.value = null;
     _unloadingContactKey.currentState.value = null;
     setState(() {});
   }
@@ -482,7 +594,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     setState(() {});
   }
 
-  LoadingType _getInitialLoadingType() => widget.order.supplier?.getLoadingType() ?? LoadingType.supplier;
+  LoadingType _getInitialLoadingType() =>
+      widget.order.supplier?.getLoadingType() ?? LoadingType.supplier;
 
   static const defaultInactivityTimeInterval = 24 * 60 * 60 * 1000;
 }

@@ -23,6 +23,9 @@ const suppliers = 'Поставщики';
 const orderTypeNormal = 'Обычный';
 const orderTypeCarriage = 'Перевозка';
 
+const agree = 'Согласован';
+const notAgree = 'Не согласован';
+
 const loadingTypeSupplier = 'Поставщик';
 const loadingTypeTransfer = 'Перевалка';
 

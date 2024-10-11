@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:manager_mobile_client/src/logic/server_api/order_server_api.dart';
 import 'package:manager_mobile_client/src/logic/vehicle/vehicle_admission.dart';
 import 'package:manager_mobile_client/src/ui/common/dialogs/activity_dialog.dart';
-import 'package:manager_mobile_client/src/ui/common/dialogs/error_dialog.dart';
 import 'package:manager_mobile_client/src/ui/common/dialogs/confirm_dialog.dart';
+import 'package:manager_mobile_client/src/ui/common/dialogs/error_dialog.dart';
 import 'package:manager_mobile_client/src/ui/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/src/ui/transport_unit/transport_unit_tab_widget.dart';
+
 import 'order_send_strings.dart' as strings;
 
-Widget buildTransportUnitSendWidget(BuildContext context, Order order, User user) {
+Widget buildTransportUnitSendWidget(
+    BuildContext context, Order order, User user) {
   return TransportUnitTabWidget(
     user: user,
     selecting: true,
     confirmButtonTitle: strings.sendFloatingActionButton,
-    onConfirm: (TransportUnit transportUnit) => _processOrderSending(context, order, user, transportUnit),
+    onConfirm: (TransportUnit transportUnit) =>
+        _processOrderSending(context, order, user, transportUnit),
   );
 }
 
-void _processOrderSending(BuildContext context, Order order, User user, TransportUnit transportUnit) async {
+void _processOrderSending(BuildContext context, Order order, User user,
+    TransportUnit transportUnit) async {
   final serverAPI = DependencyHolder.of(context).network.serverAPI;
 
   try {
@@ -28,7 +32,8 @@ void _processOrderSending(BuildContext context, Order order, User user, Transpor
     final admissionProblems = transportUnit.checkAdmission(DateTime.now());
     if (admissionProblems.hasProblems) {
       Navigator.pop(context);
-      final confirmed = await _showAdmissionProblemsDialog(context, admissionProblems);
+      final confirmed =
+          await _showAdmissionProblemsDialog(context, admissionProblems);
       if (!confirmed) {
         return;
       }
@@ -36,10 +41,12 @@ void _processOrderSending(BuildContext context, Order order, User user, Transpor
     }
 
     if (!transportUnit.driver.internal) {
-      final powerOfAttorney = await serverAPI.drivers.verify(transportUnit.driver);
+      final powerOfAttorney =
+          await serverAPI.drivers.verify(transportUnit.driver);
       if (!powerOfAttorney) {
         Navigator.pop(context);
-        final confirmed = await showContinueDialog(context, strings.noPowerOfAttorney);
+        final confirmed =
+            await showContinueDialog(context, strings.noPowerOfAttorney);
         if (!confirmed) {
           return;
         }
@@ -56,11 +63,23 @@ void _processOrderSending(BuildContext context, Order order, User user, Transpor
     }
 
     final cancelOffers = _shouldCancelOffers(order);
-    final cancelCarriers = _shouldCancelCarrierOffers(order, user, transportUnit.driver.carrier);
+    final cancelCarriers =
+        _shouldCancelCarrierOffers(order, user, transportUnit.driver.carrier);
+    final consistOrder = _isConsistOrder(order, user);
+
+    if (consistOrder) {
+      final confirmed = await showContinueDialog(context, strings.needConsist,
+          confirmButtonTitle: strings.agreeButton);
+      if (confirmed) {
+        order.consistency = AgreeOrderType.agree().raw;
+        await serverAPI.orders.consistOrder(order);
+      }
+    }
 
     if (cancelOffers || cancelCarriers) {
       Navigator.pop(context);
-      final confirmed = await showContinueDialog(context, strings.alreadySent, confirmButtonTitle: strings.send);
+      final confirmed = await showContinueDialog(context, strings.alreadySent,
+          confirmButtonTitle: strings.send);
       if (!confirmed) {
         return;
       }
@@ -91,7 +110,15 @@ void _processOrderSending(BuildContext context, Order order, User user, Transpor
   }
 }
 
-Future<bool> _showAdmissionProblemsDialog(BuildContext context, VehicleAdmissionProblems problems) async {
+bool _isConsistOrder(Order order, User user) {
+  if ([Role.manager, Role.administrator, Role.dispatcher].contains(user.role)) {
+    return order.consistency == AgreeOrderType.notAgree().raw;
+  }
+  return false;
+}
+
+Future<bool> _showAdmissionProblemsDialog(
+    BuildContext context, VehicleAdmissionProblems problems) async {
   final problemStrings = [
     if (problems.vehicleInspectionExpired) strings.vehicleInspectionExpired,
     if (problems.trailerInspectionExpired) strings.trailerInspectionExpired,
@@ -99,7 +126,8 @@ Future<bool> _showAdmissionProblemsDialog(BuildContext context, VehicleAdmission
     if (problems.passExpired) strings.passExpired,
     if (problems.passCanceled) strings.passCanceled,
   ];
-  final text = '${strings.admissionProblems}:\n\n${problemStrings.join('\n')}\n\n${strings.continueQuestion}';
+  final text =
+      '${strings.admissionProblems}:\n\n${problemStrings.join('\n')}\n\n${strings.continueQuestion}';
   return await showContinueDialog(context, text);
 }
 
@@ -114,14 +142,16 @@ bool _shouldCancelCarrierOffers(Order order, User user, Carrier carrier) {
   if (order.carrierOffers == null || order.carrierOffers.isEmpty) {
     return false;
   }
-  return !order.carrierOffers.any((carrierOffer) => carrierOffer.carrier == carrier);
+  return !order.carrierOffers
+      .any((carrierOffer) => carrierOffer.carrier == carrier);
 }
 
 bool _canSendOrder(Order order) {
   return order.distributedTonnage == 0;
 }
 
-Future<void> _deliverOrder(OrderServerAPI serverAPI, Order order, TransportUnit transportUnit) async {
+Future<void> _deliverOrder(
+    OrderServerAPI serverAPI, Order order, TransportUnit transportUnit) async {
   if (transportUnit.application) {
     await serverAPI.sendOffer(order, transportUnit);
   } else {
