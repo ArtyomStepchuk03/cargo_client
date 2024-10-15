@@ -123,7 +123,8 @@ class OrderListCard extends StatelessWidget {
 
     if (offer.trip == null) {
       if (!order.isQueue()) return Color.fromARGB(0xFF, 0xFC, 0xB7, 0x68);
-      else return colorPaletter.transferred;
+      if (order.isQueue())  return Color(0xFFB9F6CA);
+      return colorPaletter.transferred;
     }
     if (offer.trip.stage != TripStage.unloaded) {
       return colorPaletter.inProgress;
