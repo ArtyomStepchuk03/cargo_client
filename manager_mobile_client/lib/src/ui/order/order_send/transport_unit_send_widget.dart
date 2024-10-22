@@ -73,6 +73,9 @@ void _processOrderSending(BuildContext context, Order order, User user,
       if (confirmed) {
         order.consistency = AgreeOrderType.agree().raw;
         await serverAPI.orders.consistOrder(order);
+      } else {
+        Navigator.pop(context); // Закрытие диалога активности (если открыт)
+        return;
       }
     }
 
