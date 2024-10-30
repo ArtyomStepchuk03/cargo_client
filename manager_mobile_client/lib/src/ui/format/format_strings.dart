@@ -64,7 +64,7 @@ const orderAcceptedByYou = 'Вы подтвердили';
 const orderDeclinedByYou = 'Вы отказались';
 const offerUnaccepted = 'Не принят';
 const offerAccepted = 'Принят';
-const offerDeclined = 'Отклонен';
+const offerDeclined = 'Отказался';
 
 const drivingForLoading = 'Выехал под загрузку';
 const inLoadingPoint = 'Прибыл в пункт загрузки';
