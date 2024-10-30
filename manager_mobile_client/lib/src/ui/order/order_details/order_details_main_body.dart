@@ -311,7 +311,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           enabled: _editing,
         ),
       ),
-      if ([Role.administrator, Role.dispatcher, Role.manager]
+      if ([Role.administrator, Role.logistician, Role.manager]
           .contains(widget.user.role))
         buildFormRow(
             null,
