@@ -317,7 +317,6 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             null,
             EnumerationFormField<AgreeOrderType>(
               key: _agreeTypeKey,
-              initialValue: AgreeOrderType(order.consistency),
               values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
               formatter: formatAgreeOrderType,
               label: strings.agreeTitle,
