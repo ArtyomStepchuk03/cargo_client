@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/feature/main_page/main_screen.dart';
-import 'package:manager_mobile_client/feature/main_page/main_widget.dart';
+import 'package:manager_mobile_client/util/format/user.dart';
 import 'package:manager_mobile_client/util/image.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
@@ -23,14 +25,14 @@ class MainMenuWidget extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return Material(
       elevation: 4.0,
       child: UserAccountsDrawerHeader(
         decoration:
             BoxDecoration(color: Theme.of(context).appBarTheme.backgroundColor),
         margin: EdgeInsets.zero,
-        accountName: Text(authorizationState.userTitle),
+        accountName: Text(formatUserSafe(context, authorizationState.user)),
         accountEmail: null,
         currentAccountPicture: FittedBox(
           fit: BoxFit.fill,
@@ -42,7 +44,7 @@ class MainMenuWidget extends StatelessWidget {
 
   List<Widget> _buildItems(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
-    final user = AuthPage.of(context).user;
+    final user = context.read<AuthCubit>().state.user;
     return [
       ...buildMainScreens(user)
           .map((screen) => _buildItemForScreen(context, screen)),
@@ -63,7 +65,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.table_view,
           title: localizationUtil.requests,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/reservations'),
         );
       case MainScreen.orders:
         return _buildItem(
@@ -71,7 +73,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.departure_board,
           title: localizationUtil.order,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/orders'),
         );
       case MainScreen.customers:
         return _buildItem(
@@ -79,7 +81,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.assignment_ind,
           title: localizationUtil.customers,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/customers'),
         );
       case MainScreen.suppliers:
         return _buildItem(
@@ -87,7 +89,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.warehouse,
           title: localizationUtil.suppliers,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/suppliers'),
         );
       case MainScreen.transportUnits:
         return _buildItem(
@@ -95,7 +97,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.people,
           title: localizationUtil.carriages,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/transportUnits'),
         );
       case MainScreen.messages:
         return _buildItem(
@@ -103,7 +105,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.message,
           title: localizationUtil.messages,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/messages'),
         );
       case MainScreen.myData:
         return _buildItem(
@@ -111,7 +113,7 @@ class MainMenuWidget extends StatelessWidget {
           mainScreen: mainScreen,
           icon: Icons.account_circle,
           title: localizationUtil.myDetails,
-          onTap: () => _showScreen(context, mainScreen),
+          onTap: () => context.go('/myData'),
         );
     }
     return null;
@@ -124,30 +126,23 @@ class MainMenuWidget extends StatelessWidget {
     String title,
     VoidCallback onTap,
   }) {
-    final mainState = MainWidget.of(context);
     return ListTile(
       leading: Icon(icon),
       title: Text(title),
-      selected: mainScreen != null && mainState.screen == mainScreen,
+      selected: mainScreen != null &&
+          GoRouter.of(context).location.contains(mainScreen.name),
       onTap: onTap,
     );
   }
 
-  void _showScreen(BuildContext context, MainScreen mainScreen) {
-    final mainState = MainWidget.of(context);
-    mainState.menuItemSelected();
-    mainState.screen = mainScreen;
-  }
-
   void _logOut(BuildContext context) async {
     final dependencyState = DependencyHolder.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>();
 
     final serverManager = dependencyState.network.serverManager;
     final installationManager = dependencyState.network.installationManager;
     final userManager = dependencyState.network.userManager;
 
-    MainWidget.of(context).menuItemSelected();
     authorizationState.setLoading();
 
     await installationManager.detachUser();
@@ -158,7 +153,9 @@ class MainMenuWidget extends StatelessWidget {
 
       authorizationState.setUnauthorized();
     } on Exception {
-      authorizationState.setErrored();
+      authorizationState.setError();
     }
+
+    context.go('/auth');
   }
 }

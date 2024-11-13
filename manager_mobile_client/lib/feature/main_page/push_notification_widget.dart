@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/dialogs/activity_dialog.dart';
 import 'package:manager_mobile_client/common/dialogs/confirm_dialog.dart';
 import 'package:manager_mobile_client/common/dialogs/error_dialog.dart';
 import 'package:manager_mobile_client/common/dialogs/information_dialog.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/feature/order_page/view/order_details/order_details_widget.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
@@ -83,7 +84,7 @@ class PushNotificationState extends State<PushNotificationWidget> {
         await showInformationDialog(context, localizationUtil.orderNotFound);
         return;
       }
-      final authorizationState = AuthPage.of(context);
+      final authorizationState = context.read<AuthCubit>().state;
       await Navigator.push(
           context,
           MaterialPageRoute(

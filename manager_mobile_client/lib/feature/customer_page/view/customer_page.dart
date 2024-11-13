@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/customer_page/customer_data_source.dart';
 import 'package:manager_mobile_client/feature/customer_page/widget/customer_add/customer_add_widget.dart';
 import 'package:manager_mobile_client/feature/customer_page/widget/customer_search/customer_search.dart';
@@ -19,7 +20,7 @@ class CustomerListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return Scaffold(
       appBar: buildAppBar(
         title: Text(localizationUtil.customers),
@@ -43,7 +44,7 @@ class CustomerListWidget extends StatelessWidget {
   }
 
   Widget _buildSearchButton(BuildContext context) {
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return IconButton(
       icon: Icon(Icons.search),
       onPressed: () {
@@ -55,7 +56,7 @@ class CustomerListWidget extends StatelessWidget {
 
   PopupMenuButton _buildMoreMenuButton(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     if (!authorizationState.user.canAddCustomers()) {
       return null;
     }
@@ -72,7 +73,7 @@ class CustomerListWidget extends StatelessWidget {
   }
 
   void _showAddWidget(BuildContext context) async {
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     final customer = await Navigator.push(
         context,
         MaterialPageRoute(

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/form/contact/multiple_contact_form_group.dart';
 import 'package:manager_mobile_client/common/form/form.dart';
 import 'package:manager_mobile_client/common/form/form_fields.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/server_api/customer_server_api.dart';
@@ -29,7 +30,7 @@ class CustomerMyDataState extends State<CustomerMyDataWidget> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_user == null) {
-      _user = AuthPage.of(context).user;
+      _user = context.read<AuthCubit>().state.user;
       if (!_user.customer.internal) {
         _getStatus(context);
       }

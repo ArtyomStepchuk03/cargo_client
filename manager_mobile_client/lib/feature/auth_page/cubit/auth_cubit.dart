@@ -16,20 +16,8 @@ class AuthCubit extends Cubit<AuthState> {
 
   void setUnauthorized(
       {String message, String lastCompanyName, String lastUserName}) {
-    if (message == null) {
-      message = state.message;
-    }
-
-    if (lastCompanyName == null) {
-      lastCompanyName = state.lastCompanyName;
-    }
-
-    if (lastUserName == null) {
-      lastUserName = state.lastUserName;
-    }
-
     emit(UnauthorizedAuthState(
-        user: state.user,
+        user: null,
         message: message,
         lastCompanyName: lastCompanyName,
         lastUserName: lastUserName));

@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manager_mobile_client/common/fullscreen_activity_widget.dart';
 import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/auth_page/widget/authorization_error_widget.dart';
 import 'package:manager_mobile_client/feature/auth_page/widget/log_in_widget.dart';
 import 'package:manager_mobile_client/feature/auth_page/widget/no_internet_widget.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
-import 'package:manager_mobile_client/feature/main_page/main_widget.dart';
 import 'package:manager_mobile_client/src/logic/external/push_notification_client.dart';
 import 'package:manager_mobile_client/src/logic/external/reachability.dart';
 import 'package:manager_mobile_client/src/logic/server_manager/server_manager.dart';
@@ -19,18 +19,12 @@ import 'package:manager_mobile_client/util/format/user.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
 class AuthPage extends StatefulWidget {
-  static AuthPageState of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_AuthorizationScopeWidget>()
-        .state;
-  }
-
   @override
-  State createState() => AuthPageState();
+  State createState() => _AuthPageState();
 }
 
-class AuthPageState extends State<AuthPage> {
-  AuthPageState()
+class _AuthPageState extends State<AuthPage> {
+  _AuthPageState()
       : _connected = false,
         _sessionChecked = false;
 
@@ -98,16 +92,17 @@ class AuthPageState extends State<AuthPage> {
   StreamSubscription<bool> _reachabilitySubscription;
 
   Widget _buildContent() {
-    return BlocBuilder<AuthCubit, AuthState>(builder: (_, state) {
+    return BlocConsumer<AuthCubit, AuthState>(listener: (context, state) {
+      if (state is SuccessAuthState) {
+        context.go("/reservations");
+      }
+    }, builder: (_, state) {
       if (state is InitialAuthState) {
         return LogInWidget();
       }
 
       if (state is LoadingAuthState) {
         return FullscreenActivityWidget();
-      }
-      if (state is SuccessAuthState) {
-        return MainWidget();
       }
       if (!_connected) {
         return NoInternetWidget();
@@ -131,9 +126,7 @@ class AuthPageState extends State<AuthPage> {
     _reachabilitySubscription =
         _reachability.onStatusChanged.listen((bool connected) {
       if (connected && !_sessionChecked) {
-        setState(() {
-          _connected = true;
-        });
+        setState(() => _connected = true);
         _checkSession();
       } else {
         setState(() => _connected = connected);
@@ -168,7 +161,7 @@ class AuthPageState extends State<AuthPage> {
 }
 
 class _AuthorizationScopeWidget extends InheritedWidget {
-  final AuthPageState state;
+  final _AuthPageState state;
 
   const _AuthorizationScopeWidget({this.state, Key key, Widget child})
       : super(key: key, child: child);

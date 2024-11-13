@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/date_control.dart';
 import 'package:manager_mobile_client/common/fullscreen_activity_widget.dart';
 import 'package:manager_mobile_client/common/fullscreen_placeholder.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/configuration.dart';
 import 'package:manager_mobile_client/src/logic/core/date_utility.dart';
@@ -33,18 +34,18 @@ typedef ReservationListBuilder = Widget Function(
     User user,
     DateTime date);
 
-class ReservationListWidget extends StatefulWidget {
+class ReservationPage extends StatefulWidget {
   final Drawer drawer;
   final TransitionBuilder containerBuilder;
   final ReservationListBuilder builder;
 
-  ReservationListWidget(this.drawer, this.containerBuilder, this.builder);
+  ReservationPage(this.drawer, this.containerBuilder, this.builder);
 
   @override
-  State<StatefulWidget> createState() => ReservationListState();
+  State<StatefulWidget> createState() => _ReservationPageState();
 }
 
-class ReservationListState extends State<ReservationListWidget> {
+class _ReservationPageState extends State<ReservationPage> {
   @override
   void initState() {
     super.initState();
@@ -57,7 +58,7 @@ class ReservationListState extends State<ReservationListWidget> {
     super.didChangeDependencies();
     if (_serverAPI == null) {
       _serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
-      _user = AuthPage.of(context).user;
+      _user = context.read<AuthCubit>().state.user;
       await _loadSharedData();
       if (_sharedData == null) {
         return;
