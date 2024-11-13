@@ -33,13 +33,18 @@ dependencies:
   audioplayers:
   geohash:
   photo_view:
+  mason: ^0.1.0-dev.40
+  intl: ^0.17.0
+  flutter_bloc: ^8.1.6
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
 flutter:
+  generate: true
   assets:
+  - lib/l10n/
   - assets/images/menu/
   - assets/images/map/
   - assets/images/markers/
