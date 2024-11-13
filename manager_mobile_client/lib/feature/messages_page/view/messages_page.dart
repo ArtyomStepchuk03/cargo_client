@@ -5,17 +5,17 @@ import 'package:manager_mobile_client/util/localization_util.dart';
 
 import '../../../feature/messages_page/view/messages_page_body.dart';
 
-class MessageListWidget extends StatefulWidget {
+class MessagesPage extends StatefulWidget {
   final Drawer drawer;
   final TransitionBuilder containerBuilder;
 
-  MessageListWidget(this.drawer, this.containerBuilder);
+  MessagesPage(this.drawer, this.containerBuilder);
 
   @override
-  State<StatefulWidget> createState() => MessageListState();
+  State<StatefulWidget> createState() => _MessagesPageState();
 }
 
-class MessageListState extends State<MessageListWidget> {
+class _MessagesPageState extends State<MessagesPage> {
   @override
   Widget build(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);

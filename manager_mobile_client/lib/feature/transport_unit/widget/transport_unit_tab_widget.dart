@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/button.dart';
 import 'package:manager_mobile_client/common/dialogs/activity_dialog.dart';
 import 'package:manager_mobile_client/common/dialogs/confirm_dialog.dart';
 import 'package:manager_mobile_client/common/dialogs/error_dialog.dart';
 import 'package:manager_mobile_client/common/floating_action_button.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/create_carriage_page/create_carriage_page.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/feature/transport_unit/view/transport_unit_map_body.dart';
@@ -37,7 +38,7 @@ class TransportUnitTabWidget extends StatefulWidget {
       {BuildContext context,
       Drawer drawer,
       TransitionBuilder containerBuilder}) {
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return TransportUnitTabWidget(
         user: authorizationState.user,
         drawer: drawer,

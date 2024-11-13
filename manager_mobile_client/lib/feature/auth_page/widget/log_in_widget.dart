@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/button.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 import 'package:manager_mobile_client/util/validators/required_validator.dart';
@@ -35,7 +36,7 @@ class _LogInState extends State<LogInWidget> {
 
   Widget _buildForm(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return Padding(
       padding: EdgeInsets.all(48),
       child: SingleChildScrollView(
@@ -113,7 +114,7 @@ class _LogInState extends State<LogInWidget> {
 
   void _logIn() async {
     final dependencyState = DependencyHolder.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>();
     final localizationUtil = LocalizationUtil.of(context);
 
     final serverManager = dependencyState.network.serverManager;

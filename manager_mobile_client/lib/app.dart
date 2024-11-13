@@ -3,15 +3,21 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:go_router/go_router.dart';
 import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart';
+import 'package:manager_mobile_client/feature/main_page/main_page.dart';
+import 'package:manager_mobile_client/feature/main_page/main_screen.dart';
+
+import 'feature/auth_page/auth_page.dart';
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DependencyHolder(
-      child: MaterialApp(
+      child: MaterialApp.router(
+        routerDelegate: _router.routerDelegate,
+        routeInformationParser: _router.routeInformationParser,
         title: 'CargoDeal',
         localizationsDelegates: [
           AppLocalizations.delegate,
@@ -23,10 +29,6 @@ class App extends StatelessWidget {
           Locale('ru', 'RU'), // Russian
         ],
         theme: _buildTheme(context),
-        home: BlocProvider(
-          create: (context) => AuthCubit(),
-          child: AuthPage(),
-        ),
       ),
     );
   }
@@ -55,3 +57,87 @@ class App extends StatelessWidget {
     );
   }
 }
+
+final authCubit = AuthCubit();
+
+final GoRouter _router = GoRouter(
+  initialLocation: '/auth',
+  routes: [
+    GoRoute(
+      path: '/auth',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: AuthPage(),
+      ),
+    ),
+    GoRoute(
+      path: '/reservations',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.reservations,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/orders',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.orders,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/customers',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.customers,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/suppliers',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.suppliers,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/transportUnits',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.transportUnits,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/messages',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.messages,
+        ),
+      ),
+    ),
+    GoRoute(
+      path: '/myData',
+      builder: (context, state) => BlocProvider.value(
+        value: authCubit,
+        child: MainPage(
+          MainScreen.myData,
+        ),
+      ),
+    ),
+  ],
+  redirect: (state) {
+    if (state.location == '/') {
+      return '/auth';
+    }
+    return null;
+  },
+);

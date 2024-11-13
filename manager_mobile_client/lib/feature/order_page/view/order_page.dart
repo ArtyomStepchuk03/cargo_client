@@ -1,9 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/floating_action_button.dart';
 import 'package:manager_mobile_client/common/form/form_fields.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
 import '../../../common/dialogs/outdated_version_dialog.dart';
@@ -12,23 +13,23 @@ import '../../../feature/order_page/view/order_interval_filter_predicate.dart';
 import 'order_list_body.dart';
 import 'order_search/order_search.dart';
 
-class OrderListWidget extends StatefulWidget {
+class OrderPage extends StatefulWidget {
   final Drawer drawer;
   final TransitionBuilder containerBuilder;
 
-  OrderListWidget(this.drawer, this.containerBuilder);
+  OrderPage(this.drawer, this.containerBuilder);
 
   @override
-  State<StatefulWidget> createState() => OrderListState();
+  State<StatefulWidget> createState() => _OrderPageState();
 }
 
-class OrderListState extends State<OrderListWidget> {
-  OrderListState() : _showIntervalFilter = false;
+class _OrderPageState extends State<OrderPage> {
+  _OrderPageState() : _showIntervalFilter = false;
 
   @override
   Widget build(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return Scaffold(
       appBar: buildAppBar(
         title: RichText(
@@ -92,7 +93,7 @@ class OrderListState extends State<OrderListWidget> {
   }
 
   Widget _buildSearchButton(BuildContext context) {
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     return IconButton(
       icon: Icon(Icons.search),
       onPressed: () {
@@ -142,9 +143,7 @@ class OrderListState extends State<OrderListWidget> {
       icon: Icon(Icons.sort),
       itemBuilder: (BuildContext context) => items,
       onSelected: (OrderSort sort) {
-        setState(() {
-          _sort = sort;
-        });
+        setState(() => _sort = sort);
       },
     );
   }
@@ -185,16 +184,18 @@ class OrderListState extends State<OrderListWidget> {
         child: Row(
           children: [
             Expanded(
-                child: DateFormField(
-                    pickerMode: CupertinoDatePickerMode.date,
-                    label: localizationUtil.begin,
-                    onChanged: _handleBeginDateChanged)),
+              child: DateFormField(
+                  pickerMode: CupertinoDatePickerMode.date,
+                  label: localizationUtil.begin,
+                  onChanged: _handleBeginDateChanged),
+            ),
             SizedBox(width: 6),
             Expanded(
-                child: DateFormField(
-                    pickerMode: CupertinoDatePickerMode.date,
-                    label: localizationUtil.end,
-                    onChanged: _handleEndDateChanged))
+              child: DateFormField(
+                  pickerMode: CupertinoDatePickerMode.date,
+                  label: localizationUtil.end,
+                  onChanged: _handleEndDateChanged),
+            )
           ],
         ),
       ),
@@ -240,7 +241,7 @@ class OrderListState extends State<OrderListWidget> {
     if (!await checkVersionForOrderAddition(context)) {
       return;
     }
-    final authorizationState = AuthPage.of(context);
+    final authorizationState = context.read<AuthCubit>().state;
     final order = await Navigator.push(
         context,
         MaterialPageRoute(

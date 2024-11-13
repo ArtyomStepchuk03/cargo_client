@@ -4,11 +4,11 @@ import 'package:manager_mobile_client/util/localization_util.dart';
 
 import 'supplier_list_body.dart';
 
-class SupplierListWidget extends StatelessWidget {
+class SupplierPage extends StatelessWidget {
   final Drawer drawer;
   final TransitionBuilder containerBuilder;
 
-  SupplierListWidget(this.drawer, this.containerBuilder);
+  SupplierPage(this.drawer, this.containerBuilder);
 
   @override
   Widget build(BuildContext context) {

@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:manager_mobile_client/feature/auth_page/auth_page.dart';
-import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
+import 'package:manager_mobile_client/feature/messages_page/widget/message_write/user_data_source.dart';
 
-import 'reservation_list_widget.dart';
+import 'reservation_page.dart';
 import 'supplier_group_reservation_list_body.dart';
 import 'ungrouped_reservation_list_body.dart';
 
-extension ReservationListFactory on ReservationListWidget {
-  static ReservationListWidget build(
+extension ReservationListFactory on ReservationPage {
+  static ReservationPage build(
       BuildContext context, Drawer drawer, TransitionBuilder containerBuilder) {
-    final user = AuthPage.of(context).user;
+    final user = context.read<AuthCubit>().state.user;
     if (user.canReserveOrders()) {
       return supplierGroup(drawer, containerBuilder);
     }
     return ungrouped(drawer, containerBuilder);
   }
 
-  static ReservationListWidget ungrouped(
+  static ReservationPage ungrouped(
       Drawer drawer, TransitionBuilder containerBuilder) {
-    return ReservationListWidget(drawer, containerBuilder,
+    return ReservationPage(drawer, containerBuilder,
         (context, loadResult, sharedData, user, date) {
       return UngroupedReservationListBody(
         loadResult.reservations,
@@ -28,9 +29,9 @@ extension ReservationListFactory on ReservationListWidget {
     });
   }
 
-  static ReservationListWidget supplierGroup(
+  static ReservationPage supplierGroup(
       Drawer drawer, TransitionBuilder containerBuilder) {
-    return ReservationListWidget(drawer, containerBuilder,
+    return ReservationPage(drawer, containerBuilder,
         (context, loadResult, sharedData, user, date) {
       return SupplierGroupReservationListBody.fromList(
         loadResult.reservations,
