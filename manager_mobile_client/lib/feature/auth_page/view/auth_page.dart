@@ -15,7 +15,6 @@ import 'package:manager_mobile_client/src/logic/server_manager/server_manager.da
 import 'package:manager_mobile_client/src/logic/user_manager/configuration_loader.dart';
 import 'package:manager_mobile_client/src/logic/user_manager/installation_manager.dart';
 import 'package:manager_mobile_client/src/logic/user_manager/user_manager.dart';
-import 'package:manager_mobile_client/util/format/user.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
 class AuthPage extends StatefulWidget {
@@ -25,26 +24,8 @@ class AuthPage extends StatefulWidget {
 
 class _AuthPageState extends State<AuthPage> {
   _AuthPageState()
-      : _connected = false,
+      : _connected = true,
         _sessionChecked = false;
-
-  void setLoading() => context.read<AuthCubit>().setLoading();
-  void setErrored() => context.read<AuthCubit>().setError();
-  void setAuthorized(User user) =>
-      context.read<AuthCubit>().setAuthorized(user);
-  void setUnauthorized(
-          {String message, String lastCompanyName, String lastUserName}) =>
-      context.read<AuthCubit>().setUnauthorized(
-          message: message,
-          lastCompanyName: lastCompanyName,
-          lastUserName: lastUserName);
-
-  User get user => context.read<AuthCubit>().state.user;
-  String get message => context.read<AuthCubit>().state.message;
-  String get lastCompanyName => context.read<AuthCubit>().state.lastCompanyName;
-  String get lastUserName => context.read<AuthCubit>().state.lastUserName;
-
-  String get userTitle => formatUserSafe(context, user);
 
   @override
   void didChangeDependencies() {
@@ -97,11 +78,10 @@ class _AuthPageState extends State<AuthPage> {
         context.go("/reservations");
       }
     }, builder: (_, state) {
-      if (state is InitialAuthState) {
-        return LogInWidget();
-      }
-
       if (state is LoadingAuthState) {
+        return FullscreenActivityWidget();
+      }
+      if (state is SuccessAuthState) {
         return FullscreenActivityWidget();
       }
       if (!_connected) {
@@ -120,7 +100,7 @@ class _AuthPageState extends State<AuthPage> {
     if (_connected) {
       _checkSession();
     } else {
-      setUnauthorized();
+      context.read<AuthCubit>().setUnauthorized();
     }
 
     _reachabilitySubscription =
@@ -135,7 +115,7 @@ class _AuthPageState extends State<AuthPage> {
   }
 
   void _recheckSession() {
-    setLoading();
+    context.read<AuthCubit>().setLoading();
     _checkSession();
   }
 
@@ -149,13 +129,13 @@ class _AuthPageState extends State<AuthPage> {
           _pushNotificationClient, _userManager.currentUser);
       await _configurationLoader.reload();
       if (_userManager.currentUser != null) {
-        setAuthorized(_userManager.currentUser);
+        context.read<AuthCubit>().setAuthorized(_userManager.currentUser);
         _serverManager.liveQueryManager.connect();
       } else {
-        setUnauthorized();
+        context.read<AuthCubit>().setUnauthorized();
       }
     } on Exception {
-      setErrored();
+      context.read<AuthCubit>().setError();
     }
   }
 }
