@@ -49,9 +49,8 @@ class AddressFormField extends FormField<String> {
         child: textField,
         onTap: () => _showInput(state),
       );
-    } else {
-      return textField;
     }
+    return textField;
   }
 
   static void _showInput(AddressFormFieldState state) async {

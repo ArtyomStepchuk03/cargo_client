@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'scrollable_form.dart';
 
 export 'scrollable_form.dart';
@@ -11,7 +12,8 @@ Widget buildForm({Key key, List<Widget> children}) {
   );
 }
 
-Widget buildRefreshableForm({RefreshCallback onRefresh, List<Widget> children}) {
+Widget buildRefreshableForm(
+    {RefreshCallback onRefresh, List<Widget> children}) {
   return RefreshIndicator(
     onRefresh: onRefresh,
     child: ListView(
@@ -52,7 +54,6 @@ Widget _buildFormRowIcon(IconData icon) {
   final size = 24.0;
   if (icon != null) {
     return Icon(icon, size: size);
-  } else {
-    return SizedBox(width: size, height: size);
   }
+  return SizedBox(width: size, height: size);
 }
