@@ -325,11 +325,13 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             EnumerationFormField<AgreeOrderType>(
               context,
               key: _agreeTypeKey,
+              initialValue: AgreeOrderType(widget.order.consistency),
               values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
               formatter: formatAgreeOrderType,
               label: localizationUtil.orderStage,
               validator: RequiredValidator(context),
               enabled: _editing,
+              onChanged: _handleStatusChanged,
             ))
     ]);
   }
@@ -579,6 +581,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
 
   void _handleLoadingTypeChanged(LoadingType value) {
     _supplierKey.currentState.value = null;
+    setState(() {});
+  }
+
+  void _handleStatusChanged(AgreeOrderType value) {
+    _agreeTypeKey.currentState.value = value;
+
     setState(() {});
   }
 
