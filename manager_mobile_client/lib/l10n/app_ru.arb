@@ -163,6 +163,8 @@
   "confirmSelfAssign": "Вы хотите забронировать эту заявку?",
   "confirmDeclineRequest": "Отказаться от заявки?",
   "confirmDeleteRequest": "Удалить заявку?",
+  "unableDeleteContact": "Невозможно удалить контакт!",
+  "confirmDeleteContact": "Вы действительно хотите удалить контакт?",
   "unassignedReservation": "Запас",
   "assignFloatingActionButton": "ЗАБРОНИРОВАТЬ",
   "cannotAssign": "Для заявок, которые уже были загружены, нельзя изменить бронь.",

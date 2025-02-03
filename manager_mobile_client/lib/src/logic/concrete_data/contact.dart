@@ -6,6 +6,8 @@ class Contact {
 
   Contact({this.name, this.phoneNumber});
 
+  static const className = 'Contact';
+
   factory Contact.decode(Map<String, dynamic> data) {
     if (data == null) {
       return null;
@@ -26,7 +28,7 @@ class Contact {
   }
 
   @override
-  bool operator==(dynamic other) {
+  bool operator ==(dynamic other) {
     if (other is! Contact) {
       return false;
     }

@@ -3,6 +3,9 @@ import 'package:manager_mobile_client/common/floating_action_button.dart';
 import 'package:manager_mobile_client/common/loading_list_view/loading_list_view_status.dart';
 import 'package:manager_mobile_client/src/logic/core/filter_predicate.dart';
 import 'package:manager_mobile_client/src/logic/data_source/data_source.dart';
+import 'package:manager_mobile_client/util/localization_util.dart';
+
+import '../../feature/customer_page/customer_data_source.dart';
 
 export 'package:manager_mobile_client/src/logic/core/filter_predicate.dart';
 export 'package:manager_mobile_client/src/logic/data_source/data_source.dart';
@@ -19,6 +22,10 @@ class LoadingListView<T> extends StatefulWidget {
   final Widget errorFooterTile;
   final bool insetForFloatingActionButton;
   final VoidCallback onRefresh;
+  final Function(int index) onDelete;
+  final Function(BuildContext context, T object) onSelect;
+  final Function(T item) onUpdate;
+  final T selectedItem;
 
   LoadingListView({
     Key key,
@@ -30,6 +37,10 @@ class LoadingListView<T> extends StatefulWidget {
     this.errorFooterTile,
     this.insetForFloatingActionButton = false,
     this.onRefresh,
+    this.onDelete,
+    this.onUpdate,
+    this.onSelect,
+    this.selectedItem,
   }) : super(key: key);
 
   @override
@@ -95,11 +106,67 @@ class LoadingListViewState<T> extends State<LoadingListView<T>> {
 
   @override
   Widget build(BuildContext context) {
+    final localizationUtil = LocalizationUtil.of(context);
+
     return RefreshIndicator(
       child: ListView.builder(
         padding: EdgeInsets.all(4),
         itemCount: _items.length + 1,
-        itemBuilder: _buildItemWidget,
+        itemBuilder: (context, index) => InkWell(
+          onTap: () async {
+            await widget.onSelect(context, _items[index]);
+            widget.onUpdate(_items[index]);
+          },
+          child: Row(
+            children: [
+              Expanded(
+                flex: 7,
+                child: _buildItemWidget(context, index),
+              ),
+              if (widget.onDelete != null && index != _items.length)
+                Expanded(
+                  child: IconButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text(localizationUtil.confirmDeleteContact),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: Text(localizationUtil.cancel),
+                            ),
+                            ElevatedButton(
+                              onPressed: () async {
+                                Navigator.of(context).pop();
+                                try {
+                                  final currentItem = _items[index];
+                                  await widget.onDelete(index);
+                                  removeItem(currentItem);
+                                  if (currentItem is Contact) {
+                                    if (currentItem == widget.selectedItem) {
+                                      widget.onUpdate(null);
+                                    }
+                                  }
+                                } catch (e) {
+                                  _showExceptionDialog();
+                                }
+                              },
+                              child: Text(localizationUtil.delete),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.black45,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
       ),
       onRefresh: _refresh,
     );
@@ -213,5 +280,22 @@ class LoadingListViewState<T> extends State<LoadingListView<T>> {
       return true;
     }
     return widget.filterPredicate(item);
+  }
+
+  Widget _showExceptionDialog() {
+    final localizationUtil = LocalizationUtil.of(context);
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(localizationUtil.unableDeleteContact),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(localizationUtil.ok),
+          ),
+        ],
+      ),
+    );
   }
 }
