@@ -264,21 +264,26 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           ),
         ),
       buildFormRow(
-        null,
-        buildUnloadingContactFormField(
-          context,
-          key: _unloadingContactKey,
-          initialValue: order.unloadingContact,
-          unloadingPointServerAPI:
-              dependencyState.network.serverAPI.unloadingPoints,
-          cacheMap: dependencyState.caches.unloadingContact,
-          unloadingPoint: _unloadingPointKey.currentState != null
-              ? _unloadingPointKey.currentState.value
-              : order.unloadingPoint,
-          user: widget.user,
-          editing: _editing,
-        ),
-      ),
+          null,
+          buildUnloadingContactFormField(
+            context,
+            key: _unloadingContactKey,
+            initialValue: order.unloadingContact,
+            unloadingPointServerAPI:
+                dependencyState.network.serverAPI.unloadingPoints,
+            cacheMap: dependencyState.caches.unloadingContact,
+            unloadingPoint: _unloadingPointKey.currentState != null
+                ? _unloadingPointKey.currentState.value
+                : order.unloadingPoint,
+            user: widget.user,
+            editing: _editing,
+            onUpdate: (Contact contact) {
+              setState(() {
+                _unloadingContactKey.currentState.value = contact;
+                order.unloadingContact = contact;
+              });
+            },
+          )),
       buildFormRow(
         null,
         DateFormField(

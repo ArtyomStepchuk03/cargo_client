@@ -10,9 +10,11 @@ import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/core/date_utility.dart';
 import 'package:manager_mobile_client/src/logic/exceptions/exceptions.dart';
-import 'package:manager_mobile_client/src/logic/parse/query_builder.dart' as parse;
+import 'package:manager_mobile_client/src/logic/parse/query_builder.dart'
+    as parse;
 import 'package:manager_mobile_client/src/logic/parse/requests.dart' as parse;
-import 'package:manager_mobile_client/src/logic/parse_live_query/live_query_manager.dart' as parse;
+import 'package:manager_mobile_client/src/logic/parse_live_query/live_query_manager.dart'
+    as parse;
 import 'package:manager_mobile_client/src/logic/server_manager/server_manager.dart';
 
 import 'utility.dart';
@@ -20,6 +22,7 @@ import 'utility.dart';
 export 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 export 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 export 'package:manager_mobile_client/src/logic/exceptions/exceptions.dart';
+
 export 'server_error.dart';
 
 enum OrderProgress { notFullyDistributed, notFullyFinished, fullyFinished }

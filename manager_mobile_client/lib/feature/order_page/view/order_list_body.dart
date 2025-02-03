@@ -19,14 +19,14 @@ class OrderListBody extends StatefulWidget {
   final FilterPredicate<Order> filterPredicate;
   final bool insetForFloatingActionButton;
 
-  OrderListBody(
-      {Key key,
-      this.user,
-      this.filter,
-      this.sort,
-      this.filterPredicate,
-      this.insetForFloatingActionButton = false})
-      : super(key: key);
+  OrderListBody({
+    Key key,
+    this.user,
+    this.filter,
+    this.sort,
+    this.filterPredicate,
+    this.insetForFloatingActionButton = false,
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => OrderListBodyState();

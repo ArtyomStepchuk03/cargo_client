@@ -14,8 +14,10 @@ class SimpleListTile extends StatelessWidget {
     return ListTile(
       title: title != null
           ? Text(title)
-          : Text(localizationUtil.notSpecified,
-              style: TextStyle(color: Colors.grey)),
+          : Text(
+              localizationUtil.notSpecified,
+              style: TextStyle(color: Colors.grey),
+            ),
       subtitle: subtitle != null ? Text(subtitle) : null,
       trailing: icon != null ? Icon(icon) : null,
     );

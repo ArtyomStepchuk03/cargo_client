@@ -438,12 +438,13 @@ Widget buildUnloadingPointFormField({
     onAdd: user.canAddUnloadingPoints()
         ? (context) async {
             return await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddUnloadingPointPage(
-                      customer: customer, manager: user.manager),
-                  fullscreenDialog: true,
-                ));
+              context,
+              MaterialPageRoute(
+                builder: (context) => AddUnloadingPointPage(
+                    customer: customer, manager: user.manager),
+                fullscreenDialog: true,
+              ),
+            );
           }
         : null,
     label: localizationUtil.unloadingPoint,
@@ -469,11 +470,13 @@ Widget buildUnloadingEntranceFormField(
     key: key,
     initialValue: initialValue,
     dataSource: unloadingPoint != null
-        ? LimitedDataSourceAdapter(CachedLimitedDataSource(
-            UnloadingEntranceDataSource(
-                unloadingPointServerAPI, unloadingPoint),
-            cacheMap.getCache(unloadingPoint),
-          ))
+        ? LimitedDataSourceAdapter(
+            CachedLimitedDataSource(
+              UnloadingEntranceDataSource(
+                  unloadingPointServerAPI, unloadingPoint),
+              cacheMap.getCache(unloadingPoint),
+            ),
+          )
         : null,
     additionalErrorText: additionalErrorText,
     onRefresh: unloadingPoint != null
@@ -482,11 +485,12 @@ Widget buildUnloadingEntranceFormField(
     onAdd: user.canAddUnloadingEntrances()
         ? (context) async {
             return await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => EntranceAddPage(unloadingPoint),
-                  fullscreenDialog: true,
-                ));
+              context,
+              MaterialPageRoute(
+                builder: (context) => EntranceAddPage(unloadingPoint),
+                fullscreenDialog: true,
+              ),
+            );
           }
         : null,
     label: localizationUtil.unloadingEntrance,
@@ -506,16 +510,15 @@ class ContactSearchPredicate implements SearchPredicate<Contact> {
   }
 }
 
-Widget buildUnloadingContactFormField(
-  BuildContext context, {
-  Key key,
-  Contact initialValue,
-  UnloadingPointServerAPI unloadingPointServerAPI,
-  LimitedDataCacheMap<Contact, UnloadingPoint> cacheMap,
-  UnloadingPoint unloadingPoint,
-  User user,
-  bool editing = true,
-}) {
+Widget buildUnloadingContactFormField(BuildContext context,
+    {Key key,
+    Contact initialValue,
+    UnloadingPointServerAPI unloadingPointServerAPI,
+    LimitedDataCacheMap<Contact, UnloadingPoint> cacheMap,
+    UnloadingPoint unloadingPoint,
+    User user,
+    bool editing = true,
+    Function(Contact) onUpdate}) {
   final localizationUtil = LocalizationUtil.of(context);
   if (!editing) {
     return PhoneNumberDialField(
@@ -528,10 +531,13 @@ Widget buildUnloadingContactFormField(
     key: key,
     initialValue: initialValue,
     dataSource: unloadingPoint != null
-        ? LimitedDataSourceAdapter(CachedLimitedDataSource(
-            UnloadingContactDataSource(unloadingPointServerAPI, unloadingPoint),
-            cacheMap.getCache(unloadingPoint),
-          ))
+        ? LimitedDataSourceAdapter(
+            CachedLimitedDataSource(
+              UnloadingContactDataSource(
+                  unloadingPointServerAPI, unloadingPoint),
+              cacheMap.getCache(unloadingPoint),
+            ),
+          )
         : null,
     searchPredicate: ContactSearchPredicate(),
     formatter: formatContactSafe,
@@ -541,15 +547,25 @@ Widget buildUnloadingContactFormField(
     onRefresh: unloadingPoint != null
         ? () => cacheMap.getCache(unloadingPoint).clear()
         : null,
+    onDelete: (int index) async {
+      final serverAPI =
+          DependencyHolder.of(context).network.serverAPI.unloadingPoints;
+      await serverAPI.removeContact(
+          unloadingPoint, unloadingPoint.contacts[index]);
+      unloadingPoint.contacts.removeAt(index);
+    },
+    selectedItem: initialValue,
+    onUpdate: onUpdate,
     onAdd: user.canAddUnloadingContacts()
         ? (context) async {
             return await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      AddContactPage(unloadingPoint: unloadingPoint),
-                  fullscreenDialog: true,
-                ));
+              context,
+              MaterialPageRoute(
+                builder: (context) =>
+                    AddContactPage(unloadingPoint: unloadingPoint),
+                fullscreenDialog: true,
+              ),
+            );
           }
         : null,
     label: localizationUtil.unloadingContact,
@@ -583,15 +599,9 @@ class CustomerSearchPredicate implements SearchPredicate<Customer> {
 }
 
 class EntranceSearchPredicate implements SearchPredicate<Entrance> {
-  bool call(Entrance object, String query) {
-    if (satisfiesQuery(object.name, query)) {
-      return true;
-    }
-    if (satisfiesQuery(object.address, query)) {
-      return true;
-    }
-    return false;
-  }
+  bool call(Entrance object, String query) =>
+      satisfiesQuery(object.name, query) ||
+      satisfiesQuery(object.address, query);
 }
 
 Widget _buildSupplierFormField(

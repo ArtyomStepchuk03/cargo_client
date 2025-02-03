@@ -160,6 +160,8 @@ class ReservationDetailsBodyState extends State<ReservationDetailsBody> {
                 : reservation.unloadingPoint,
             user: widget.user,
             editing: _editing,
+            onUpdate: (Contact contact) =>
+                setState(() => reservation.unloadingContact = contact),
           ),
         ),
       ],

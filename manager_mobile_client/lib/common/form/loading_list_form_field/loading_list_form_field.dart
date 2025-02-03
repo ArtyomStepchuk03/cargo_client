@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:manager_mobile_client/src/logic/core/search_predicate.dart';
 import 'package:manager_mobile_client/common/form/noneditable_text_field.dart';
 import 'package:manager_mobile_client/common/form/scrollable_form.dart';
 import 'package:manager_mobile_client/common/loading_list_view/loading_list_view.dart';
 import 'package:manager_mobile_client/common/search/search_widget.dart';
+import 'package:manager_mobile_client/src/logic/core/search_predicate.dart';
 import 'package:manager_mobile_client/util/types.dart';
 
 import 'loading_list_form_field_select_body.dart';
@@ -12,6 +12,9 @@ export 'package:manager_mobile_client/src/logic/core/search_predicate.dart';
 export 'package:manager_mobile_client/src/logic/data_source/data_source.dart';
 
 typedef LoadingListFormFieldAddCallback<T> = Future<T> Function(
+    BuildContext context);
+
+typedef LoadingListFormFieldDeleteCallback<T> = Future<T> Function(
     BuildContext context);
 
 class LoadingListFormField<T> extends FormField<T> {
@@ -26,6 +29,9 @@ class LoadingListFormField<T> extends FormField<T> {
   final VoidCallback onRefresh;
   final LoadingListFormFieldSelectCallback<T> onSelect;
   final LoadingListFormFieldAddCallback<T> onAdd;
+  final Function(int index) onDelete;
+  final Function(T item) onUpdate;
+  final T selectedItem;
 
   LoadingListFormField(BuildContext context,
       {Key key,
@@ -41,6 +47,9 @@ class LoadingListFormField<T> extends FormField<T> {
       this.onRefresh,
       this.onSelect,
       this.onAdd,
+      this.onDelete,
+      this.onUpdate,
+      this.selectedItem,
       String label,
       FormFieldValidator<T> validator,
       bool enabled = true})
@@ -81,9 +90,8 @@ class LoadingListFormField<T> extends FormField<T> {
         child: textField,
         onTap: () => _showSelect<T>(state),
       );
-    } else {
-      return textField;
     }
+    return textField;
   }
 
   static void _showSelect<T>(LoadingListFormFieldState<T> state) async {
@@ -95,12 +103,14 @@ class LoadingListFormField<T> extends FormField<T> {
             ? SearchFilterPredicate<T>(state.widget.searchPredicate, query)
             : null;
         return LoadingListFormFieldSelectBody<T>(
-          dataSource: state.widget.dataSource,
-          filterPredicate: filterPredicate,
-          listViewBuilder: state.widget.listViewBuilder,
-          onRefresh: state.widget.onRefresh,
-          onSelect: state.widget.onSelect,
-        );
+            dataSource: state.widget.dataSource,
+            filterPredicate: filterPredicate,
+            listViewBuilder: state.widget.listViewBuilder,
+            onRefresh: state.widget.onRefresh,
+            onSelect: state.widget.onSelect,
+            onDelete: state.widget.onDelete,
+            selectedItem: state.widget.selectedItem,
+            onUpdate: state.widget.onUpdate);
       },
       floatingActionButtonBuilder: (BuildContext context, String query) =>
           _buildAddButton(state),
@@ -115,14 +125,15 @@ class LoadingListFormField<T> extends FormField<T> {
       return null;
     }
     return FloatingActionButton(
-        child: Icon(Icons.add),
-        backgroundColor: Theme.of(state.context).primaryColor,
-        onPressed: () async {
-          T newValue = await state.widget.onAdd(state.context);
-          if (newValue != null) {
-            Navigator.pop(state.context, newValue);
-          }
-        });
+      child: Icon(Icons.add),
+      backgroundColor: Theme.of(state.context).primaryColor,
+      onPressed: () async {
+        T newValue = await state.widget.onAdd(state.context);
+        if (newValue != null) {
+          Navigator.pop(state.context, newValue);
+        }
+      },
+    );
   }
 }
 
