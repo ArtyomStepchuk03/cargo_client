@@ -5,8 +5,6 @@ import 'package:manager_mobile_client/src/logic/core/filter_predicate.dart';
 import 'package:manager_mobile_client/src/logic/data_source/data_source.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
-import '../../feature/customer_page/customer_data_source.dart';
-
 export 'package:manager_mobile_client/src/logic/core/filter_predicate.dart';
 export 'package:manager_mobile_client/src/logic/data_source/data_source.dart';
 
@@ -22,7 +20,7 @@ class LoadingListView<T> extends StatefulWidget {
   final Widget errorFooterTile;
   final bool insetForFloatingActionButton;
   final VoidCallback onRefresh;
-  final Function(int index) onDelete;
+  final Function(T item) onDelete;
   final Function(BuildContext context, T object) onSelect;
   final Function(T item) onUpdate;
   final T selectedItem;
@@ -141,12 +139,10 @@ class LoadingListViewState<T> extends State<LoadingListView<T>> {
                                 Navigator.of(context).pop();
                                 try {
                                   final currentItem = _items[index];
-                                  await widget.onDelete(index);
+                                  await widget.onDelete(currentItem);
                                   removeItem(currentItem);
-                                  if (currentItem is Contact) {
-                                    if (currentItem == widget.selectedItem) {
-                                      widget.onUpdate(null);
-                                    }
+                                  if (currentItem == widget.selectedItem) {
+                                    await widget.onUpdate(null);
                                   }
                                 } catch (e) {
                                   _showExceptionDialog();

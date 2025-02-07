@@ -547,18 +547,17 @@ Widget buildUnloadingContactFormField(BuildContext context,
     onRefresh: unloadingPoint != null
         ? () => cacheMap.getCache(unloadingPoint).clear()
         : null,
-    onDelete: (int index) async {
+    onDelete: (Contact contact) async {
       final serverAPI =
           DependencyHolder.of(context).network.serverAPI.unloadingPoints;
-      await serverAPI.removeContact(
-          unloadingPoint, unloadingPoint.contacts[index]);
-      unloadingPoint.contacts.removeAt(index);
+      await serverAPI.removeContact(unloadingPoint, contact);
+      unloadingPoint.contacts.remove(contact);
     },
     selectedItem: initialValue,
     onUpdate: onUpdate,
     onAdd: user.canAddUnloadingContacts()
         ? (context) async {
-            return await Navigator.push(
+            Contact contact = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) =>
@@ -566,6 +565,8 @@ Widget buildUnloadingContactFormField(BuildContext context,
                 fullscreenDialog: true,
               ),
             );
+            await onUpdate(contact);
+            return contact;
           }
         : null,
     label: localizationUtil.unloadingContact,

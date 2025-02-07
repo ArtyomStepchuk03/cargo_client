@@ -29,7 +29,7 @@ class LoadingListFormField<T> extends FormField<T> {
   final VoidCallback onRefresh;
   final LoadingListFormFieldSelectCallback<T> onSelect;
   final LoadingListFormFieldAddCallback<T> onAdd;
-  final Function(int index) onDelete;
+  final Function(T item) onDelete;
   final Function(T item) onUpdate;
   final T selectedItem;
 

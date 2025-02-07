@@ -115,7 +115,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
       order.inactivityTimeInterval =
           scanHours(_inactivityTimeIntervalKey.currentState.value);
     }
-    if ([Role.manager, Role.administrator, Role.dispatcher].contains(userRole))
+    if ([Role.manager, Role.administrator, Role.logistician].contains(userRole))
       order.consistency = _agreeTypeKey.currentState?.value?.raw;
     return order;
   }
@@ -326,18 +326,19 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
       if ([Role.administrator, Role.logistician, Role.manager]
           .contains(widget.user.role))
         buildFormRow(
-            null,
-            EnumerationFormField<AgreeOrderType>(
-              context,
-              key: _agreeTypeKey,
-              initialValue: AgreeOrderType(widget.order.consistency),
-              values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
-              formatter: formatAgreeOrderType,
-              label: localizationUtil.orderStage,
-              validator: RequiredValidator(context),
-              enabled: _editing,
-              onChanged: _handleStatusChanged,
-            ))
+          null,
+          EnumerationFormField<AgreeOrderType>(
+            context,
+            key: _agreeTypeKey,
+            initialValue: AgreeOrderType(widget.order.consistency),
+            values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
+            formatter: formatAgreeOrderType,
+            label: localizationUtil.orderStage,
+            validator: RequiredValidator(context),
+            enabled: _editing,
+            onChanged: _handleStatusChanged,
+          ),
+        )
     ]);
   }
 
