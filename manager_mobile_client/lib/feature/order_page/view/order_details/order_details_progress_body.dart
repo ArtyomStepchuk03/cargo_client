@@ -105,8 +105,8 @@ class OrderDetailsProgressBody extends StatelessWidget {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) =>
-            TripProgressWidget(order: order, trip: offer.trip, user: user),
+        builder: (BuildContext context) => TripProgressWidget(
+            order: order, trip: offer.trip, user: user, onUpdate: onRefresh),
       ),
     );
   }

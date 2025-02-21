@@ -14,7 +14,7 @@ extension DefaultServerConfiguration on parse.ServerConfiguration {
 
   static parse.ServerConfiguration makeDevelop() {
     return parse.ServerConfiguration(
-      baseUrl: 'http://192.168.10.140:50003/cargodeal-dev/',
+      baseUrl: 'https://dash.cargodeal.ru/cargodeal-dev/',
       applicationId: 'X3nvnkeAubR8L23s8BpzWELQ9uCRAXw0HfHxG9uU',
       clientKey: 'u2ylnpgBkJ52a6q7Ge4VyDJ9OFbUp53luKnzs0NF',
     );
