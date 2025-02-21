@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/dialogs/activity_dialog.dart';
@@ -8,6 +11,7 @@ import 'package:manager_mobile_client/feature/dependency/dependency_holder.dart'
 import 'package:manager_mobile_client/src/logic/concrete_data/configuration.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
+import 'package:manager_mobile_client/src/logic/external/image_picker.dart';
 import 'package:manager_mobile_client/src/logic/order/entrance_coordinate_mismatch.dart';
 import 'package:manager_mobile_client/util/format/date.dart';
 import 'package:manager_mobile_client/util/format/stage.dart';
@@ -17,14 +21,17 @@ class TripProgressWidget extends StatefulWidget {
   final Order order;
   final Trip trip;
   final User user;
+  final Function() onUpdate;
 
-  TripProgressWidget({this.order, this.trip, this.user});
+  TripProgressWidget({this.order, this.trip, this.user, this.onUpdate});
 
   @override
   State<StatefulWidget> createState() => TripProgressState();
 }
 
 class TripProgressState extends State<TripProgressWidget> {
+  Map<int, File> updatedPhotos = {};
+
   @override
   Widget build(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
@@ -40,14 +47,14 @@ class TripProgressState extends State<TripProgressWidget> {
     return ListView.separated(
       itemCount: records.length,
       itemBuilder: (BuildContext context, int index) => _buildCell(
-          context, records[index], configurationLoader.configuration),
+          context, records[index], configurationLoader.configuration, index),
       separatorBuilder: (BuildContext context, int index) =>
           Divider(thickness: 1, height: 1),
     );
   }
 
   Widget _buildCell(BuildContext context, TripHistoryRecord record,
-      Configuration configuration) {
+      Configuration configuration, index) {
     final localizationUtil = LocalizationUtil.of(context);
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 16, horizontal: 12),
@@ -81,8 +88,57 @@ class TripProgressState extends State<TripProgressWidget> {
                   record, widget.order, configuration))
             _buildCoordinateMismatchWidget(context, record),
           if (_shouldShowPhoto(record))
-            ThumbnailImage.small(context, record.thumbnail.url,
-                onTap: () => _showFullPhoto(record)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (updatedPhotos[index] != null)
+                  Image.file(
+                    updatedPhotos[index],
+                    width: 80,
+                    height: 80,
+                  )
+                else
+                  ThumbnailImage.small(
+                    context,
+                    record.thumbnail.url,
+                    onTap: () => _showFullPhoto(record),
+                  ),
+                IconButton(
+                    onPressed: () async {
+                      final newFile = await ImagePicker().pickImage(
+                          source: ImageSource.gallery,
+                          maxHeight: 1600,
+                          maxWidth: 1600,
+                          imageQuality: 80);
+                      if (newFile == null) {
+                        return null;
+                      }
+                      String base64Image =
+                          base64Encode(await newFile.readAsBytes());
+
+                      final serverAPI =
+                          DependencyHolder.of(context).network.serverAPI.trips;
+                      await serverAPI.updatePhoto(record, base64Image);
+                      await widget.onUpdate();
+                      setState(() {
+                        updatedPhotos[index] = File(newFile.path);
+                      });
+                    },
+                    icon: Icon(Icons.edit)),
+                IconButton(
+                  onPressed: () async {
+                    final serverAPI =
+                        DependencyHolder.of(context).network.serverAPI.trips;
+                    await serverAPI.deletePhoto(record);
+                    setState(() => record.thumbnail = null);
+                  },
+                  icon: Icon(
+                    Icons.delete_forever,
+                    color: Colors.red,
+                  ),
+                ),
+              ],
+            )
         ],
       ),
     );
