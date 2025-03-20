@@ -1,10 +1,9 @@
 class DataLoadStatus<R, E> {
-  DataLoadStatus.inProgress(this._result, this._exception)
-      : _internal = _DataLoadInternalStatus.inProgress;
-  DataLoadStatus.succeeded(R result, this._exception)
+  DataLoadStatus.inProgress() : _internal = _DataLoadInternalStatus.inProgress;
+  DataLoadStatus.succeeded(R result)
       : _internal = _DataLoadInternalStatus.succeeded,
         _result = result;
-  DataLoadStatus.failed(this._result, [E? exception])
+  DataLoadStatus.failed([E? exception])
       : _internal = _DataLoadInternalStatus.failed,
         _exception = exception;
 
@@ -15,9 +14,9 @@ class DataLoadStatus<R, E> {
   R? get result => _result;
   E? get exception => _exception;
 
-  final _DataLoadInternalStatus _internal;
-  final R? _result;
-  final E? _exception;
+  _DataLoadInternalStatus? _internal;
+  R? _result;
+  E? _exception;
 }
 
 enum _DataLoadInternalStatus { inProgress, succeeded, failed }

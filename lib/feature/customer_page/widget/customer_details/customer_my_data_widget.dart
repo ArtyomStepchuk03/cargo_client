@@ -24,7 +24,7 @@ class CustomerMyDataWidget extends StatefulWidget {
 }
 
 class CustomerMyDataState extends State<CustomerMyDataWidget> {
-  CustomerMyDataState() : _loadStatus = DataLoadStatus.inProgress(null, null);
+  CustomerMyDataState() : _loadStatus = DataLoadStatus.inProgress();
 
   @override
   void didChangeDependencies() {
@@ -109,11 +109,11 @@ class CustomerMyDataState extends State<CustomerMyDataWidget> {
           DependencyHolder.of(context)!.network.serverAPI.customers;
       final result = await serverAPI.getStatus();
       if (mounted) {
-        setState(() => _loadStatus = DataLoadStatus.succeeded(result, null));
+        setState(() => _loadStatus = DataLoadStatus.succeeded(result));
       }
     } on Exception catch (exception) {
       if (mounted) {
-        setState(() => _loadStatus = DataLoadStatus.failed(null, exception));
+        setState(() => _loadStatus = DataLoadStatus.failed(exception));
       }
     }
   }

@@ -20,7 +20,7 @@ class SupplierDetailsWidget extends StatefulWidget {
 }
 
 class SupplierDetailsState extends State<SupplierDetailsWidget> {
-  SupplierDetailsState() : _status = DataLoadStatus.inProgress(null, null);
+  SupplierDetailsState() : _status = DataLoadStatus.inProgress();
 
   @override
   void didChangeDependencies() {
@@ -98,11 +98,11 @@ class SupplierDetailsState extends State<SupplierDetailsWidget> {
     try {
       final result = await serverAPI.verify(supplier);
       if (mounted) {
-        setState(() => _status = DataLoadStatus.succeeded(result, null));
+        setState(() => _status = DataLoadStatus.succeeded(result));
       }
     } on Exception catch (exception) {
       if (mounted) {
-        setState(() => _status = DataLoadStatus.failed(null, exception));
+        setState(() => _status = DataLoadStatus.failed(exception));
       }
     }
   }

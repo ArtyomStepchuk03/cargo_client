@@ -48,7 +48,7 @@ class CustomerAddState extends State<CustomerAddWidget> {
       showActivityDialog(context, localizationUtil.saving);
 
       final dependencyState = DependencyHolder.of(context);
-      final serverAPI = dependencyState!.network.serverAPI;
+      final serverAPI = dependencyState.network.serverAPI;
       final placesService = dependencyState.location.placesService;
 
       try {

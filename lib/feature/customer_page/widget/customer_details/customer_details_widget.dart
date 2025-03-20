@@ -23,7 +23,7 @@ class CustomerDetailsWidget extends StatefulWidget {
 }
 
 class CustomerDetailsState extends State<CustomerDetailsWidget> {
-  CustomerDetailsState() : _status = DataLoadStatus.inProgress(null, null);
+  CustomerDetailsState() : _status = DataLoadStatus.inProgress();
 
   @override
   void didChangeDependencies() {
@@ -125,15 +125,15 @@ class CustomerDetailsState extends State<CustomerDetailsWidget> {
 
   void _verify(BuildContext context, Customer? customer) async {
     final dependencyState = DependencyHolder.of(context);
-    final serverAPI = dependencyState!.network.serverAPI.customers;
+    final serverAPI = dependencyState.network.serverAPI.customers;
     try {
       final result = await serverAPI.verify(customer);
       if (mounted) {
-        setState(() => _status = DataLoadStatus.succeeded(result, null));
+        setState(() => _status = DataLoadStatus.succeeded(result));
       }
     } on Exception catch (exception) {
       if (mounted) {
-        setState(() => _status = DataLoadStatus.failed(null, exception));
+        setState(() => _status = DataLoadStatus.failed(exception));
       }
     }
   }

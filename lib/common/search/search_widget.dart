@@ -96,13 +96,14 @@ class _SearchState extends State<_SearchWidget> {
     return TextField(
       controller: _textEditingController,
       focusNode: _focusNode,
+      cursorColor: Colors.white,
       decoration: InputDecoration(
           hintText: localizationUtil.search,
           hintStyle: textStyle,
           border: InputBorder.none,
-          suffixIcon: _textEditingController!.text.isNotEmpty
+          suffixIcon: _textEditingController?.text.isNotEmpty == true
               ? _buildCircleIconButton(
-                  icon: Icons.clear, onPressed: _textEditingController!.clear)
+                  icon: Icons.clear, onPressed: _textEditingController?.clear)
               : null),
       style: textStyle,
     );

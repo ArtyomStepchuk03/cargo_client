@@ -28,8 +28,7 @@ class CustomerListBody extends StatelessWidget {
       key: _listViewKey,
       dataSource: SkipPagedDataSourceAdapter(
         CustomerDataSource(
-            serverAPI:
-                DependencyHolder.of(context)!.network.serverAPI.customers,
+            serverAPI: DependencyHolder.of(context).network.serverAPI.customers,
             manager: manager),
       ),
       filterPredicate: filterPredicate,

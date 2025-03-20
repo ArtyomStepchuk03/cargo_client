@@ -8,6 +8,7 @@ PreferredSizeWidget buildAppBar(
   return AppBar(
     leading: leading,
     actions: actions,
+    foregroundColor: Colors.white,
     title: title,
     bottom: bottom,
     titleSpacing: 0,

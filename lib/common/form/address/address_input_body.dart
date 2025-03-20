@@ -25,7 +25,7 @@ class AddressInputBodyState extends State<AddressInputBody> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_loadStatus == null) {
-      _loadStatus = DataLoadStatus.inProgress(null, null);
+      _loadStatus = DataLoadStatus.inProgress();
       _search(widget.query);
     }
   }
@@ -34,7 +34,7 @@ class AddressInputBodyState extends State<AddressInputBody> {
   void didUpdateWidget(AddressInputBody oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.query != oldWidget.query) {
-      _loadStatus = DataLoadStatus.inProgress(null, null);
+      _loadStatus = DataLoadStatus.inProgress();
       _search(widget.query);
     }
   }
@@ -77,10 +77,9 @@ class AddressInputBodyState extends State<AddressInputBody> {
     DataLoadStatus<List<PlacesSearchResult>, Exception> status;
     try {
       final searchResults = await widget.placesService.search(query);
-      status = DataLoadStatus.succeeded(searchResults, null);
-    } catch (exception) {
-      status = DataLoadStatus.failed(null,
-          exception is Exception ? exception : Exception(exception.toString()));
+      status = DataLoadStatus.succeeded(searchResults);
+    } on Exception catch (exception) {
+      status = DataLoadStatus.failed(exception);
     }
     if (!mounted) {
       return;

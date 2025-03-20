@@ -40,11 +40,16 @@ class App extends StatelessWidget {
         secondary: Color(0xFF5c6bc0),
       ),
       primaryColor: Color(0xFF178E28),
-      primaryColorDark: Colors.white,
-      primaryColorLight: Colors.white,
+      primaryColorDark: Color(0xFF005f00),
+      primaryColorLight: Color(0xFF56bf56),
       appBarTheme: theme.appBarTheme.copyWith(
         systemOverlayStyle: SystemUiOverlayStyle.light,
         backgroundColor: Color(0xFF12AA72),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          foregroundColor: Colors.white,
+        ),
       ),
       tabBarTheme: theme.tabBarTheme.copyWith(
         indicator: BoxDecoration(

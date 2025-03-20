@@ -16,6 +16,7 @@ class SupplierPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text(localizationUtil.suppliers),
+        foregroundColor: Colors.white,
         actions: [_buildSearchButton(context)],
       ),
       drawer: drawer,

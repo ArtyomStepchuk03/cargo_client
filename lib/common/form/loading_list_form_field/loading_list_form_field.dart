@@ -177,8 +177,7 @@ class LoadingListFormFieldState<T> extends ScrollableFormFieldState<T> {
   }
 
   @override
-  LoadingListFormField<T> get widget =>
-      super.widget as LoadingListFormField<T>; // TODO: Костыль!
+  LoadingListFormField<T> get widget => super.widget as LoadingListFormField<T>;
 
   bool _fetching;
 

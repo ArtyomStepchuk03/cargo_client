@@ -50,14 +50,14 @@ class _ReservationPageState extends State<ReservationPage> {
   void initState() {
     super.initState();
     _date = DateTime.now().add(Duration(days: 1)).beginningOfDay;
-    _loadStatus = DataLoadStatus.inProgress(null, null);
+    _loadStatus = DataLoadStatus.inProgress();
   }
 
   @override
   void didChangeDependencies() async {
     super.didChangeDependencies();
     if (_serverAPI == null) {
-      _serverAPI = DependencyHolder.of(context)?.network.serverAPI.orders;
+      _serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       _user = context.read<AuthCubit>().state.user;
       await _loadSharedData();
       if (_sharedData == null) {
@@ -107,34 +107,33 @@ class _ReservationPageState extends State<ReservationPage> {
 
   void _handleDateChange(DateTime date) {
     _date = date;
-    setState(() => _loadStatus = DataLoadStatus.inProgress(null, null));
+    setState(() => _loadStatus = DataLoadStatus.inProgress());
     _load(date);
   }
 
   Future<void> _loadSharedData() async {
     final dependencyState = DependencyHolder.of(context);
     try {
-      await dependencyState?.network.configurationLoader.reload();
+      await dependencyState.network.configurationLoader.reload();
       final configuration =
-          dependencyState?.network.configurationLoader.configuration;
+          dependencyState.network.configurationLoader.configuration;
       final purchaseTariffs =
-          await dependencyState?.network.serverAPI.purchaseTariffs.list();
+          await dependencyState.network.serverAPI.purchaseTariffs.list();
       final purchaseTariffMap = PurchaseTariffMap.build(purchaseTariffs);
       if (!mounted) {
         return;
       }
       if (configuration == null) {
-        setState(() => _loadStatus = DataLoadStatus.failed(null, null));
+        setState(() => _loadStatus = DataLoadStatus.failed(null));
         return;
       }
       setState(() => _sharedData = ReservationListSharedData(
           configuration: configuration, purchaseTariffMap: purchaseTariffMap));
-    } catch (exception) {
+    } on Exception catch (exception) {
       if (!mounted) {
         return;
       }
-      setState(() =>
-          _loadStatus = DataLoadStatus.failed(null, exception as Exception?));
+      setState(() => _loadStatus = DataLoadStatus.failed(exception));
     }
   }
 
@@ -144,12 +143,10 @@ class _ReservationPageState extends State<ReservationPage> {
       final reservations = await _serverAPI?.listReservations(_user, date);
       final reservationsDayBefore = await _serverAPI?.listReservations(
           _user, date.subtract(Duration(days: 1)));
-      status = DataLoadStatus.succeeded(
-          ReservationListLoadResult(reservations,
-              reservationsDayBefore: reservationsDayBefore),
-          null);
-    } catch (exception) {
-      status = DataLoadStatus.failed(null, exception as Exception?);
+      status = DataLoadStatus.succeeded(ReservationListLoadResult(reservations,
+          reservationsDayBefore: reservationsDayBefore));
+    } on Exception catch (exception) {
+      status = DataLoadStatus.failed(exception);
     }
 
     if (!mounted) {

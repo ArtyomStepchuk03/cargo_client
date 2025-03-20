@@ -27,7 +27,7 @@ class MessageWriteState extends State<MessageWriteWidget> {
         title: Text(localizationUtil.writeMessage),
         actions: _buildActions(context),
       ),
-      body: MessageWriteBody(key: _bodyKey, information: widget.information!),
+      body: MessageWriteBody(key: _bodyKey, information: widget.information),
     );
   }
 

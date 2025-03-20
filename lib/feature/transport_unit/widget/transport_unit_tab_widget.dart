@@ -70,7 +70,12 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
       appBar: buildAppBar(
         title: Text(localizationUtil.carriages),
         actions: _buildActions(context),
-        bottom: TabBar(controller: _tabController, tabs: _buildTabs()),
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: _buildTabs(),
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.white.withOpacity(0.8),
+        ),
       ),
       drawer: widget.drawer,
       body: TabBarView(

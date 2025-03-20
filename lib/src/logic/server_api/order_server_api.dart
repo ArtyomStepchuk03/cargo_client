@@ -455,20 +455,20 @@ class OrderServerAPI {
     order?.deleted = true;
   }
 
-  parse.LiveQuerySubscription<Order?> subscribe(User user,
+  parse.LiveQuerySubscription<Order?>? subscribe(User user,
           {OrderFilter? filter}) =>
-      serverManager.liveQueryManager!.subscribe(
+      serverManager.liveQueryManager?.subscribe(
           _makeListQuery(user, filter: filter),
           (decoder) => Order.decode(decoder));
 
-  parse.LiveQuerySubscription<Order?> subscribeToReservations(
+  parse.LiveQuerySubscription<Order?>? subscribeToReservations(
           User? user, DateTime date) =>
-      serverManager.liveQueryManager!.subscribe(
+      serverManager.liveQueryManager?.subscribe(
           _makeReservationListQuery(user, date),
           (decoder) => Order.decode(decoder));
 
-  parse.LiveQuerySubscription<Order?> subscribeToChanges(Order order) =>
-      serverManager.liveQueryManager!.subscribeToObjectChanges(
+  parse.LiveQuerySubscription<Order?>? subscribeToChanges(Order order) =>
+      serverManager.liveQueryManager?.subscribeToObjectChanges(
           Order.className, order.id!, (decoder) => Order.decode(decoder));
 
   void unsubscribe(parse.LiveQuerySubscription<Order?>? subscription) =>
