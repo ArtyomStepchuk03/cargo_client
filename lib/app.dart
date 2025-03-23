@@ -18,6 +18,7 @@ class App extends StatelessWidget {
       child: MaterialApp.router(
         routerConfig: _router,
         title: 'CargoDeal',
+        debugShowCheckedModeBanner: false,
         localizationsDelegates: [
           AppLocalizations.delegate,
           GlobalMaterialLocalizations.delegate,
@@ -27,7 +28,30 @@ class App extends StatelessWidget {
         supportedLocales: const [
           Locale('ru', 'RU'), // Russian
         ],
-        theme: _buildTheme(context),
+        theme: ThemeData(
+            colorScheme: ColorScheme.light(
+              primary: Color(0xFF178E28),
+              secondary: Color(0xFF5c6bc0),
+            ),
+            primaryColor: Color(0xFF178E28),
+            primaryColorDark: Color(0xFF005f00),
+            primaryColorLight: Color(0xFF56bf56),
+            appBarTheme: AppBarTheme(
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+              backgroundColor: Color(0xFF12AA72),
+            ),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+              ),
+            ),
+            tabBarTheme: TabBarTheme(
+              indicator: BoxDecoration(
+                border: Border(
+                  bottom: BorderSide(color: Colors.white, width: 2.0),
+                ),
+              ),
+            )),
       ),
     );
   }

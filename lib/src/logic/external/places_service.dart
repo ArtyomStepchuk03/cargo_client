@@ -25,11 +25,15 @@ class PlacesDetailsResult {
 }
 
 class PlacesService {
-  final String? sessionToken;
-  final String? language;
+  final String sessionToken;
+  final String language;
   final String apiKey;
 
-  PlacesService({this.sessionToken, this.language, required this.apiKey});
+  PlacesService({
+    required this.sessionToken,
+    required this.language,
+    required this.apiKey,
+  });
 
   /// Поиск мест по строке запроса (autocomplete)
   Future<List<PlacesSearchResult>> search(String searchString) async {
@@ -125,7 +129,6 @@ PlacesService makeDefaultPlacesService() => PlacesService(
 String _getApiKey() {
   if (Platform.isIOS) {
     return 'AIzaSyC6UWjJLfSWWOXrnTUfraCSQj5KUTKvhUU';
-  } else {
-    return 'AIzaSyAPWau_f1LeAaDLfesK-tYtqfYwKTQ92d4';
   }
+  return 'AIzaSyAPWau_f1LeAaDLfesK-tYtqfYwKTQ92d4';
 }

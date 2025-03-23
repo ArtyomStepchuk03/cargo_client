@@ -90,9 +90,7 @@ class _SearchState extends State<_SearchWidget> {
   Widget _buildSearchField() {
     final localizationUtil = LocalizationUtil.of(context);
     final textStyle = TextStyle(
-      color: Colors.white,
-      fontSize: 18,
-    );
+        color: Colors.white, fontSize: 18, decorationColor: Colors.white);
     return TextField(
       controller: _textEditingController,
       focusNode: _focusNode,

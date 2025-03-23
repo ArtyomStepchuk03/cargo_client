@@ -50,7 +50,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (_progressNotifier == null) {
-      final serverAPI = DependencyHolder.of(context)!.network.serverAPI;
+      final serverAPI = DependencyHolder.of(context).network.serverAPI;
       _progressNotifier = OrderProgressNotifier(
           serverAPI.orders, serverAPI.offers, serverAPI.trips);
       _progressNotifier?.subscribe(widget.order!);
@@ -269,7 +269,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     final editedOrder = _mainBodyKey.currentState!.validate();
     if (editedOrder != null) {
       showActivityDialog(context, localizationUtil.saving);
-      final serverAPI = DependencyHolder.of(context)!.network.serverAPI.orders;
+      final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       try {
         await serverAPI.update(widget.order, editedOrder);
         widget.order!.assign(editedOrder);
@@ -353,7 +353,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     final confirmed = await showQuestionDialog(
         context, localizationUtil.confirmCancelCarrierSend);
     if (confirmed) {
-      final serverAPI = DependencyHolder.of(context)!.network.serverAPI.orders;
+      final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       showDefaultActivityDialog(context);
       try {
         await serverAPI.assignCarrier(widget.order, null);
@@ -370,7 +370,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
   void _accept(BuildContext context) async {
     showDefaultActivityDialog(context);
     final dependencyState = DependencyHolder.of(context);
-    final serverAPI = dependencyState!.network.serverAPI.orders;
+    final serverAPI = dependencyState.network.serverAPI.orders;
     try {
       await serverAPI.take(widget.order!);
       Navigator.pop(context);
@@ -389,7 +389,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     if (confirmed) {
       showDefaultActivityDialog(context);
       final dependencyState = DependencyHolder.of(context);
-      final serverAPI = dependencyState!.network.serverAPI.orders;
+      final serverAPI = dependencyState.network.serverAPI.orders;
       try {
         await serverAPI.decline(widget.order!);
         Navigator.pop(context);
@@ -423,7 +423,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     if (confirmed) {
       showDefaultActivityDialog(context);
       final dependencyState = DependencyHolder.of(context);
-      final serverAPI = dependencyState!.network.serverAPI.orders;
+      final serverAPI = dependencyState.network.serverAPI.orders;
       try {
         await serverAPI.cancel(widget.order!);
         Navigator.pop(context);
@@ -452,7 +452,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     if (confirmed) {
       showDefaultActivityDialog(context);
       final dependencyState = DependencyHolder.of(context);
-      final serverAPI = dependencyState!.network.serverAPI.orders;
+      final serverAPI = dependencyState.network.serverAPI.orders;
       try {
         await serverAPI.cancelByCustomer(widget.order!);
         Navigator.pop(context);
@@ -481,7 +481,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     if (confirmed) {
       showDefaultActivityDialog(context);
       final dependencyState = DependencyHolder.of(context);
-      final serverAPI = dependencyState!.network.serverAPI.orders;
+      final serverAPI = dependencyState.network.serverAPI.orders;
       try {
         await serverAPI.delete(widget.order!);
         Navigator.pop(context);
@@ -509,7 +509,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
 
   Future<void> _refreshProgress({bool showErrors = true}) async {
     final dependencyState = DependencyHolder.of(context);
-    final serverAPI = dependencyState!.network.serverAPI.orders;
+    final serverAPI = dependencyState.network.serverAPI.orders;
     try {
       await serverAPI.fetchProgress(widget.order);
       if (mounted) {

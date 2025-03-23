@@ -276,7 +276,8 @@ extension OrderUtility on Order {
     if (offers == null) {
       return null;
     }
-    return offers?.firstWhere((offer) => offer?.trip != null);
+    return offers?.firstWhere((offer) => offer?.trip != null,
+        orElse: () => null);
   }
 
   bool isQueue() {
