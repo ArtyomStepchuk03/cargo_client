@@ -299,5 +299,6 @@
   "dateRangeTo": "по",
   "timeRangeTo": "до",
   "search": "Поиск",
+  "attachPhoto": "Добавить фотографию",
   "queryTooShort": "Запрос слишком короткий"
 }

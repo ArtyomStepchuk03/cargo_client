@@ -230,8 +230,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
               _unloadingPointKey.currentState != null
                   ? _unloadingPointKey.currentState?.value
                   : widget.order?.unloadingPoint),
-          customerServerAPI: dependencyState?.network.serverAPI.customers,
-          cacheMap: dependencyState?.caches.unloadingPoint,
+          customerServerAPI: dependencyState.network.serverAPI.customers,
+          cacheMap: dependencyState.caches.unloadingPoint,
           customer: widget.user?.role == Role.customer
               ? widget.user?.customer
               : _customerKey.currentState != null
@@ -250,12 +250,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             key: _unloadingEntranceKey,
             initialValue: order?.unloadingEntrance,
             additionalErrorText: hasUnloadingEntranceCoordinateMismatch(
-                    order, configurationLoader?.configuration)
+                    order, configurationLoader.configuration)
                 ? localizationUtil.coordinateMismatch
                 : null,
             unloadingPointServerAPI:
-                dependencyState?.network.serverAPI.unloadingPoints,
-            cacheMap: dependencyState?.caches.unloadingEntrance,
+                dependencyState.network.serverAPI.unloadingPoints,
+            cacheMap: dependencyState.caches.unloadingEntrance,
             unloadingPoint: _unloadingPointKey.currentState != null
                 ? _unloadingPointKey.currentState?.value
                 : order?.unloadingPoint,
@@ -270,8 +270,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             key: _unloadingContactKey,
             initialValue: order?.unloadingContact,
             unloadingPointServerAPI:
-                dependencyState?.network.serverAPI.unloadingPoints,
-            cacheMap: dependencyState?.caches.unloadingContact,
+                dependencyState.network.serverAPI.unloadingPoints,
+            cacheMap: dependencyState.caches.unloadingContact,
             unloadingPoint: _unloadingPointKey.currentState != null
                 ? _unloadingPointKey.currentState?.value
                 : order?.unloadingPoint,

@@ -31,7 +31,7 @@ class TripProgressWidget extends StatefulWidget {
 }
 
 class TripProgressState extends State<TripProgressWidget> {
-  Map<int, File> updatedPhotos = {};
+  Map<int, File?> updatedPhotos = {};
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +44,7 @@ class TripProgressState extends State<TripProgressWidget> {
 
   Widget _buildListView(List<TripHistoryRecord?>? records) {
     final configurationLoader =
-        DependencyHolder.of(context)!.network.configurationLoader;
+        DependencyHolder.of(context).network.configurationLoader;
     return ListView.separated(
       itemCount: records!.length,
       itemBuilder: (BuildContext context, int index) => _buildCell(
@@ -72,6 +72,10 @@ class TripProgressState extends State<TripProgressWidget> {
               record.additionalData?.distance != null)
             _buildSubtitleText(
                 '${localizationUtil.distanceInKilometers}: ${record.additionalData!.distance}'),
+          if (_shouldShowAttachPhotoButton(record) &&
+              (record.photo == null || record.thumbnail == null) &&
+              updatedPhotos[index] == null)
+            buildAttachPhotoButton(record, index),
           if (record.address != null && record.address!.isNotEmpty)
             _buildSubtitleText(
                 '${localizationUtil.address}: ${record.address}'),
@@ -88,7 +92,7 @@ class TripProgressState extends State<TripProgressWidget> {
               mismatchesWithExpectedCoordinate(
                   record, widget.order!, configuration))
             _buildCoordinateMismatchWidget(context, record),
-          if (_shouldShowPhoto(record))
+          if (_shouldShowPhoto(record) || updatedPhotos[index] != null)
             Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -105,33 +109,17 @@ class TripProgressState extends State<TripProgressWidget> {
                     onTap: () => _showFullPhoto(record),
                   ),
                 IconButton(
-                    onPressed: () async {
-                      final newFile = await ImagePicker().pickImage(
-                          source: ImageSource.gallery,
-                          maxHeight: 1600,
-                          maxWidth: 1600,
-                          imageQuality: 80);
-                      if (newFile == null) {
-                        return null;
-                      }
-                      String base64Image =
-                          base64Encode(await newFile.readAsBytes());
-
-                      final serverAPI =
-                          DependencyHolder.of(context)!.network.serverAPI.trips;
-                      await serverAPI.updatePhoto(record, base64Image);
-                      await widget.onUpdate();
-                      setState(() {
-                        updatedPhotos[index] = File(newFile.path);
-                      });
-                    },
+                    onPressed: () => _pickImage(record, index),
                     icon: Icon(Icons.edit)),
                 IconButton(
                   onPressed: () async {
                     final serverAPI =
-                        DependencyHolder.of(context)!.network.serverAPI.trips;
+                        DependencyHolder.of(context).network.serverAPI.trips;
                     await serverAPI.deletePhoto(record);
-                    setState(() => record.thumbnail = null);
+                    setState(() {
+                      record.thumbnail = null;
+                      updatedPhotos[index] = null;
+                    });
                   },
                   icon: Icon(
                     Icons.delete_forever,
@@ -158,6 +146,15 @@ class TripProgressState extends State<TripProgressWidget> {
     return false;
   }
 
+  bool _shouldShowAttachPhotoButton(TripHistoryRecord record) {
+    final bool isRoleAvailable = widget.user?.role == Role.administrator ||
+        widget.user?.role == Role.logistician ||
+        widget.user?.role == Role.manager;
+    final bool isStatusAvailable =
+        record.stage == TripStage.loaded || record.stage == TripStage.unloaded;
+    return isRoleAvailable && isStatusAvailable;
+  }
+
   Widget _buildDateTimeText(BuildContext context, String text) {
     return Text(text,
         style: Theme.of(context)
@@ -177,6 +174,19 @@ class TripProgressState extends State<TripProgressWidget> {
   Widget _buildSubtitleText(String text) {
     return Text(text,
         style: TextStyle(color: Colors.black38, fontSize: _subtitleFontSize));
+  }
+
+  Widget buildAttachPhotoButton(TripHistoryRecord record, int index) {
+    final localizationUtil = LocalizationUtil.of(context);
+    return ElevatedButton(
+      onPressed: () => _pickImage(record, index),
+      style: ButtonStyle(
+          backgroundColor:
+              WidgetStatePropertyAll(Theme.of(context).colorScheme.primary)),
+      child: Text(
+        localizationUtil.attachPhoto,
+      ),
+    );
   }
 
   Widget _buildCoordinateMismatchWidget(
@@ -202,7 +212,7 @@ class TripProgressState extends State<TripProgressWidget> {
 
   void _ignoreCoordinateMismatch(TripHistoryRecord record) async {
     showDefaultActivityDialog(context);
-    final serverAPI = DependencyHolder.of(context)!.network.serverAPI.trips;
+    final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
     try {
       await serverAPI.ignoreCoordinateMismatch(record);
       Navigator.pop(context);
@@ -220,6 +230,25 @@ class TripProgressState extends State<TripProgressWidget> {
             builder: (context) => FullImageWidget(record.photo!.url,
                 title: formatTripStage(context, record.stage)),
             fullscreenDialog: true));
+  }
+
+  void _pickImage(TripHistoryRecord record, int index) async {
+    final newFile = await ImagePicker().pickImage(
+        source: ImageSource.gallery,
+        maxHeight: 1600,
+        maxWidth: 1600,
+        imageQuality: 80);
+    if (newFile == null) {
+      return null;
+    }
+    String base64Image = base64Encode(await newFile.readAsBytes());
+
+    final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
+    await serverAPI.updatePhoto(record, base64Image);
+    await widget.onUpdate();
+    setState(() {
+      updatedPhotos[index] = File(newFile.path);
+    });
   }
 
   static const _titleFontSize = 16.0;
