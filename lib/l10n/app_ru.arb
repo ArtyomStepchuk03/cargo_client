@@ -300,5 +300,7 @@
   "timeRangeTo": "до",
   "search": "Поиск",
   "attachPhoto": "Добавить фотографию",
-  "queryTooShort": "Запрос слишком короткий"
+  "queryTooShort": "Запрос слишком короткий",
+  "deleteImageQuestion": "Удалить изображение?",
+  "deleteImageAccept": "Вы уверены, что хотите удалить изображение?"
 }

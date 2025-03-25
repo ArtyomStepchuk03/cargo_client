@@ -32,7 +32,7 @@ class _AuthPageState extends State<AuthPage> {
     super.didChangeDependencies();
     if (_reachability == null) {
       final dependencyState = DependencyHolder.of(context);
-      _reachability = dependencyState!.network.reachability;
+      _reachability = dependencyState.network.reachability;
       _serverManager = dependencyState.network.serverManager;
       _installationManager = dependencyState.network.installationManager;
       _userManager = dependencyState.network.userManager;

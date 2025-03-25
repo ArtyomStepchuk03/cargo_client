@@ -13,7 +13,10 @@ class Reachability {
   Stream<bool>? get onStatusChanged {
     if (_stream == null) {
       _stream = _underlying.onConnectivityChanged.map(
-          (ConnectivityResult result) => result != ConnectivityResult.none);
+        (List<ConnectivityResult> results) =>
+            results.isNotEmpty &&
+            results.any((r) => r != ConnectivityResult.none),
+      );
     }
     return _stream;
   }

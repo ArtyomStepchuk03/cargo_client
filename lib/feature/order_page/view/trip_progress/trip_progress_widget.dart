@@ -113,12 +113,14 @@ class TripProgressState extends State<TripProgressWidget> {
                     icon: Icon(Icons.edit)),
                 IconButton(
                   onPressed: () async {
-                    final serverAPI =
-                        DependencyHolder.of(context).network.serverAPI.trips;
-                    await serverAPI.deletePhoto(record);
-                    setState(() {
-                      record.thumbnail = null;
-                      updatedPhotos[index] = null;
+                    _showDeletePhotoDialog(context, () async {
+                      final serverAPI =
+                          DependencyHolder.of(context).network.serverAPI.trips;
+                      await serverAPI.deletePhoto(record);
+                      setState(() {
+                        record.thumbnail = null;
+                        updatedPhotos[index] = null;
+                      });
                     });
                   },
                   icon: Icon(
@@ -207,6 +209,35 @@ class TripProgressState extends State<TripProgressWidget> {
         deleteIconColor: Colors.white,
         onDeleted: () => _ignoreCoordinateMismatch(record),
       ),
+    );
+  }
+
+  Future<void> _showDeletePhotoDialog(
+      BuildContext context, VoidCallback onConfirmDelete) async {
+    final localizationUtil = LocalizationUtil.of(context);
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizationUtil.deleteImageQuestion),
+          content: Text(localizationUtil.deleteImageAccept),
+          actions: <Widget>[
+            TextButton(
+              child: Text(localizationUtil.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: Text(
+                localizationUtil.delete,
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                onConfirmDelete();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
