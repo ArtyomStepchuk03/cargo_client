@@ -23,8 +23,7 @@ class SupplierListBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return LoadingListView(
       dataSource: SkipPagedDataSourceAdapter(SupplierDataSource(
-          serverAPI:
-              DependencyHolder.of(context)!.network.serverAPI.suppliers)),
+          serverAPI: DependencyHolder.of(context).network.serverAPI.suppliers)),
       filterPredicate: filterPredicate,
       builder: (BuildContext context, Supplier? supplier) {
         return _buildCard(context, supplier);

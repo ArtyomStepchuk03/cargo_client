@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/form/contact/multiple_contact_form_group.dart';
 import 'package:manager_mobile_client/common/form/form.dart';
 import 'package:manager_mobile_client/common/form/form_fields.dart';
@@ -33,8 +34,10 @@ class SupplierDetailsState extends State<SupplierDetailsWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(short.formatSupplierSafe(context, widget.supplier)),
+      appBar: buildAppBar(
+        title: Text(
+          short.formatSupplierSafe(context, widget.supplier),
+        ),
       ),
       body: _buildContent(),
     );

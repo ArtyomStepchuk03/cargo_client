@@ -215,6 +215,7 @@ class LoadingListViewState<T> extends State<LoadingListView<T>> {
   Future<void> _refresh() async {
     if (widget.onRefresh == null) {
       await _loadPortion(widget.dataSource!, reload: true);
+      return;
     }
     widget.onRefresh!();
   }

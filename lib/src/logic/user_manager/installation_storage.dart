@@ -19,5 +19,5 @@ class InstallationStorage {
   }
 
   static const _installationIdKey =
-      'com.macsoftex.CargoDeal.UserStorage.installationId';
+      'com.cargodeal.CargoDeal.UserStorage.installationId';
 }

@@ -58,5 +58,5 @@ class ServerManagerStorage {
   }
 
   static const _serverConfigurationKey =
-      'com.macsoftex.CargoDeal.ServerManagerStorage.serverConfiguration';
+      'com.cargodeal.CargoDeal.ServerManagerStorage.serverConfiguration';
 }

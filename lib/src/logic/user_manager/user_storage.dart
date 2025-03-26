@@ -19,5 +19,5 @@ class UserStorage {
   }
 
   static const _sessionTokenKey =
-      'com.macsoftex.CargoDeal.UserStorage.sessionToken';
+      'com.cargodeal.CargoDeal.UserStorage.sessionToken';
 }

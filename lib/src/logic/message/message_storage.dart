@@ -19,5 +19,5 @@ class MessageStorage {
   }
 
   static const _lastSeenMessageDateKey =
-      'com.macsoftex.CargoDeal.MessageStorage.lastSeenMessageDate';
+      'com.cargodeal.CargoDeal.MessageStorage.lastSeenMessageDate';
 }

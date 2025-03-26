@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/feature/supplier_page/widget/supplier_search/supplier_search.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
 
@@ -14,9 +15,8 @@ class SupplierPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
     return Scaffold(
-      appBar: AppBar(
+      appBar: buildAppBar(
         title: Text(localizationUtil.suppliers),
-        foregroundColor: Colors.white,
         actions: [_buildSearchButton(context)],
       ),
       drawer: drawer,

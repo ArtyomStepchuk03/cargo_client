@@ -1,4 +1,4 @@
-package com.macsoftex.manager_mobile_client
+package com.cargodeal.manager_mobile_client
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:manager_mobile_client/common/app_bar.dart';
 import 'package:manager_mobile_client/common/fullscreen_activity_widget.dart';
 import 'package:manager_mobile_client/feature/auth_page/cubit/auth_cubit.dart';
 import 'package:manager_mobile_client/feature/auth_page/widget/authorization_error_widget.dart';
@@ -54,7 +55,7 @@ class _AuthPageState extends State<AuthPage> {
     return _AuthorizationScopeWidget(
       state: this,
       child: Scaffold(
-        appBar: AppBar(title: Text(localizationUtil.titleAuth)),
+        appBar: buildAppBar(title: Text(localizationUtil.titleAuth)),
         body: _buildContent(),
       ),
     );

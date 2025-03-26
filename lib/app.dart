@@ -29,56 +29,33 @@ class App extends StatelessWidget {
           Locale('ru', 'RU'), // Russian
         ],
         theme: ThemeData(
-            colorScheme: ColorScheme.light(
-              primary: Color(0xFF178E28),
-              secondary: Color(0xFF5c6bc0),
+          colorScheme: ColorScheme.light(
+            primary: Color(0xFF178E28),
+            secondary: Color(0xFF5c6bc0),
+          ),
+          primaryColor: Color(0xFF178E28),
+          primaryColorDark: Color(0xFF005f00),
+          primaryColorLight: Color(0xFF56bf56),
+          appBarTheme: AppBarTheme(
+            systemOverlayStyle: SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light,
+              systemNavigationBarColor: Colors.white,
+              systemNavigationBarIconBrightness: Brightness.light,
             ),
-            primaryColor: Color(0xFF178E28),
-            primaryColorDark: Color(0xFF005f00),
-            primaryColorLight: Color(0xFF56bf56),
-            appBarTheme: AppBarTheme(
-              systemOverlayStyle: SystemUiOverlayStyle.light,
-              backgroundColor: Color(0xFF12AA72),
+            backgroundColor: Color(0xFF12AA72),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              foregroundColor: Colors.white,
             ),
-            elevatedButtonTheme: ElevatedButtonThemeData(
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
+          ),
+          tabBarTheme: TabBarTheme(
+            indicator: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Colors.white, width: 2.0),
               ),
             ),
-            tabBarTheme: TabBarTheme(
-              indicator: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(color: Colors.white, width: 2.0),
-                ),
-              ),
-            )),
-      ),
-    );
-  }
-
-  ThemeData _buildTheme(BuildContext context) {
-    final theme = Theme.of(context);
-    return theme.copyWith(
-      colorScheme: theme.colorScheme.copyWith(
-        primary: Color(0xFF178E28),
-        secondary: Color(0xFF5c6bc0),
-      ),
-      primaryColor: Color(0xFF178E28),
-      primaryColorDark: Color(0xFF005f00),
-      primaryColorLight: Color(0xFF56bf56),
-      appBarTheme: theme.appBarTheme.copyWith(
-        systemOverlayStyle: SystemUiOverlayStyle.light,
-        backgroundColor: Color(0xFF12AA72),
-      ),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          foregroundColor: Colors.white,
-        ),
-      ),
-      tabBarTheme: theme.tabBarTheme.copyWith(
-        indicator: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(color: Colors.white, width: 2.0),
           ),
         ),
       ),

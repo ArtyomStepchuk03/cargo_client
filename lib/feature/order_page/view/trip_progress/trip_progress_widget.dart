@@ -108,26 +108,32 @@ class TripProgressState extends State<TripProgressWidget> {
                     record.thumbnail!.url,
                     onTap: () => _showFullPhoto(record),
                   ),
-                IconButton(
-                    onPressed: () => _pickImage(record, index),
-                    icon: Icon(Icons.edit)),
-                IconButton(
-                  onPressed: () async {
-                    _showDeletePhotoDialog(context, () async {
-                      final serverAPI =
-                          DependencyHolder.of(context).network.serverAPI.trips;
-                      await serverAPI.deletePhoto(record);
-                      setState(() {
-                        record.thumbnail = null;
-                        updatedPhotos[index] = null;
+                if (widget.user?.role == Role.administrator ||
+                    widget.user?.role == Role.logistician ||
+                    widget.user?.role == Role.manager) ...[
+                  IconButton(
+                      onPressed: () => _pickImage(record, index),
+                      icon: Icon(Icons.edit)),
+                  IconButton(
+                    onPressed: () async {
+                      _showDeletePhotoDialog(context, () async {
+                        final serverAPI = DependencyHolder.of(context)
+                            .network
+                            .serverAPI
+                            .trips;
+                        await serverAPI.deletePhoto(record);
+                        setState(() {
+                          record.thumbnail = null;
+                          updatedPhotos[index] = null;
+                        });
                       });
-                    });
-                  },
-                  icon: Icon(
-                    Icons.delete_forever,
-                    color: Colors.red,
+                    },
+                    icon: Icon(
+                      Icons.delete_forever,
+                      color: Colors.red,
+                    ),
                   ),
-                ),
+                ]
               ],
             )
         ],
