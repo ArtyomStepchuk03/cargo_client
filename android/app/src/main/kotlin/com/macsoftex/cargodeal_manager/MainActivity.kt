@@ -1,4 +1,4 @@
-package com.cargodeal.cargodeal_manager
+package com.macsoftex.cargodeal_manager
 
 import io.flutter.embedding.android.FlutterActivity
 

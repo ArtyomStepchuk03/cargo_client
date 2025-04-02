@@ -170,7 +170,7 @@ class _OrderPageState extends State<OrderPage> {
     final themeData = Theme.of(context);
     return Theme(
       data: themeData.copyWith(
-        brightness: Brightness.dark,
+        brightness: Brightness.light,
         colorScheme: themeData.colorScheme.copyWith(secondary: Colors.white),
         hintColor: Colors.white,
         textTheme: themeData.textTheme.copyWith(
