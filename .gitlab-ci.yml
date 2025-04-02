@@ -22,3 +22,6 @@ build-job:
     expire_in: 1 week
   only:
     - dev
+  when: manual
+  tags:
+    - stage-docker
