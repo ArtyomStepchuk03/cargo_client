@@ -14,6 +14,7 @@ before_script:
   - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   - echo "org.gradle.java.home=$JAVA_HOME" > android/gradle.properties
   - flutter pub get
+  - flutter pub upgrade
 
 build-job:
   stage: build
