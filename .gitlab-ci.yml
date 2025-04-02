@@ -1,0 +1,24 @@
+image: instrumentisto/flutter:3.29.0
+
+stages:
+  - build
+
+cache:
+  key: flutter-cache
+  policy: pull-push
+  paths:
+    - .pub-cache
+
+before_script:
+  - flutter pub get
+
+build-job:
+  stage: build
+  script:
+    - flutter build apk --debug
+  artifacts:
+    paths:
+      - build/app/outputs/flutter-apk/app-debug.apk
+    expire_in: 1 week
+  only:
+    - dev
