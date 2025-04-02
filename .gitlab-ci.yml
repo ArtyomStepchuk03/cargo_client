@@ -10,9 +10,9 @@ cache:
     - .pub-cache
 
 before_script:
-  - apt-get update
-  - apt-get install -y openjdk-17-jdk
+  - apt-get update && apt-get install -y openjdk-17-jdk
   - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+  - echo "org.gradle.java.home=$JAVA_HOME" > android/gradle.properties
   - flutter pub get
 
 build-job:
