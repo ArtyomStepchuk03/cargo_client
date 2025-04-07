@@ -18,7 +18,7 @@ before_script:
   - echo "org.gradle.jvmargs=-Xmx2048m" >> android/gradle.properties
   - flutter pub get
 
-build-job:
+build-debug:
   stage: build
   script:
     - flutter build apk --debug
@@ -28,6 +28,20 @@ build-job:
     expire_in: 1 week
   only:
     - dev
+  when: manual
+  tags:
+    - stage-docker
+
+build-release:
+  stage: build
+  script:
+    - flutter build appbundle --release
+  artifacts:
+    paths:
+      - build/app/outputs/bundle/release/app-release.aab
+    expire_in: 1 week
+  only:
+    - release
   when: manual
   tags:
     - stage-docker
