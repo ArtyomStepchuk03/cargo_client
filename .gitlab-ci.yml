@@ -13,6 +13,8 @@ before_script:
   - apt-get update && apt-get install -y openjdk-17-jdk
   - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   - echo "org.gradle.java.home=$JAVA_HOME" > android/gradle.properties
+  - echo "android.useAndroidX=true" >> android/gradle.properties
+  - echo "android.enableJetifier=true" >> android/gradle.properties
   - echo "org.gradle.jvmargs=-Xmx2048m" >> android/gradle.properties
   - flutter pub get
 
