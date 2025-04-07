@@ -3,16 +3,17 @@ image: instrumentisto/flutter:3.29.0
 stages:
   - build
 
-#cache:
-#  key: flutter-cache
-#  policy: pull-push
-#  paths:
-#    - .pub-cache
+cache:
+  key: flutter-cache
+  policy: pull-push
+  paths:
+    - .pub-cache
 
 before_script:
   - apt-get update && apt-get install -y openjdk-17-jdk
   - export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
   - echo "org.gradle.java.home=$JAVA_HOME" > android/gradle.properties
+  - echo "org.gradle.jvmargs=-Xmx2048m" >> android/gradle.properties
   - flutter pub get
 
 build-job:
