@@ -1,0 +1,16 @@
+default_platform(:android)
+
+platform :android do
+  desc "Deploy staging version to Firebase"
+  gradle(
+      task: 'assemble',
+      build_type: 'Release'
+  )
+  lane :deploy_staging do
+      firebase_app_distribution(
+          app: "1:754803856547:android:e766ba3d5ae12db4",
+          groups: "internal-testers",
+          apk_path: "../build/app/outputs/apk/release/app-release.apk"
+      )
+  end
+end
