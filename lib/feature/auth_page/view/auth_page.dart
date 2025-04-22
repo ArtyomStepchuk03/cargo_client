@@ -76,7 +76,12 @@ class _AuthPageState extends State<AuthPage> {
   Widget _buildContent() {
     return BlocConsumer<AuthCubit, AuthState>(listener: (context, state) {
       if (state is SuccessAuthState) {
-        context.go("/reservations");
+        if (Role.isManagerOrHigher(state.user?.role) ||
+            Role.isDispatcherOrHigher(state.user?.role)) {
+          context.go("/reservations");
+        } else {
+          context.go("/orders");
+        }
       }
     }, builder: (_, state) {
       if (state is LoadingAuthState) {

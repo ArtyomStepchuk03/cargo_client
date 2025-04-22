@@ -72,7 +72,7 @@ class MainMenuWidget extends StatelessWidget {
           context: context,
           mainScreen: mainScreen,
           icon: Icons.departure_board,
-          title: localizationUtil.order,
+          title: localizationUtil.orders,
           onTap: () => context.go('/orders'),
         );
       case MainScreen.customers:
@@ -138,17 +138,17 @@ class MainMenuWidget extends StatelessWidget {
     final dependencyState = DependencyHolder.of(context);
     final authorizationState = context.read<AuthCubit>();
 
-    final serverManager = dependencyState?.network.serverManager;
-    final installationManager = dependencyState?.network.installationManager;
-    final userManager = dependencyState?.network.userManager;
+    final serverManager = dependencyState.network.serverManager;
+    final installationManager = dependencyState.network.installationManager;
+    final userManager = dependencyState.network.userManager;
 
     authorizationState.setLoading();
 
-    await installationManager?.detachUser();
+    await installationManager.detachUser();
     try {
-      serverManager?.liveQueryManager?.disconnect();
-      await userManager?.logOut();
-      await serverManager?.unsetConfiguration();
+      serverManager.liveQueryManager?.disconnect();
+      await userManager.logOut();
+      await serverManager.unsetConfiguration();
 
       authorizationState.setUnauthorized();
     } on Exception {

@@ -1,74 +1,45 @@
 {
   "project_info": {
-    "project_number": "754803856547",
-    "firebase_url": "https://cargo-deal-android.firebaseio.com",
-    "project_id": "cargo-deal-android",
-    "storage_bucket": "cargo-deal-android.appspot.com"
+    "project_number": "598544058294",
+    "project_id": "cargodeal-14936",
+    "storage_bucket": "cargodeal-14936.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:754803856547:android:e766ba3d5ae12db4",
+        "mobilesdk_app_id": "1:598544058294:android:6b88a1340c6ae9e2bc6317",
         "android_client_info": {
-          "package_name": "com.macsoftex.cargodeal_manager"
+          "package_name": "com.cargodeal.cargodeal_manager"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "754803856547-8tpfmedrqbsji7to8tlr9c117e5ivmqc.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD6IF5PyUqDRKujgqDffFYz6VALpDqTDq0"
+          "current_key": "AIzaSyCWGHVGeq92rq0WVAJLCWNU5hLEqocXg8c"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "754803856547-8tpfmedrqbsji7to8tlr9c117e5ivmqc.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:754803856547:android:fa8f5e1b20f82be9",
+        "mobilesdk_app_id": "1:598544058294:android:0e55c352bd4104dbbc6317",
         "android_client_info": {
-          "package_name": "xyz.itlab.trucktracker"
+          "package_name": "com.macsoftex.cargodeal_manager"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "754803856547-lo51o4g5ckb6khcbstl31an5b0q423ao.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "xyz.itlab.trucktracker",
-            "certificate_hash": "8e4d44975e3c64eb7ca09dedd472d41e567d2e9a"
-          }
-        },
-        {
-          "client_id": "754803856547-8tpfmedrqbsji7to8tlr9c117e5ivmqc.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD6IF5PyUqDRKujgqDffFYz6VALpDqTDq0"
+          "current_key": "AIzaSyCWGHVGeq92rq0WVAJLCWNU5hLEqocXg8c"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "754803856547-8tpfmedrqbsji7to8tlr9c117e5ivmqc.apps.googleusercontent.com",
-              "client_type": 3
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

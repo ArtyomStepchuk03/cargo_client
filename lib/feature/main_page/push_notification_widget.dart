@@ -31,8 +31,8 @@ class PushNotificationState extends State<PushNotificationWidget> {
     super.didChangeDependencies();
     if (_client == null) {
       final dependencyState = DependencyHolder.of(context);
-      _client = dependencyState?.network.pushNotificationClient;
-      _unreadMessageChecker = dependencyState?.network.unreadMessageChecker;
+      _client = dependencyState.network.pushNotificationClient;
+      _unreadMessageChecker = dependencyState.network.unreadMessageChecker;
       _addHandler();
       _showLastMessage();
     }
@@ -45,7 +45,7 @@ class PushNotificationState extends State<PushNotificationWidget> {
   }
 
   @override
-  Widget build(BuildContext context) => widget.child!;
+  Widget build(BuildContext context) => widget.child;
 
   PushNotificationClient? _client;
   UnreadMessageChecker? _unreadMessageChecker;
@@ -75,10 +75,10 @@ class PushNotificationState extends State<PushNotificationWidget> {
 
   Future<void> _showOrderDetails(int orderNumber) async {
     showDefaultActivityDialog(context);
-    final serverAPI = DependencyHolder.of(context)?.network.serverAPI.orders;
+    final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
     final localizationUtil = LocalizationUtil.of(context);
     try {
-      final order = await serverAPI!.getByNumber(orderNumber);
+      final order = await serverAPI.getByNumber(orderNumber);
       Navigator.pop(context);
       if (order == null) {
         await showInformationDialog(context, localizationUtil.orderNotFound);

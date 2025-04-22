@@ -49,7 +49,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   void reset() => _formKey.currentState?.reset();
 
   Order? validate() {
-    if (!_formKey.currentState!.validate()!) {
+    if (_formKey.currentState?.validate() != true) {
       return null;
     }
 
@@ -433,7 +433,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           buildArticleTypeFormField(
             context,
             _articleTypeListKey,
-            order!.articleBrand!.type!,
+            order?.articleBrand?.type,
             dependencyState!.network.serverAPI.articleTypes,
             dependencyState.caches.articleType,
             _handleArticleTypeChanged,
@@ -445,12 +445,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           buildArticleBrandFormField(
             context,
             _articleBrandKey,
-            order.articleBrand!,
+            order?.articleBrand,
             dependencyState.network.serverAPI.articleBrands,
             dependencyState.caches.articleBrand,
             _articleTypeListKey.currentState != null
                 ? _articleTypeListKey.currentState!.value
-                : order.articleBrand?.type,
+                : order?.articleBrand?.type,
             _editing,
           ),
         ),
@@ -504,7 +504,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   Widget _buildPriceGroup(DependencyState? dependencyState, Order? order) {
     final localizationUtil = LocalizationUtil.of(context);
     return buildFormGroup([
-      if (widget.user!.canManageOrderSalePrice()) ...[
+      if (widget.user?.canManageOrderSalePrice() == true) ...[
         buildFormRow(
           Icons.account_balance_wallet,
           EnumerationFormField<PriceType>(
@@ -605,8 +605,8 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   void _handleCustomerChanged(Customer? value) {
     _unloadingPointKey.currentState?.value = null;
     if (_salePriceTypeKey.currentState != null)
-      _salePriceTypeKey.currentState!.value =
-          _customerKey.currentState!.value!.priceType;
+      _salePriceTypeKey.currentState?.value =
+          _customerKey.currentState?.value?.priceType;
     setState(() {});
   }
 
@@ -617,7 +617,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
 
   void _handleUnloadingPointChanged(UnloadingPoint? value) {
     if (_unloadingEntranceKey.currentState != null)
-      _unloadingEntranceKey.currentState!.value = null;
+      _unloadingEntranceKey.currentState?.value = null;
     _unloadingContactKey.currentState?.value = null;
     setState(() {});
   }
