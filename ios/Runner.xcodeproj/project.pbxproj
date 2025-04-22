@@ -169,6 +169,15 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		B2B1F91DC0280B16FE26C44D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				2A2DBA94B11B26C138C65DC0 /* Pods_Runner.framework */,
+				C765B93107AD6819BD2CA11A /* Pods_RunnerTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -496,7 +505,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 8S6PDVW3MA;
+				DEVELOPMENT_TEAM = 7US8CJQU9F;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cargo Client DN";
