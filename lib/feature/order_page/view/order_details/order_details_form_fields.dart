@@ -80,7 +80,7 @@ Widget buildArticleTypeDisplayFormField(
 Widget buildArticleTypeFormField(
     BuildContext context,
     Key key,
-    ArticleType initialValue,
+    ArticleType? initialValue,
     ArticleTypeServerAPI serverAPI,
     SkipPagedDataCache<ArticleType> cache,
     ValueChanged<ArticleType?> onChanged,
@@ -145,7 +145,7 @@ class ArticleBrandSearchPredicate implements SearchPredicate<ArticleBrand> {
 Widget buildArticleBrandFormField(
     BuildContext context,
     Key key,
-    ArticleBrand initialValue,
+    ArticleBrand? initialValue,
     ArticleBrandServerAPI serverAPI,
     SkipPagedDataCacheMap<ArticleBrand, ArticleType> cacheMap,
     ArticleType? articleType,
@@ -552,7 +552,7 @@ Widget buildUnloadingContactFormField(BuildContext context,
         : null,
     onDelete: (Contact? contact) async {
       final serverAPI =
-          DependencyHolder.of(context)!.network.serverAPI.unloadingPoints;
+          DependencyHolder.of(context).network.serverAPI.unloadingPoints;
       await serverAPI.removeContact(unloadingPoint, contact);
       unloadingPoint?.contacts?.remove(contact);
     },

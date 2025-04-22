@@ -30,9 +30,10 @@ class ServerManager {
     await storage?.unsetServerConfiguration();
     final companyServersInformation =
         await companyServerConfigurationSource?.get();
-    final companyServerInformation = companyServersInformation?.firstWhere(
-        (information) => information.name == companyName,
-        orElse: null);
+    final companyServerInformation = companyServersInformation
+        ?.where((info) => info.name == companyName)
+        .cast<CompanyServerInformation?>()
+        .firstOrNull;
     if (companyServerInformation == null) {
       return;
     }
