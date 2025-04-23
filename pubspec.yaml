@@ -1,6 +1,6 @@
 
 name: manager_mobile_client
-version: 1.27.4+67
+version: 1.27.5+68
 
 environment:
   sdk: ">=3.5.3 <4.0.0"

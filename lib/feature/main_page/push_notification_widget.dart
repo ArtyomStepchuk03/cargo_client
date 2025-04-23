@@ -59,7 +59,7 @@ class PushNotificationState extends State<PushNotificationWidget> {
       if (notification != null) {
         _handleNotificationIfNotBusy(notification, false);
       } else if (message != null) {
-        showInformationDialog(context, message.body!);
+        showInformationDialog(context, message.body);
       }
     });
   }
@@ -99,9 +99,9 @@ class PushNotificationState extends State<PushNotificationWidget> {
   }
 
   Future<bool> _askForOrderDetailsIfNeeded(
-      PushNotification notification, bool active) async {
+      PushNotification notification, bool? active) async {
     final localizationUtil = LocalizationUtil.of(context);
-    if (!active) {
+    if (active != true) {
       return true;
     }
     _playNotificationSound();
@@ -114,13 +114,13 @@ class PushNotificationState extends State<PushNotificationWidget> {
     if (active) {
       _playNotificationSound();
     }
-    await _showGeneralNotificationDialog(notification.alert!);
+    await _showGeneralNotificationDialog(notification.alert);
   }
 
   void _playNotificationSound() => playSound(audioPlayer, 'notification');
   Future<void> _showGeneralNotificationDialog(
-          PushNotificationAlert notificationAlert) async =>
-      await showInformationDialog(context, notificationAlert.body!);
+          PushNotificationAlert? notificationAlert) async =>
+      await showInformationDialog(context, notificationAlert?.body);
 
   Future<void> _handleNotification(
       PushNotification notification, bool active) async {
@@ -128,21 +128,21 @@ class PushNotificationState extends State<PushNotificationWidget> {
     if (notification.alert == null) {
       return;
     }
-    final orderNumber = _getOrderNumber(notification.data!);
-    if (orderNumber != null && _shouldShowOrderDetails(notification.data!)) {
+    final orderNumber = _getOrderNumber(notification.data);
+    if (orderNumber != null && _shouldShowOrderDetails(notification.data)) {
       await _handleOrderNotification(notification, active, orderNumber);
       return;
     }
     await _handleGeneralNotification(notification, active);
   }
 
-  bool _shouldShowOrderDetails(Map<String, dynamic> notificationData) {
-    final type = safeCast<String>(notificationData['type']);
+  bool _shouldShowOrderDetails(Map<String, dynamic>? notificationData) {
+    final type = safeCast<String>(notificationData?['type']);
     if (type == 'tripStage') {
       return false;
     }
     if (type == 'newOrder') {
-      final order = safeCast<Map<String, dynamic>>(notificationData['object']);
+      final order = safeCast<Map<String, dynamic>>(notificationData?['object']);
       if (order == null) {
         return false;
       }
@@ -151,12 +151,12 @@ class PushNotificationState extends State<PushNotificationWidget> {
     return true;
   }
 
-  int? _getOrderNumber(Map<String, dynamic> notificationData) {
-    final order = safeCast<Map<String, dynamic>>(notificationData['object']);
+  int? _getOrderNumber(Map<String, dynamic>? notificationData) {
+    final order = safeCast<Map<String, dynamic>>(notificationData?['object']);
     if (order != null) {
       return safeCast<int>(order['number']);
     }
-    return safeCast<int>(notificationData['orderNumber']);
+    return safeCast<int>(notificationData?['orderNumber']);
   }
 
   void _handleNotificationIfNotBusy(
