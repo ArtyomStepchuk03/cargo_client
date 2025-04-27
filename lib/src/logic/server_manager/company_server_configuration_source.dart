@@ -85,10 +85,9 @@ class CompanyServerConfigurationSource {
       return null;
     }
     return CompanyServerInformation(
-        name: name,
-        configuration: parse.ServerConfiguration(
-            baseUrl: baseUrl,
-            applicationId: applicationId,
-            clientKey: clientKey));
+      name: name,
+      configuration: parse.ServerConfiguration(
+          baseUrl: baseUrl, applicationId: applicationId, clientKey: clientKey),
+    );
   }
 }

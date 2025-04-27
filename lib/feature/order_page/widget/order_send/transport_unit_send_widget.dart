@@ -117,7 +117,8 @@ void _processOrderSending(BuildContext context, Order order, User user,
 }
 
 bool _isConsistOrder(Order order, User user) {
-  if ([Role.manager, Role.administrator, Role.dispatcher].contains(user.role)) {
+  if ([Role.manager, Role.administrator, Role.logistician]
+      .contains(user.role)) {
     return order.consistency == AgreeOrderType.notAgree().raw;
   }
   return false;

@@ -7,9 +7,9 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:598544058294:android:6b88a1340c6ae9e2bc6317",
+        "mobilesdk_app_id": "1:598544058294:android:0e55c352bd4104dbbc6317",
         "android_client_info": {
-          "package_name": "com.cargodeal.cargodeal_manager"
+          "package_name": "com.macsoftex.cargodeal_manager"
         }
       },
       "oauth_client": [],
@@ -26,9 +26,9 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:598544058294:android:0e55c352bd4104dbbc6317",
+        "mobilesdk_app_id": "1:598544058294:android:352b649752080d03bc6317",
         "android_client_info": {
-          "package_name": "com.macsoftex.cargodeal_manager"
+          "package_name": "dnlabs.mobile.cargo.driver"
         }
       },
       "oauth_client": [],
