@@ -128,7 +128,7 @@ PlacesService makeDefaultPlacesService() => PlacesService(
 
 String _getApiKey() {
   if (Platform.isIOS) {
-    return 'AIzaSyC6UWjJLfSWWOXrnTUfraCSQj5KUTKvhUU';
+    return 'AIzaSyDIljZjTPM6J0UDqyA6BeJWD16ybuNLyzM';
   }
-  return 'AIzaSyAPWau_f1LeAaDLfesK-tYtqfYwKTQ92d4'; // AIzaSyDIljZjTPM6J0UDqyA6BeJWD16ybuNLyzM
+  return 'AIzaSyDIljZjTPM6J0UDqyA6BeJWD16ybuNLyzM';
 }

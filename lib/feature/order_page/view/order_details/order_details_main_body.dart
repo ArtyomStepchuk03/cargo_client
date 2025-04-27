@@ -330,7 +330,9 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           EnumerationFormField<AgreeOrderType>(
             context,
             key: _agreeTypeKey,
-            initialValue: AgreeOrderType(widget.order?.consistency),
+            initialValue: widget.order?.consistency == null
+                ? AgreeOrderType.agree()
+                : AgreeOrderType(widget.order?.consistency),
             values: [AgreeOrderType.agree(), AgreeOrderType.notAgree()],
             formatter: formatAgreeOrderType,
             label: localizationUtil.orderStage,
@@ -415,7 +417,6 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
           key: _loadingDateKey,
           initialValue: order?.loadingDate?.toLocal(),
           pickerMode: CupertinoDatePickerMode.dateAndTime,
-          minuteInterval: 60,
           label: localizationUtil.loadingDateTime,
           validator: RequiredValidator(context),
           enabled: _editing,
