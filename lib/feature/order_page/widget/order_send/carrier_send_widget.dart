@@ -76,7 +76,7 @@ void _processOrderSending(
 }
 
 bool _shouldConsist(Order? order, User? user) {
-  if ([Role.dispatcher, Role.administrator, Role.manager]
+  if ([Role.logistician, Role.administrator, Role.manager]
       .contains(user?.role)) {
     return order?.consistency == AgreeOrderType.notAgree().raw;
   }
