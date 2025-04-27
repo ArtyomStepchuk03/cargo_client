@@ -153,6 +153,10 @@ class LoadingListViewState<T> extends State<LoadingListView<T>> {
                                 }
                               },
                               child: Text(localizationUtil.delete),
+                              style: ButtonStyle(
+                                  foregroundColor:
+                                      WidgetStatePropertyAll(Colors.green),
+                                  elevation: WidgetStatePropertyAll(0)),
                             ),
                           ],
                         ),
