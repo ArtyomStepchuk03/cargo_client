@@ -171,7 +171,6 @@ class ReservationDetailsBodyState extends State<ReservationDetailsBody> {
           key: _unloadingDateKey,
           initialValue: reservation?.unloadingBeginDate?.toLocal(),
           pickerMode: CupertinoDatePickerMode.dateAndTime,
-          minuteInterval: 60,
           label: localizationUtil.unloadingDateTime,
           validator: RequiredValidator(context),
           enabled: _editing,

@@ -10,7 +10,6 @@ class DateFormField extends FormField<DateTime> {
   final CupertinoDatePickerMode pickerMode;
   final DateTime? minimumDate;
   final DateTime? maximumDate;
-  final int minuteInterval;
   final ValueChanged<DateTime>? onChanged;
 
   DateFormField(
@@ -19,7 +18,6 @@ class DateFormField extends FormField<DateTime> {
       this.pickerMode = CupertinoDatePickerMode.dateAndTime,
       this.minimumDate,
       this.maximumDate,
-      this.minuteInterval = 1,
       this.onChanged,
       String? label,
       FormFieldValidator<DateTime>? validator,
@@ -27,7 +25,7 @@ class DateFormField extends FormField<DateTime> {
       : super(
           key: key,
           initialValue: initialValue != null
-              ? validateDateForPicker(initialValue, pickerMode, minuteInterval)
+              ? validateDateForPicker(initialValue, pickerMode)
               : null,
           validator: validator,
           enabled: enabled,
@@ -64,12 +62,12 @@ class DateFormField extends FormField<DateTime> {
     FocusScope.of(state.context).unfocus();
 
     final newValue = await showCustomDatePicker(
-        context: state.context,
-        mode: state.widget.pickerMode,
-        initialValue: state.value,
-        minimumDate: state.widget.minimumDate,
-        maximumDate: state.widget.maximumDate,
-        minuteInterval: state.widget.minuteInterval);
+      context: state.context,
+      mode: state.widget.pickerMode,
+      initialValue: state.value,
+      minimumDate: state.widget.minimumDate,
+      maximumDate: state.widget.maximumDate,
+    );
 
     if (newValue != null && newValue != state.value) {
       state.value = newValue;
