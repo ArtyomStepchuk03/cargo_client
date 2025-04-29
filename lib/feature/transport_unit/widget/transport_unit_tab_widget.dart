@@ -164,7 +164,7 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
                     context: context,
                     onDisband: () async {
                       bool disbanded = await _disband(context, item);
-                      if (!disbanded) {
+                      if (disbanded != true) {
                         return;
                       }
                       searchListBodyKey.currentState?.removeTransportUnit(item);
@@ -179,8 +179,8 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
                               _transportUnitToShowOnMap = item;
                               _tabController?.index = 1;
                             } else {
-                              _mapBodyKey.currentState!
-                                  .select(item, centerInView: true);
+                              _mapBodyKey.currentState
+                                  ?.select(item, centerInView: true);
                             }
                           }
                         : null,
@@ -216,7 +216,7 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
       _selectedValue != null;
 
   Widget? _buildConfirmButton(context) {
-    if (!_needsConfirmButton()) {
+    if (_needsConfirmButton() != true) {
       return null;
     }
     return buildFloatingActionButtonContainer(
@@ -281,7 +281,7 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
       initialValue: _selectedValue,
       onSelect: (TransportUnit? transportUnit) {
         if (_mapBodyKey.currentState != null) {
-          _mapBodyKey.currentState!.select(transportUnit);
+          _mapBodyKey.currentState?.select(transportUnit);
         }
         setState(() => _selectedValue = transportUnit);
       },
@@ -364,7 +364,7 @@ class TransportUnitTabState extends State<TransportUnitTabWidget>
     }
     showDefaultActivityDialog(context);
     final serverAPI =
-        DependencyHolder.of(context)!.network.serverAPI.transportUnits;
+        DependencyHolder.of(context).network.serverAPI.transportUnits;
     try {
       await serverAPI.disband(transportUnit);
       Navigator.pop(context);

@@ -96,7 +96,10 @@ class _AuthPageState extends State<AuthPage> {
       if (state is ErrorAuthState) {
         return AuthorizationErrorWidget(onRetry: _recheckSession);
       }
-      return LogInWidget();
+      if (state is UnauthorizedAuthState) {
+        return LogInWidget();
+      }
+      return FullscreenActivityWidget();
     });
   }
 

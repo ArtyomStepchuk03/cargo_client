@@ -44,18 +44,16 @@ class OrderMapState extends State<OrderMapWidget> {
     return Scaffold(
       appBar: buildAppBar(title: Text(localizationUtil.orderOnMap)),
       body: FullscreenActivityOverlay(
-        loading: !_loaded,
+        loading: _loaded != true,
         child: Stack(children: [
-          Listener(
-            onPointerMove: (event) => _handleCameraMoveGestureStarted(),
-            child: GoogleMap(
-              myLocationButtonEnabled: false,
-              initialCameraPosition: _getInitialCameraPosition(),
-              markers: _markers,
-              polylines: _polylines,
-              onMapCreated: _handleMapCreated,
-              onCameraMove: _handleCameraMove,
-            ),
+          GoogleMap(
+            myLocationButtonEnabled: false,
+            initialCameraPosition: _getInitialCameraPosition(),
+            onCameraMoveStarted: () => _handleCameraMoveGestureStarted(),
+            markers: _markers,
+            polylines: _polylines,
+            onMapCreated: _handleMapCreated,
+            onCameraMove: _handleCameraMove,
           ),
           if (_transportUnit != null) TransportUnitMapOverlay(_transportUnit),
         ]),
@@ -109,13 +107,13 @@ class OrderMapState extends State<OrderMapWidget> {
         'UnloadingEntrance', _imageList.unloadingEntranceIcon!, entrance);
   }
 
-  Marker? _buildTransportUnitMarker(TransportUnit transportUnit) {
-    if (transportUnit.coordinate == null) {
+  Marker? _buildTransportUnitMarker(TransportUnit? transportUnit) {
+    if (transportUnit?.coordinate == null) {
       return null;
     }
     return Marker(
       markerId: MarkerId('TransportUnit'),
-      position: transportUnit.coordinate!,
+      position: transportUnit!.coordinate!,
       icon: _imageList.transportUnitIcon!,
     );
   }
@@ -137,7 +135,7 @@ class OrderMapState extends State<OrderMapWidget> {
       onTap: () {
         final localizationUtil = LocalizationUtil.of(context);
         showMultilineDetailWindow(context: context, lines: [
-          '${localizationUtil.dateTime}: ${formatDateSafe(inUnloadingPointRecord!.date)}',
+          '${localizationUtil.dateTime}: ${formatDateSafe(inUnloadingPointRecord.date)}',
           '${localizationUtil.unloadingDuration}: ${formatTimeIntervalSafe(context, timeInterval)}',
           '${localizationUtil.stateNumber}: ${textOrEmpty(transportUnit?.vehicle?.number)}',
           '${localizationUtil.address}: ${textOrEmpty(inUnloadingPointRecord.address)}',
@@ -146,11 +144,12 @@ class OrderMapState extends State<OrderMapWidget> {
     );
   }
 
-  Marker _buildWaypointMarker(Trip? trip, int index, Waypoint waypoint,
-      int historyRecordIndex, BitmapDescriptor icon) {
+  Marker _buildWaypointMarker(Trip? trip, int? index, Waypoint? waypoint,
+      int historyRecordIndex, BitmapDescriptor? icon) {
     final localizationUtil = LocalizationUtil.of(context);
     final lines = <String>[];
-    lines.add('${localizationUtil.dateTime}: ${formatDateSafe(waypoint.date)}');
+    lines
+        .add('${localizationUtil.dateTime}: ${formatDateSafe(waypoint?.date)}');
 
     if (historyRecordIndex != -1) {
       lines.add(
@@ -159,8 +158,8 @@ class OrderMapState extends State<OrderMapWidget> {
 
     return Marker(
       markerId: MarkerId('Waypoint$index'),
-      position: waypoint.coordinate!,
-      icon: icon,
+      position: waypoint!.coordinate!,
+      icon: icon!,
       anchor: const Offset(0.5, 0.5),
       onTap: () => showMultilineDetailWindow(context: context, lines: lines),
     );
@@ -241,7 +240,7 @@ class OrderMapState extends State<OrderMapWidget> {
               .map((waypoint) => waypoint!.coordinate!)
               .toList()));
       _buildTripMarkers(trip, unloadingWaypoints,
-          _imageList.unloadingWaypointIcon, _imageList.unloadingDirectionIcon!);
+          _imageList.unloadingWaypointIcon, _imageList.unloadingDirectionIcon);
     }
   }
 
@@ -256,7 +255,7 @@ class OrderMapState extends State<OrderMapWidget> {
     int historyRecordIndex = _getHistoryRecordIndex(trip, waypoints[0]);
 
     _tripMarkers.add(_buildWaypointMarker(
-        trip, 0, waypoints[0]!, historyRecordIndex, waypointIcon!));
+        trip, 0, waypoints[0], historyRecordIndex, waypointIcon));
 
     for (int counter = 0; counter < waypoints.length - 1; ++counter) {
       final one = waypoints[counter];
@@ -279,8 +278,8 @@ class OrderMapState extends State<OrderMapWidget> {
         directionDistance = 0;
 
         final coordinate = LatLng(
-            one!.coordinate!.latitude +
-                (other!.coordinate!.latitude - one.coordinate!.latitude) / 2,
+            one.coordinate!.latitude +
+                (other.coordinate!.latitude - one.coordinate!.latitude) / 2,
             one.coordinate!.longitude +
                 (other.coordinate!.longitude - one.coordinate!.longitude) / 2);
 
@@ -296,12 +295,12 @@ class OrderMapState extends State<OrderMapWidget> {
   void _handleMapCreated(GoogleMapController controller) async {
     _controller = controller;
     if (_orderServerAPI == null) {
-      final serverAPI = DependencyHolder.of(context)!.network.serverAPI;
+      final serverAPI = DependencyHolder.of(context).network.serverAPI;
       _orderServerAPI = serverAPI.orders;
       _tripServerAPI = serverAPI.trips;
       _transportUnitServerAPI = serverAPI.transportUnits;
       await _imageList.load(context);
-      if (!mounted) {
+      if (mounted != true) {
         return;
       }
       _loadTripData();
@@ -320,7 +319,7 @@ class OrderMapState extends State<OrderMapWidget> {
   }
 
   void _handleCameraMove(CameraPosition position) async {
-    if (!_shouldShowTripMarkers(position.zoom)) {
+    if (_shouldShowTripMarkers(position.zoom) != true) {
       if (_lastCoordinate == null) {
         return;
       }
@@ -359,7 +358,7 @@ class OrderMapState extends State<OrderMapWidget> {
       waypoints = await _tripServerAPI!.listWaypoints(offer.trip!);
     }
 
-    if (!mounted) {
+    if (mounted != true) {
       return;
     }
 
@@ -373,7 +372,7 @@ class OrderMapState extends State<OrderMapWidget> {
     if (waypoints != null && waypoints.isNotEmpty) {
       _buildTripOverlays(offer?.trip, waypoints);
       _tripMarkerTree = await buildTripMarkerTree(_tripMarkers);
-      if (!mounted) {
+      if (mounted != true) {
         return;
       }
     }
@@ -398,9 +397,9 @@ class OrderMapState extends State<OrderMapWidget> {
   void subscribe(TransportUnit transportUnit) {
     _subscription = _transportUnitServerAPI?.subscribeToChanges(transportUnit);
     _subscription?.onUpdate = (updatedTransportUnit) async {
-      await _transportUnitServerAPI?.fetch(_transportUnit!);
+      await _transportUnitServerAPI?.fetch(_transportUnit);
       if (_transportUnitMarker != null) _markers.remove(_transportUnitMarker);
-      _transportUnitMarker = _buildTransportUnitMarker(_transportUnit!);
+      _transportUnitMarker = _buildTransportUnitMarker(_transportUnit);
       if (_transportUnitMarker != null) _markers.add(_transportUnitMarker!);
       setState(() {});
       if (_transportUnitMarker != null && _followTransportUnit) {
@@ -416,7 +415,7 @@ class OrderMapState extends State<OrderMapWidget> {
       return -1;
     }
     return waypoints.indexWhere(
-        (waypoint) => waypoint!.date!.isBefore(loadedRecord.date!) == false);
+        (waypoint) => waypoint?.date?.isBefore(loadedRecord.date!) == false);
   }
 
   int _getHistoryRecordIndex(Trip? trip, Waypoint? waypoint,

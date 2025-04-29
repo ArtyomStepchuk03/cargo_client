@@ -13,7 +13,7 @@ Future<void> markDeleted(
 }
 
 Future<Map<String, dynamic>> callCloudFunction(
-    parse.Server server, String functionName,
+    parse.Server? server, String functionName,
     [Map<String, dynamic>? parameters]) async {
   final result = await parse.call(server, functionName, parameters);
   if (result is! Map<String, dynamic>) {

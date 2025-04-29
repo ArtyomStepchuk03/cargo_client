@@ -11,7 +11,7 @@ import 'urls.dart';
 export 'server.dart';
 
 Future<Map<String, dynamic>?> getById(
-    Server server, String className, String? id,
+    Server? server, String className, String? id,
     {List<String>? include}) async {
   return await url_requests.getObjectById(
       server, getClassRelativeUrl(className), id,
@@ -77,7 +77,7 @@ Future<void> delete(Server server, String className, String id) async {
   await url_requests.delete(server, getClassRelativeUrl(className), id);
 }
 
-Future<dynamic> call(Server server, String functionName,
+Future<dynamic> call(Server? server, String functionName,
     [Map<String, dynamic>? parameters]) async {
   return await url_requests.call(
       server, getFunctionRelativeUrl(functionName), parameters);

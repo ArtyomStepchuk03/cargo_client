@@ -83,7 +83,7 @@ class TransportUnitServerAPI {
       throw InvalidResponseException();
     }
     final data = await parse.getById(
-        serverManager.server!, TransportUnit.className, id,
+        serverManager.server, TransportUnit.className, id,
         include: _getBaseIncludes());
     final transportUnit = TransportUnit.decode(Decoder(data));
     if (transportUnit == null) {
@@ -92,15 +92,15 @@ class TransportUnitServerAPI {
     return transportUnit;
   }
 
-  Future<void> fetch(TransportUnit transportUnit) async {
+  Future<void> fetch(TransportUnit? transportUnit) async {
     final data = await parse.getById(
-        serverManager.server!, TransportUnit.className, transportUnit.id,
+        serverManager.server, TransportUnit.className, transportUnit?.id,
         include: _getBaseIncludes());
     final fetchedTransportUnit = TransportUnit.decode(Decoder(data));
     if (fetchedTransportUnit == null) {
       return;
     }
-    transportUnit.assign(fetchedTransportUnit);
+    transportUnit?.assign(fetchedTransportUnit);
   }
 
   Future<void> disband(TransportUnit? transportUnit) async {
@@ -108,14 +108,14 @@ class TransportUnitServerAPI {
       'transportUnitId': transportUnit?.id,
     };
     await callCloudFunction(
-        serverManager.server!, 'Dispatcher_disbandTransportUnit', parameters);
+        serverManager.server, 'Dispatcher_disbandTransportUnit', parameters);
   }
 
   parse.LiveQuerySubscription<TransportUnit?> subscribeToChanges(
           TransportUnit transportUnit) =>
       serverManager.liveQueryManager!.subscribeToObjectChanges(
           TransportUnit.className,
-          transportUnit.id!,
+          transportUnit.id,
           (decoder) => TransportUnit.decode(decoder));
   void unsubscribe(parse.LiveQuerySubscription<TransportUnit?> subscription) =>
       serverManager.liveQueryManager?.unsubscribe(subscription);

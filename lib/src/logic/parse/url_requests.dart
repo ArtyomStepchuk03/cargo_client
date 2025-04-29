@@ -139,13 +139,14 @@ Future<void> delete(Server server, String relativeUrl, String id) async {
   await server.performDelete('$relativeUrl/$id');
 }
 
-Future<dynamic> call(Server server, String relativeUrl,
+Future<dynamic> call(Server? server, String relativeUrl,
     [Map<String, dynamic>? parameters]) async {
   String? requestBody;
   if (parameters != null) {
     requestBody = json.encode(parameters);
   }
-  final responseBody = await server.performPost(relativeUrl, body: requestBody);
+  final responseBody =
+      await server?.performPost(relativeUrl, body: requestBody);
   final data = json.decode(responseBody);
   if (data is! Map<String, dynamic>) {
     throw InvalidResponseException();
