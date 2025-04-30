@@ -9,7 +9,7 @@ import GoogleMaps
 
   override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
     FirebaseApp.configure()
-    GMSServices.provideAPIKey("AIzaSyA6jG1FTFRYMjyuOon7deIOmkOi_YxsR4c")
+    GMSServices.provideAPIKey("AIzaSyAPWau_f1LeAaDLfesK-tYtqfYwKTQ92d4")
 
     GeneratedPluginRegistrant.register(with: self)
 
