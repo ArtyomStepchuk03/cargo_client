@@ -15,7 +15,7 @@ class AddOrderPage extends StatefulWidget {
   AddOrderPage({this.user, this.order});
   factory AddOrderPage.empty({User? user}) =>
       AddOrderPage(user: user, order: Order());
-  factory AddOrderPage.clone({required User user, required Order order}) =>
+  factory AddOrderPage.clone({User? user, Order? order}) =>
       AddOrderPage(user: user, order: cloneOrder(order, user));
 
   @override
@@ -49,13 +49,13 @@ class AddOrderPageState extends State<AddOrderPage> {
     final localizationUtil = LocalizationUtil.of(context);
     if (editedOrder != null) {
       showActivityDialog(context, localizationUtil.saving);
-      final serverAPI = DependencyHolder.of(context)?.network.serverAPI.orders;
+      final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       try {
         if (editedOrder.id != null && editedOrder.status != OrderStatus.ready) {
-          await serverAPI?.update(widget.order, editedOrder);
-          await serverAPI?.setStatus(editedOrder, OrderStatus.ready);
+          await serverAPI.update(widget.order, editedOrder);
+          await serverAPI.setStatus(editedOrder, OrderStatus.ready);
         } else {
-          await serverAPI?.create(editedOrder, widget.user);
+          await serverAPI.create(editedOrder, widget.user);
         }
         Navigator.pop(context);
         Navigator.pop(context, editedOrder);

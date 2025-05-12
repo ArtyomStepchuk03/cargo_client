@@ -1,7 +1,7 @@
 import 'dart:math';
 
 class LimitedDataCache<T> {
-  void cache(List<T?> items) => _items = items;
+  void cache(List<T?>? items) => _items = items;
   List<T?>? get items => _items;
 
   void clear() => _items = null;

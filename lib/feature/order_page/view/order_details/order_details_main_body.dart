@@ -450,7 +450,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
             dependencyState.network.serverAPI.articleBrands,
             dependencyState.caches.articleBrand,
             _articleTypeListKey.currentState != null
-                ? _articleTypeListKey.currentState!.value
+                ? _articleTypeListKey.currentState?.value
                 : order?.articleBrand?.type,
             _editing,
           ),
@@ -492,10 +492,10 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
         key: _distanceKey,
         initialValue: order?.distance,
         loadingPoint: _loadingPointKey.currentState != null
-            ? _loadingPointKey.currentState!.value
+            ? _loadingPointKey.currentState?.value
             : order?.loadingPoint,
         unloadingPoint: _unloadingPointKey.currentState != null
-            ? _unloadingPointKey.currentState!.value
+            ? _unloadingPointKey.currentState?.value
             : order?.unloadingPoint,
         editing: _editing,
       ),

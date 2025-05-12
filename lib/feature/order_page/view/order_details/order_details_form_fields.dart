@@ -538,7 +538,7 @@ Widget buildUnloadingContactFormField(BuildContext context,
             CachedLimitedDataSource(
               UnloadingContactDataSource(
                   unloadingPointServerAPI!, unloadingPoint),
-              cacheMap!.getCache(unloadingPoint),
+              cacheMap?.getCache(unloadingPoint),
             ),
           )
         : null,
@@ -558,7 +558,7 @@ Widget buildUnloadingContactFormField(BuildContext context,
     },
     selectedItem: initialValue,
     onUpdate: onUpdate,
-    onAdd: user!.canAddUnloadingContacts()
+    onAdd: user?.canAddUnloadingContacts() == true
         ? (context) async {
             Contact contact = await Navigator.push(
               context,

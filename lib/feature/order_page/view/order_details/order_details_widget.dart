@@ -164,7 +164,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     return PopupMenuButton<GestureTapCallback>(
       icon: Icon(Icons.more_vert),
       itemBuilder: (BuildContext context) => [
-        if (widget.user!.canAddOrders())
+        if (widget.user?.canAddOrders() == true)
           PopupMenuItem<GestureTapCallback>(
               value: () => _showAddWidget(context),
               child: Text(localizationUtil.clone)),
@@ -301,7 +301,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
         context,
         MaterialPageRoute(
           builder: (BuildContext context) =>
-              AddOrderPage.clone(user: widget.user!, order: widget.order!),
+              AddOrderPage.clone(user: widget.user, order: widget.order),
           fullscreenDialog: true,
         ));
     if (newOrder != null && widget.listBodyState != null) {

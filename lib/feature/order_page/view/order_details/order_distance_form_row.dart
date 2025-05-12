@@ -58,10 +58,10 @@ class OrderDistanceFormRowState extends State<OrderDistanceFormRow> {
             initialValue: numberOrEmpty(widget.initialValue),
             label: localizationUtil.distanceInKilometers,
             validator: widget.validator ?? defaultValidator,
-            enabled: widget.editing! && widget.manualEditing!,
+            enabled: widget.editing == true && widget.manualEditing == true,
             loading: _loading,
           )),
-          if (widget.editing!) ...[
+          if (widget.editing == true) ...[
             SizedBox(width: 16),
             buildButton(
               context,
@@ -88,7 +88,7 @@ class OrderDistanceFormRowState extends State<OrderDistanceFormRow> {
     setState(() => _loading = true);
     try {
       final serverAPI =
-          DependencyHolder.of(context)!.network.serverAPI.distances;
+          DependencyHolder.of(context).network.serverAPI.distances;
       final distance =
           await serverAPI.get(widget.loadingPoint!, widget.unloadingPoint!);
       if (!mounted) {

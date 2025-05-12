@@ -1,52 +1,52 @@
 import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 
-Order cloneOrder(Order other, User user) {
+Order cloneOrder(Order? other, User? user) {
   var order = Order();
-  order.type = other.type;
+  order.type = other?.type;
 
-  order.articleShape = other.articleShape;
-  order.articleBrand = other.articleBrand;
-  order.tonnage = other.tonnage;
-  order.undistributedTonnage = other.tonnage;
+  order.articleShape = other?.articleShape;
+  order.articleBrand = other?.articleBrand;
+  order.tonnage = other?.tonnage;
+  order.undistributedTonnage = other?.tonnage;
   order.distributedTonnage = 0;
-  order.unfinishedTonnage = other.tonnage;
+  order.unfinishedTonnage = other?.tonnage;
   order.finishedTonnage = 0;
 
-  if (user.role != Role.customer) {
-    order.intermediary = other.intermediary;
-    order.supplier = other.supplier;
-    order.loadingPoint = other.loadingPoint;
-    order.loadingEntrance = other.loadingEntrance;
+  if (user?.role != Role.customer) {
+    order.intermediary = other?.intermediary;
+    order.supplier = other?.supplier;
+    order.loadingPoint = other?.loadingPoint;
+    order.loadingEntrance = other?.loadingEntrance;
   }
 
-  order.customer = other.customer;
-  order.unloadingPoint = other.unloadingPoint;
-  order.unloadingEntrance = other.unloadingEntrance;
+  order.customer = other?.customer;
+  order.unloadingPoint = other?.unloadingPoint;
+  order.unloadingEntrance = other?.unloadingEntrance;
 
-  if (user.role == Role.customer) {
-    order.salePriceType = user.customer?.priceType;
+  if (user?.role == Role.customer) {
+    order.salePriceType = user?.customer?.priceType;
   } else {
-    order.saleTariff = other.saleTariff;
-    order.salePriceType = other.salePriceType;
-    order.deliveryTariff = other.deliveryTariff;
-    order.deliveryPriceType = other.deliveryPriceType;
+    order.saleTariff = other?.saleTariff;
+    order.salePriceType = other?.salePriceType;
+    order.deliveryTariff = other?.deliveryTariff;
+    order.deliveryPriceType = other?.deliveryPriceType;
   }
 
-  order.comment = other.comment;
-  if (user.role != Role.customer) {
-    order.inactivityTimeInterval = other.inactivityTimeInterval;
+  order.comment = other?.comment;
+  if (user?.role != Role.customer) {
+    order.inactivityTimeInterval = other?.inactivityTimeInterval;
   }
 
   final now = DateTime.now();
   final tomorrow = now.add(Duration(days: 1));
-  if (user.role != Role.customer) {
-    order.loadingDate = _changeDatePreservingTime(other.loadingDate, now);
+  if (user?.role != Role.customer) {
+    order.loadingDate = _changeDatePreservingTime(other?.loadingDate, now);
   }
   order.unloadingBeginDate =
-      _changeDatePreservingTime(other.unloadingBeginDate, tomorrow);
+      _changeDatePreservingTime(other?.unloadingBeginDate, tomorrow);
   order.unloadingEndDate =
-      _changeDatePreservingTime(other.unloadingEndDate, tomorrow);
+      _changeDatePreservingTime(other?.unloadingEndDate, tomorrow);
 
   return order;
 }

@@ -10,17 +10,17 @@ export 'data_cache.dart';
 
 class CachedLimitedDataSource<T> implements LimitedDataSource<T> {
   final LimitedDataSource<T> base;
-  final LimitedDataCache<T> cache;
+  final LimitedDataCache<T>? cache;
 
   CachedLimitedDataSource(this.base, this.cache);
 
-  Future<List<T?>> list() async {
-    final cachedItems = cache.items;
+  Future<List<T?>?> list() async {
+    final cachedItems = cache?.items;
     if (cachedItems != null) {
       return cachedItems;
     }
     final items = await base.list();
-    cache.cache(items);
+    cache?.cache(items);
     return items;
   }
 

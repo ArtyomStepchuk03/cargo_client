@@ -84,7 +84,7 @@ class ReservationDetailsState extends State<ReservationDetailsWidget> {
   PopupMenuButton? _buildMoreMenuButton(BuildContext context) {
     final localizationUtil = LocalizationUtil.of(context);
     final items = [
-      if (widget.user!.canAddOrders())
+      if (widget.user?.canAddOrders() == true)
         PopupMenuItem<GestureTapCallback>(
             value: () => _showAddWidget(context),
             child: Text(localizationUtil.clone)),

@@ -192,16 +192,16 @@ class SupplierArticleBrandDataSource
 
 class UnloadingContactDataSource implements LimitedDataSource<Contact> {
   final UnloadingPointServerAPI unloadingPointServerAPI;
-  final UnloadingPoint unloadingPoint;
+  final UnloadingPoint? unloadingPoint;
 
   UnloadingContactDataSource(this.unloadingPointServerAPI, this.unloadingPoint);
 
-  Future<List<Contact?>> list() async {
+  Future<List<Contact?>?> list() async {
     await unloadingPointServerAPI.fetch(unloadingPoint);
-    if (unloadingPoint.contacts == null) {
+    if (unloadingPoint?.contacts == null) {
       return [];
     }
-    return unloadingPoint.contacts!;
+    return unloadingPoint?.contacts;
   }
 
   @override

@@ -1,7 +1,7 @@
 import 'data_source.dart';
 
 abstract class LimitedDataSource<T> {
-  Future<List<T?>> list();
+  Future<List<T?>?> list();
 }
 
 class LimitedDataSourceAdapter<T> implements DataSource<T> {

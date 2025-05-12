@@ -15,25 +15,25 @@ class UnloadingPointServerAPI {
 
   UnloadingPointServerAPI(this.serverManager);
 
-  Future<void> fetch(UnloadingPoint unloadingPoint) async {
+  Future<void> fetch(UnloadingPoint? unloadingPoint) async {
     final data = await parse.getById(
-        serverManager.server!, UnloadingPoint.className, unloadingPoint.id!,
+        serverManager.server!, UnloadingPoint.className, unloadingPoint?.id,
         include: ['entrances', 'manager']);
     final fetchedUnloadingPoint = UnloadingPoint.decode(Decoder(data));
     if (fetchedUnloadingPoint == null) {
       return;
     }
-    unloadingPoint.assign(fetchedUnloadingPoint);
+    unloadingPoint?.assign(fetchedUnloadingPoint);
   }
 
-  Future<void> fetchEntrances(UnloadingPoint unloadingPoint) async {
+  Future<void> fetchEntrances(UnloadingPoint? unloadingPoint) async {
     final fetched = await parse.getById(
-        serverManager.server!, UnloadingPoint.className, unloadingPoint.id!,
+        serverManager.server!, UnloadingPoint.className, unloadingPoint?.id,
         include: ['entrances']);
     if (fetched == null) {
       throw RequestFailedException();
     }
-    unloadingPoint.entrances = Decoder(fetched).decodeObjectList(
+    unloadingPoint?.entrances = Decoder(fetched).decodeObjectList(
         'entrances', (Decoder decoder) => Entrance.decode(decoder));
   }
 

@@ -142,7 +142,7 @@ class OrderFinishState extends State<OrderFinishWidget> {
   }
 
   void _finish(BuildContext context) async {
-    if (!_formKey.currentState!.validate()!) {
+    if (_formKey.currentState?.validate() != true) {
       return;
     }
 
@@ -164,7 +164,7 @@ class OrderFinishState extends State<OrderFinishWidget> {
         parseDecimal(_unloadedTonnageKey.currentState!.value!);
     final unloadedPhoto = _unloadedPhotoFormGroupKey.currentState!.file;
 
-    final serverAPI = DependencyHolder.of(context)!.network.serverAPI.orders;
+    final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
 
     showDefaultActivityDialog(context);
 
@@ -196,7 +196,7 @@ class OrderFinishState extends State<OrderFinishWidget> {
     }
 
     final serverAPI =
-        DependencyHolder.of(context)!.network.serverAPI.transportUnits;
+        DependencyHolder.of(context).network.serverAPI.transportUnits;
 
     showDefaultActivityDialog(context);
 

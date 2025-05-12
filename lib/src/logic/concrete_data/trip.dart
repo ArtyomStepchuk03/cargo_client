@@ -46,7 +46,10 @@ extension TripUtility on Trip {
     if (historyRecords == null) {
       return null;
     }
-    return historyRecords?.firstWhere((record) => record?.stage == stage,
-        orElse: () => null);
+    try {
+      return historyRecords!.firstWhere((record) => record?.stage == stage);
+    } catch (e) {
+      return null;
+    }
   }
 }
