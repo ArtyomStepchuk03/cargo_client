@@ -80,7 +80,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     if (userRole != Role.customer) {
       order.unloadingEntrance = _unloadingEntranceKey.currentState?.value;
     }
+
     order.unloadingContact = _unloadingContactKey.currentState?.value;
+    if (order.unloadingContact == null) {
+      return null;
+    }
+
     order.unloadingBeginDate = DateUtility.fromDatePartAndTime(
         _unloadingDateKey.currentState!.value!,
         parseHour(_unloadingTimeBeginKey.currentState!.value!)!);
