@@ -129,18 +129,6 @@ class TripProgressState extends State<TripProgressWidget> {
   List<Widget> _buildPhotoActionButtons(TripHistoryRecord record, int index) {
     final buttons = <Widget>[];
 
-    // Кнопка сохранения (показываем всегда, если есть фото)
-    if (record.photo != null) {
-      buttons.add(
-        IconButton(
-          onPressed: () => _savePhoto(record),
-          icon: Icon(Icons.download),
-          tooltip: LocalizationUtil.of(context).save,
-        ),
-      );
-    }
-
-    // Кнопки редактирования и удаления (только для администраторов)
     if (widget.user?.role == Role.administrator ||
         widget.user?.role == Role.logistician ||
         widget.user?.role == Role.manager) {
@@ -158,6 +146,16 @@ class TripProgressState extends State<TripProgressWidget> {
           tooltip: 'Удалить фото',
         ),
       ]);
+    }
+
+    if (record.photo != null) {
+      buttons.add(
+        IconButton(
+          onPressed: () => _savePhoto(record),
+          icon: Icon(Icons.download),
+          tooltip: LocalizationUtil.of(context).save,
+        ),
+      );
     }
 
     return buttons;

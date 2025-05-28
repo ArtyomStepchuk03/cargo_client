@@ -18,6 +18,7 @@ import 'package:manager_mobile_client/feature/order_page/widget/order_send/carri
 import 'package:manager_mobile_client/feature/order_page/widget/order_send/transport_unit_send_widget.dart';
 import 'package:manager_mobile_client/feature/order_page/widget/trip_problem_list/trip_problem_list_widget.dart';
 import 'package:manager_mobile_client/src/logic/external/phone_call.dart';
+import 'package:manager_mobile_client/src/logic/order/order_copy_service.dart';
 import 'package:manager_mobile_client/src/logic/order/order_progress_notifier.dart';
 import 'package:manager_mobile_client/util/format/common_format.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
@@ -123,15 +124,79 @@ class OrderDetailsState extends State<OrderDetailsWidget>
   }
 
   TabBar? _buildTabBar() {
-    if (_editing || !_shouldShowProgress()) {
-      return null;
-    }
+    if (_editing || !_shouldShowProgress()) return null;
+
     final localizationUtil = LocalizationUtil.of(context);
+
     return TabBar(
       controller: _tabController,
       tabs: [
-        Tab(text: localizationUtil.mainTitle),
-        Tab(text: localizationUtil.status.toUpperCase()),
+        Tab(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => _tabController?.animateTo(0),
+                child: Text(
+                  localizationUtil.mainTitle,
+                  style: TextStyle(
+                    color: _tabController?.index == 0
+                        ? Colors.white
+                        : Colors.white70,
+                  ),
+                ),
+              ),
+              SizedBox(width: 4),
+              GestureDetector(
+                onTap: () => _copyOrderInfo(context),
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Icon(
+                    Icons.copy,
+                    size: 18,
+                    color: _tabController?.index == 0
+                        ? Colors.white
+                        : Colors.white70,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Tab(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              GestureDetector(
+                onTap: () => _tabController?.animateTo(1),
+                child: Text(
+                  localizationUtil.status.toUpperCase(),
+                  style: TextStyle(
+                    color: _tabController?.index == 1
+                        ? Colors.white
+                        : Colors.white70,
+                  ),
+                ),
+              ),
+              SizedBox(width: 4),
+              GestureDetector(
+                onTap: () => _copyOrderStatus(context),
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Icon(
+                    Icons.copy,
+                    size: 18,
+                    color: _tabController?.index == 1
+                        ? Colors.white
+                        : Colors.white70,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
@@ -157,6 +222,14 @@ class OrderDetailsState extends State<OrderDetailsWidget>
           icon: Icon(Icons.mode_of_travel), onPressed: () => _showMap(context)),
       _buildMoreMenuButton(context),
     ];
+  }
+
+  void _copyOrderInfo(BuildContext context) async {
+    await OrderCopyService.copyOrderInfo(context, widget.order, widget.user);
+  }
+
+  void _copyOrderStatus(BuildContext context) async {
+    await OrderCopyService.copyOrderStatus(context, widget.order, widget.user);
   }
 
   PopupMenuButton _buildMoreMenuButton(BuildContext context) {
@@ -414,6 +487,40 @@ class OrderDetailsState extends State<OrderDetailsWidget>
       setState(() {});
       updateListBody();
     }
+  }
+
+  // Добавить новый метод для создания кнопки копирования:
+  Widget _buildCopyButton(BuildContext context) {
+    final localizationUtil = LocalizationUtil.of(context);
+
+    return PopupMenuButton<VoidCallback>(
+      icon: Icon(Icons.copy),
+      tooltip: 'Копировать',
+      itemBuilder: (BuildContext context) => [
+        PopupMenuItem<VoidCallback>(
+          value: () => _copyOrderInfo(context),
+          child: Row(
+            children: [
+              Icon(Icons.info_outline, size: 20),
+              SizedBox(width: 8),
+              Text(localizationUtil.copyInformation),
+            ],
+          ),
+        ),
+        if (_shouldShowProgress())
+          PopupMenuItem<VoidCallback>(
+            value: () => _copyOrderStatus(context),
+            child: Row(
+              children: [
+                Icon(Icons.assignment_outlined, size: 20),
+                SizedBox(width: 8),
+                Text(localizationUtil.copyStatus),
+              ],
+            ),
+          ),
+      ],
+      onSelected: (VoidCallback action) => action(),
+    );
   }
 
   void _cancel(BuildContext context) async {
