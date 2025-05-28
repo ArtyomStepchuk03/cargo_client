@@ -12,6 +12,7 @@ import 'package:manager_mobile_client/src/logic/concrete_data/configuration.dart
 import 'package:manager_mobile_client/src/logic/concrete_data/order.dart';
 import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/external/image_picker.dart';
+import 'package:manager_mobile_client/src/logic/external/photo_save_service.dart';
 import 'package:manager_mobile_client/src/logic/order/entrance_coordinate_mismatch.dart';
 import 'package:manager_mobile_client/util/format/date.dart';
 import 'package:manager_mobile_client/util/format/stage.dart';
@@ -93,52 +94,73 @@ class TripProgressState extends State<TripProgressWidget> {
                   record, widget.order!, configuration))
             _buildCoordinateMismatchWidget(context, record),
           if (_shouldShowPhoto(record) || updatedPhotos[index] != null)
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                if (updatedPhotos[index] != null)
-                  Image.file(
-                    updatedPhotos[index]!,
-                    width: 80,
-                    height: 80,
-                  )
-                else
-                  ThumbnailImage.small(
-                    context,
-                    record.thumbnail!.url,
-                    onTap: () => _showFullPhoto(record),
-                  ),
-                if (widget.user?.role == Role.administrator ||
-                    widget.user?.role == Role.logistician ||
-                    widget.user?.role == Role.manager) ...[
-                  IconButton(
-                      onPressed: () => _pickImage(record, index),
-                      icon: Icon(Icons.edit)),
-                  IconButton(
-                    onPressed: () async {
-                      _showDeletePhotoDialog(context, () async {
-                        final serverAPI = DependencyHolder.of(context)
-                            .network
-                            .serverAPI
-                            .trips;
-                        await serverAPI.deletePhoto(record);
-                        setState(() {
-                          record.thumbnail = null;
-                          updatedPhotos[index] = null;
-                        });
-                      });
-                    },
-                    icon: Icon(
-                      Icons.delete_forever,
-                      color: Colors.red,
-                    ),
-                  ),
-                ]
-              ],
-            )
+            _buildPhotoSection(record, index),
         ],
       ),
     );
+  }
+
+  /// Создает секцию с фотографией и кнопками управления
+  Widget _buildPhotoSection(TripHistoryRecord record, int index) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        // Фотография
+        if (updatedPhotos[index] != null)
+          Image.file(
+            updatedPhotos[index]!,
+            width: 80,
+            height: 80,
+          )
+        else
+          ThumbnailImage.small(
+            context,
+            record.thumbnail!.url,
+            onTap: () => _showFullPhoto(record),
+          ),
+
+        // Кнопки управления
+        ..._buildPhotoActionButtons(record, index),
+      ],
+    );
+  }
+
+  /// Создает кнопки для управления фотографией
+  List<Widget> _buildPhotoActionButtons(TripHistoryRecord record, int index) {
+    final buttons = <Widget>[];
+
+    // Кнопка сохранения (показываем всегда, если есть фото)
+    if (record.photo != null) {
+      buttons.add(
+        IconButton(
+          onPressed: () => _savePhoto(record),
+          icon: Icon(Icons.download),
+          tooltip: LocalizationUtil.of(context).save,
+        ),
+      );
+    }
+
+    // Кнопки редактирования и удаления (только для администраторов)
+    if (widget.user?.role == Role.administrator ||
+        widget.user?.role == Role.logistician ||
+        widget.user?.role == Role.manager) {
+      buttons.addAll([
+        IconButton(
+          onPressed: () => _pickImage(record, index),
+          icon: Icon(Icons.edit),
+          tooltip: 'Редактировать фото',
+        ),
+        IconButton(
+          onPressed: () => _showDeletePhotoDialog(context, () async {
+            await _deletePhoto(record, index);
+          }),
+          icon: Icon(Icons.delete_forever, color: Colors.red),
+          tooltip: 'Удалить фото',
+        ),
+      ]);
+    }
+
+    return buttons;
   }
 
   bool _shouldShowPhoto(TripHistoryRecord record) {
@@ -276,16 +298,125 @@ class TripProgressState extends State<TripProgressWidget> {
         maxWidth: 1600,
         imageQuality: 80);
     if (newFile == null) {
-      return null;
+      return;
     }
-    String base64Image = base64Encode(await newFile.readAsBytes());
 
-    final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
-    await serverAPI.updatePhoto(record, base64Image);
-    await widget.onUpdate();
-    setState(() {
-      updatedPhotos[index] = File(newFile.path);
-    });
+    try {
+      String base64Image = base64Encode(await newFile.readAsBytes());
+      final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
+      await serverAPI.updatePhoto(record, base64Image);
+      await widget.onUpdate();
+      setState(() {
+        updatedPhotos[index] = File(newFile.path);
+      });
+    } catch (e) {
+      showDefaultErrorDialog(context);
+    }
+  }
+
+  /// Удаляет фото
+  Future<void> _deletePhoto(TripHistoryRecord record, int index) async {
+    try {
+      final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
+      await serverAPI.deletePhoto(record);
+      setState(() {
+        record.thumbnail = null;
+        record.photo = null;
+        updatedPhotos[index] = null;
+      });
+    } catch (e) {
+      showDefaultErrorDialog(context);
+    }
+  }
+
+  /// Сохраняет фото в галерею
+  void _savePhoto(TripHistoryRecord record) async {
+    final localizationUtil = LocalizationUtil.of(context);
+
+    if (record.photo?.url == null) {
+      PhotoSaveService.showSaveResultSnackbar(
+        context,
+        PhotoSaveResult.error(localizationUtil.photoSaveError),
+        '',
+        '',
+      );
+      return;
+    }
+
+    // Показываем индикатор загрузки
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        content: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CircularProgressIndicator(),
+            SizedBox(width: 16),
+            Expanded(child: Text(localizationUtil.downloadingPhoto)),
+          ],
+        ),
+      ),
+    );
+
+    try {
+      // Генерируем имя файла на основе заказа и стадии
+      final fileName = _generatePhotoFileName(record);
+
+      // Сохраняем фото
+      final result = await PhotoSaveService.savePhotoToGallery(
+        record.photo!.url,
+        fileName,
+      );
+
+      // Убираем диалог загрузки
+      if (mounted) Navigator.of(context).pop();
+
+      // Показываем результат
+      if (mounted) {
+        PhotoSaveService.showSaveResultSnackbar(
+          context,
+          result,
+          localizationUtil.photoSavedToGallery,
+          localizationUtil.open,
+        );
+      }
+    } catch (e) {
+      // Убираем диалог загрузки
+      if (mounted) Navigator.of(context).pop();
+
+      // Показываем ошибку
+      if (mounted) {
+        PhotoSaveService.showSaveResultSnackbar(
+          context,
+          PhotoSaveResult.error(
+              '${localizationUtil.photoSaveError}: ${e.toString()}'),
+          '',
+          '',
+        );
+      }
+    }
+  }
+
+  /// Генерирует имя файла для сохраняемого фото
+  String _generatePhotoFileName(TripHistoryRecord record) {
+    final orderNumber = widget.order?.number ?? 0;
+    final stageName = _getStageFileName(record.stage);
+    final timestamp = DateTime.now().millisecondsSinceEpoch;
+
+    return 'order_${orderNumber}_${stageName}_$timestamp';
+  }
+
+  /// Получает имя стадии для файла
+  String _getStageFileName(TripStage? stage) {
+    switch (stage) {
+      case TripStage.loaded:
+        return 'loaded';
+      case TripStage.unloaded:
+        return 'unloaded';
+      default:
+        return 'unknown';
+    }
   }
 
   static const _titleFontSize = 16.0;

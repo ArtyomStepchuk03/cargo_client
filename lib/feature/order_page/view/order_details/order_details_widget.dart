@@ -561,9 +561,9 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     final offer = order?.getAcceptedOffer();
     if (widget.user?.role == Role.customer) {
       return offer == null;
-    } else {
-      return offer == null || offer.trip?.stage != TripStage.unloaded;
     }
+
+    return true;
   }
 
   bool _shouldShowTripProblems(Order? order) {

@@ -116,14 +116,15 @@ class OrderListCard extends StatelessWidget {
       return CommonColors.deletedBackground;
     }
     final colorPaletter = _getColorPalette();
+
+    if (order?.status != OrderStatus.ready) {
+      return colorPaletter.transferred!;
+    }
+
     if (order?.offers == null || order!.offers!.isEmpty) {
-      if (user?.role != Role.dispatcher &&
-          order?.carriers != null &&
-          order!.carriers!.isNotEmpty) {
-        return colorPaletter.transferred!;
-      }
       return colorPaletter.untouched!;
     }
+
     final offer = order?.offers?.first;
 
     if (offer?.trip == null) {
