@@ -53,6 +53,7 @@
   "lastPaymentDate": "Дата последней оплаты",
   "newDriver": "Новый водитель",
   "contactName": "ФИО контактного лица",
+  "inQueue": "В очереди",
   "contactPhoneNumber": "Контактный телефон",
   "newUnloadingPoint": "Новая точка разгрузки",
   "latitude": "Широта",

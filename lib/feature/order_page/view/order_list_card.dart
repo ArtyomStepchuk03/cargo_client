@@ -26,7 +26,7 @@ class OrderListCard extends StatelessWidget {
       highlightColor: _getCardHighlightColor(context),
       children: [
         if (order?.isQueue() == true)
-          Text('В очереди', style: TextStyle(color: Colors.black)),
+          Text(localizationUtil.inQueue, style: TextStyle(color: Colors.black)),
         if (user?.role == Role.dispatcher)
           ListCardField(
               name: localizationUtil.intermediary,
