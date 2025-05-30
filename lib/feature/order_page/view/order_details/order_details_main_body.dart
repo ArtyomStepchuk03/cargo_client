@@ -80,7 +80,12 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     if (userRole != Role.customer) {
       order.unloadingEntrance = _unloadingEntranceKey.currentState?.value;
     }
+
     order.unloadingContact = _unloadingContactKey.currentState?.value;
+
+    print(
+        'DEBUG: Saving contact: ${order.unloadingContact?.name} - ${order.unloadingContact?.phoneNumber}');
+
     order.unloadingBeginDate = DateUtility.fromDatePartAndTime(
         _unloadingDateKey.currentState!.value!,
         parseHour(_unloadingTimeBeginKey.currentState!.value!)!);
@@ -117,6 +122,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
     }
     if ([Role.manager, Role.administrator, Role.logistician].contains(userRole))
       order.consistency = _agreeTypeKey.currentState?.value?.raw;
+
     return order;
   }
 
@@ -277,12 +283,7 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
                 : order?.unloadingPoint,
             user: widget.user,
             editing: _editing,
-            onUpdate: (Contact? contact) {
-              setState(() {
-                _unloadingContactKey.currentState?.value = contact;
-                order?.unloadingContact = contact;
-              });
-            },
+            onUpdate: _handleUnloadingContactChanged,
           )),
       buildFormRow(
         null,
@@ -619,8 +620,18 @@ class OrderDetailsMainBodyState extends State<OrderDetailsMainBody> {
   void _handleUnloadingPointChanged(UnloadingPoint? value) {
     if (_unloadingEntranceKey.currentState != null)
       _unloadingEntranceKey.currentState?.value = null;
+
+    // Очищаем контакт разгрузки при смене точки разгрузки
     _unloadingContactKey.currentState?.value = null;
+
     setState(() {});
+  }
+
+  void _handleUnloadingContactChanged(Contact? contact) {
+    setState(() {
+      _unloadingContactKey.currentState?.value = contact;
+      widget.order?.unloadingContact = contact;
+    });
   }
 
   void _handleArticleTypeChanged(ArticleType? value) {

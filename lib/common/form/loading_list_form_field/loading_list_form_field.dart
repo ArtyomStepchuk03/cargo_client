@@ -6,6 +6,7 @@ import 'package:manager_mobile_client/common/search/search_widget.dart';
 import 'package:manager_mobile_client/src/logic/core/search_predicate.dart';
 import 'package:manager_mobile_client/util/types.dart';
 
+import '../../../feature/order_page/view/order_data_source.dart';
 import 'loading_list_form_field_select_body.dart';
 
 export 'package:manager_mobile_client/src/logic/core/search_predicate.dart';
@@ -70,6 +71,15 @@ class LoadingListFormField<T> extends FormField<T> {
     if (state!.fetching) {
       return buildLoadingTextField(context: state.context, label: label);
     }
+
+    // ДЕБАГ: Проверяем текущее значение поля
+    print('DEBUG LoadingListFormField value: ${state.value}');
+    if (state.value is Contact) {
+      final contact = state.value as Contact;
+      print(
+          'DEBUG Contact field - name: ${contact.name}, phone: ${contact.phoneNumber}');
+    }
+
     final textField = buildCustomNoneditableTextField(
       context: state.context,
       text: state.widget.formatter!(context, state.value),
@@ -85,6 +95,7 @@ class LoadingListFormField<T> extends FormField<T> {
       errorText: state.errorText,
       enabled: enabled,
     );
+
     if (enabled) {
       return InkWell(
         child: textField,
@@ -96,6 +107,9 @@ class LoadingListFormField<T> extends FormField<T> {
 
   static void _showSelect<T>(LoadingListFormFieldState<T> state) async {
     FocusScope.of(state.context).unfocus();
+
+    print('DEBUG: Opening contact selection dialog');
+
     T? newValue = await showCustomSearch<T>(
       context: state.context,
       builder: (BuildContext context, String? query) {
@@ -115,8 +129,20 @@ class LoadingListFormField<T> extends FormField<T> {
       floatingActionButtonBuilder: ((BuildContext context, String? query) =>
           _buildAddButton(state)),
     );
+
     if (newValue != null && newValue != state.value) {
+      print('DEBUG: Contact selected - setting new value: $newValue');
+      if (newValue is Contact) {
+        final contact = newValue as Contact;
+        print(
+            'DEBUG: Selected contact - name: ${contact.name}, phone: ${contact.phoneNumber}');
+      }
+
       state.value = newValue;
+
+      print('DEBUG: Contact field value after setting: ${state.value}');
+    } else {
+      print('DEBUG: No contact selected or same contact selected');
     }
   }
 

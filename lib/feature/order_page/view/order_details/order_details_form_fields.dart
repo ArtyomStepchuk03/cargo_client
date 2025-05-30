@@ -555,21 +555,47 @@ Widget buildUnloadingContactFormField(BuildContext context,
           DependencyHolder.of(context).network.serverAPI.unloadingPoints;
       await serverAPI.removeContact(unloadingPoint, contact);
       unloadingPoint?.contacts?.remove(contact);
+      // Очищаем кэш после удаления
+      cacheMap?.getCache(unloadingPoint!).clear();
     },
     selectedItem: initialValue,
     onUpdate: onUpdate,
     onAdd: user!.canAddUnloadingContacts()
         ? (context) async {
-            Contact contact = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AddContactPage(unloadingPoint: unloadingPoint),
-                fullscreenDialog: true,
-              ),
-            );
-            await onUpdate!(contact);
-            return contact;
+            try {
+              Contact? contact = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      AddContactPage(unloadingPoint: unloadingPoint),
+                  fullscreenDialog: true,
+                ),
+              );
+
+              if (contact != null) {
+                // Обновляем локальный список контактов в unloadingPoint
+                if (unloadingPoint?.contacts == null) {
+                  unloadingPoint?.contacts = [];
+                }
+                unloadingPoint?.contacts?.add(contact);
+
+                // Очищаем кэш, чтобы данные обновились
+                cacheMap?.getCache(unloadingPoint!).clear();
+
+                // Вызываем onUpdate для обновления UI
+                if (onUpdate != null) {
+                  await onUpdate(contact);
+                }
+
+                return contact;
+              }
+              // Если contact == null, выбрасываем исключение или возвращаем dummy contact
+              throw Exception('Contact creation was cancelled');
+            } catch (e) {
+              print('Error adding contact: $e');
+              // Возвращаем dummy contact или перебрасываем исключение
+              throw Exception('Failed to add contact: $e');
+            }
           }
         : null,
     label: localizationUtil.unloadingContact,

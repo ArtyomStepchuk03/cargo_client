@@ -218,10 +218,20 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     return [
       if (_canEditOrder(widget.order))
         IconButton(icon: Icon(Icons.edit), onPressed: _setEditing),
+      if (!_shouldShowProgress()) _buildCopyButton(context),
       IconButton(
           icon: Icon(Icons.mode_of_travel), onPressed: () => _showMap(context)),
       _buildMoreMenuButton(context),
     ];
+  }
+
+  Widget _buildCopyButton(BuildContext context) {
+    final localizationUtil = LocalizationUtil.of(context);
+    return IconButton(
+      icon: Icon(Icons.copy),
+      tooltip: localizationUtil.copyInformation,
+      onPressed: () => _copyOrderInfo(context),
+    );
   }
 
   void _copyOrderInfo(BuildContext context) async {
@@ -345,11 +355,20 @@ class OrderDetailsState extends State<OrderDetailsWidget>
       final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       try {
         await serverAPI.update(widget.order, editedOrder);
+
         widget.order!.assign(editedOrder);
+
         Navigator.pop(context);
         setState(() => _editing = false);
+
         _mainBodyKey.currentState!.setEditing(false);
+        _mainBodyKey.currentState!.update();
+
         updateListBody();
+
+        if (mounted) {
+          setState(() {});
+        }
       } on Exception {
         Navigator.pop(context);
         showDefaultErrorDialog(context);
@@ -487,40 +506,6 @@ class OrderDetailsState extends State<OrderDetailsWidget>
       setState(() {});
       updateListBody();
     }
-  }
-
-  // Добавить новый метод для создания кнопки копирования:
-  Widget _buildCopyButton(BuildContext context) {
-    final localizationUtil = LocalizationUtil.of(context);
-
-    return PopupMenuButton<VoidCallback>(
-      icon: Icon(Icons.copy),
-      tooltip: 'Копировать',
-      itemBuilder: (BuildContext context) => [
-        PopupMenuItem<VoidCallback>(
-          value: () => _copyOrderInfo(context),
-          child: Row(
-            children: [
-              Icon(Icons.info_outline, size: 20),
-              SizedBox(width: 8),
-              Text(localizationUtil.copyInformation),
-            ],
-          ),
-        ),
-        if (_shouldShowProgress())
-          PopupMenuItem<VoidCallback>(
-            value: () => _copyOrderStatus(context),
-            child: Row(
-              children: [
-                Icon(Icons.assignment_outlined, size: 20),
-                SizedBox(width: 8),
-                Text(localizationUtil.copyStatus),
-              ],
-            ),
-          ),
-      ],
-      onSelected: (VoidCallback action) => action(),
-    );
   }
 
   void _cancel(BuildContext context) async {
