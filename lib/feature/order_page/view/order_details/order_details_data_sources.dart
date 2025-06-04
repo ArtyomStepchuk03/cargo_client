@@ -201,6 +201,7 @@ class UnloadingContactDataSource implements LimitedDataSource<Contact> {
     if (unloadingPoint.contacts == null) {
       return [];
     }
+
     return unloadingPoint.contacts!;
   }
 
