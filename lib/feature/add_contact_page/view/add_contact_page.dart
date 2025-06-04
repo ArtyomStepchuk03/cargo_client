@@ -56,9 +56,9 @@ class _AddContactPageState extends State<AddContactPage> {
     }
     showActivityDialog(context, localizationUtil.saving);
     final serverAPI =
-        DependencyHolder.of(context)?.network.serverAPI.unloadingPoints;
+        DependencyHolder.of(context).network.serverAPI.unloadingPoints;
     try {
-      await serverAPI?.addContact(widget.unloadingPoint, contact);
+      await serverAPI.addContact(widget.unloadingPoint, contact);
       Navigator.pop(context);
       Navigator.pop(context, contact);
     } on Exception {
@@ -68,7 +68,7 @@ class _AddContactPageState extends State<AddContactPage> {
   }
 
   Contact? validate() {
-    if (!_formKey.currentState!.validate()!) {
+    if (_formKey.currentState?.validate() != true) {
       return null;
     }
     return Contact(

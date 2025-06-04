@@ -555,21 +555,41 @@ Widget buildUnloadingContactFormField(BuildContext context,
           DependencyHolder.of(context).network.serverAPI.unloadingPoints;
       await serverAPI.removeContact(unloadingPoint, contact);
       unloadingPoint?.contacts?.remove(contact);
+      cacheMap?.getCache(unloadingPoint!).clear();
     },
     selectedItem: initialValue,
     onUpdate: onUpdate,
     onAdd: user!.canAddUnloadingContacts()
         ? (context) async {
-            Contact contact = await Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>
-                    AddContactPage(unloadingPoint: unloadingPoint),
-                fullscreenDialog: true,
-              ),
-            );
-            await onUpdate!(contact);
-            return contact;
+            try {
+              Contact? contact = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      AddContactPage(unloadingPoint: unloadingPoint),
+                  fullscreenDialog: true,
+                ),
+              );
+
+              if (contact != null) {
+                if (unloadingPoint?.contacts == null) {
+                  unloadingPoint?.contacts = [];
+                }
+                unloadingPoint?.contacts?.add(contact);
+
+                cacheMap?.getCache(unloadingPoint!).clear();
+
+                if (onUpdate != null) {
+                  await onUpdate(contact);
+                }
+
+                return contact;
+              }
+              throw Exception('Contact creation was cancelled');
+            } catch (e) {
+              print('Error adding contact: $e');
+              throw Exception('Failed to add contact: $e');
+            }
           }
         : null,
     label: localizationUtil.unloadingContact,

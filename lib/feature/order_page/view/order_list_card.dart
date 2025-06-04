@@ -26,7 +26,7 @@ class OrderListCard extends StatelessWidget {
       highlightColor: _getCardHighlightColor(context),
       children: [
         if (order?.isQueue() == true)
-          Text('В очереди', style: TextStyle(color: Colors.black)),
+          Text(localizationUtil.inQueue, style: TextStyle(color: Colors.black)),
         if (user?.role == Role.dispatcher)
           ListCardField(
               name: localizationUtil.intermediary,
@@ -116,14 +116,15 @@ class OrderListCard extends StatelessWidget {
       return CommonColors.deletedBackground;
     }
     final colorPaletter = _getColorPalette();
+
+    if (order?.status != OrderStatus.ready) {
+      return colorPaletter.transferred!;
+    }
+
     if (order?.offers == null || order!.offers!.isEmpty) {
-      if (user?.role != Role.dispatcher &&
-          order?.carriers != null &&
-          order!.carriers!.isNotEmpty) {
-        return colorPaletter.transferred!;
-      }
       return colorPaletter.untouched!;
     }
+
     final offer = order?.offers?.first;
 
     if (offer?.trip == null) {

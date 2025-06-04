@@ -11,6 +11,5 @@ PreferredSizeWidget buildAppBar(
     foregroundColor: Colors.white,
     title: title,
     bottom: bottom,
-    titleSpacing: 0,
   );
 }

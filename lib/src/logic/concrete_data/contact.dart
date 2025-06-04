@@ -12,10 +12,8 @@ class Contact {
     }
     final name = data['name'];
     final phoneNumber = data['phoneNumber'];
-    if (name == null && phoneNumber == null) {
-      return null;
-    }
-    return Contact(name: name, phoneNumber: phoneNumber);
+
+    return Contact(name: name as String?, phoneNumber: phoneNumber as String?);
   }
 
   Map<String, dynamic> encode() {

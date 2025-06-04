@@ -27,7 +27,7 @@ String formatVehicleModel(BuildContext context, VehicleModel value) {
     return short.formatVehicleModelSafe(context, value);
   }
   if (value.name == null) {
-    return short.formatVehicleBrandSafe(context, value?.brand);
+    return short.formatVehicleBrandSafe(context, value.brand);
   }
   return '${value.brand?.name} ${value.name}';
 }

@@ -160,8 +160,7 @@ class ReservationDetailsBodyState extends State<ReservationDetailsBody> {
                 : reservation!.unloadingPoint,
             user: widget.user,
             editing: _editing,
-            onUpdate: (Contact? contact) =>
-                setState(() => reservation?.unloadingContact = contact),
+            onUpdate: _handleUnloadingContactChanged, // Используем новый метод
           ),
         ),
       ],
@@ -350,6 +349,13 @@ class ReservationDetailsBodyState extends State<ReservationDetailsBody> {
     }
     final tonnage = tonnageFromTruckCount(truckCount, articleBrand!);
     _tonnageKey.currentState?.value = '$tonnage';
+  }
+
+  void _handleUnloadingContactChanged(Contact? contact) {
+    setState(() {
+      _unloadingContactKey.currentState?.value = contact;
+      widget.reservation?.unloadingContact = contact;
+    });
   }
 
   void _handleTonnageChanged(String tonnageText) {
