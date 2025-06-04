@@ -55,7 +55,6 @@ class PhotoSaveService {
     }
   }
 
-  /// Проверяет и запрашивает разрешения на доступ к хранилищу
   static Future<PermissionResult> _requestStoragePermission() async {
     try {
       if (Platform.isAndroid) {

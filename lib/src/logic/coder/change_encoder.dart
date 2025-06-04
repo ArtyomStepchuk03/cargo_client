@@ -55,7 +55,6 @@ class ChangeEncoder implements Encoder {
     final oldMap = decoder.decodeMap(key);
 
     if (key == 'unloadingContact') {
-      print('DEBUG: Force encoding unloadingContact: $map');
       encoder.encodeMap(key, map);
       return;
     }

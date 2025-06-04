@@ -100,12 +100,10 @@ class TripProgressState extends State<TripProgressWidget> {
     );
   }
 
-  /// Создает секцию с фотографией и кнопками управления
   Widget _buildPhotoSection(TripHistoryRecord record, int index) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        // Фотография
         if (updatedPhotos[index] != null)
           Image.file(
             updatedPhotos[index]!,
@@ -118,14 +116,11 @@ class TripProgressState extends State<TripProgressWidget> {
             record.thumbnail!.url,
             onTap: () => _showFullPhoto(record),
           ),
-
-        // Кнопки управления
         ..._buildPhotoActionButtons(record, index),
       ],
     );
   }
 
-  /// Создает кнопки для управления фотографией
   List<Widget> _buildPhotoActionButtons(TripHistoryRecord record, int index) {
     final buttons = <Widget>[];
 
@@ -312,7 +307,6 @@ class TripProgressState extends State<TripProgressWidget> {
     }
   }
 
-  /// Удаляет фото
   Future<void> _deletePhoto(TripHistoryRecord record, int index) async {
     try {
       final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
@@ -327,7 +321,6 @@ class TripProgressState extends State<TripProgressWidget> {
     }
   }
 
-  /// Сохраняет фото в галерею
   void _savePhoto(TripHistoryRecord record) async {
     final localizationUtil = LocalizationUtil.of(context);
 
@@ -341,7 +334,6 @@ class TripProgressState extends State<TripProgressWidget> {
       return;
     }
 
-    // Показываем индикатор загрузки
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -358,19 +350,15 @@ class TripProgressState extends State<TripProgressWidget> {
     );
 
     try {
-      // Генерируем имя файла на основе заказа и стадии
       final fileName = _generatePhotoFileName(record);
 
-      // Сохраняем фото
       final result = await PhotoSaveService.savePhotoToGallery(
         record.photo!.url,
         fileName,
       );
 
-      // Убираем диалог загрузки
       if (mounted) Navigator.of(context).pop();
 
-      // Показываем результат
       if (mounted) {
         PhotoSaveService.showSaveResultSnackbar(
           context,
@@ -380,10 +368,8 @@ class TripProgressState extends State<TripProgressWidget> {
         );
       }
     } catch (e) {
-      // Убираем диалог загрузки
       if (mounted) Navigator.of(context).pop();
 
-      // Показываем ошибку
       if (mounted) {
         PhotoSaveService.showSaveResultSnackbar(
           context,
@@ -396,7 +382,6 @@ class TripProgressState extends State<TripProgressWidget> {
     }
   }
 
-  /// Генерирует имя файла для сохраняемого фото
   String _generatePhotoFileName(TripHistoryRecord record) {
     final orderNumber = widget.order?.number ?? 0;
     final stageName = _getStageFileName(record.stage);
@@ -405,7 +390,6 @@ class TripProgressState extends State<TripProgressWidget> {
     return 'order_${orderNumber}_${stageName}_$timestamp';
   }
 
-  /// Получает имя стадии для файла
   String _getStageFileName(TripStage? stage) {
     switch (stage) {
       case TripStage.loaded:

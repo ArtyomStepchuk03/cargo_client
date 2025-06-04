@@ -198,17 +198,8 @@ class UnloadingContactDataSource implements LimitedDataSource<Contact> {
 
   Future<List<Contact?>> list() async {
     await unloadingPointServerAPI.fetch(unloadingPoint);
-    print('DEBUG: UnloadingPoint contacts: ${unloadingPoint.contacts}');
-
     if (unloadingPoint.contacts == null) {
-      print('DEBUG: No contacts found for unloading point');
       return [];
-    }
-
-    print('DEBUG: Found ${unloadingPoint.contacts!.length} contacts');
-    for (var contact in unloadingPoint.contacts!) {
-      print(
-          'DEBUG: Contact - name: ${contact?.name}, phone: ${contact?.phoneNumber}');
     }
 
     return unloadingPoint.contacts!;
