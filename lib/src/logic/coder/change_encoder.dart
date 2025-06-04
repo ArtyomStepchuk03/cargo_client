@@ -53,6 +53,13 @@ class ChangeEncoder implements Encoder {
 
   void encodeMap(String key, Map<String, dynamic>? map) {
     final oldMap = decoder.decodeMap(key);
+
+    if (key == 'unloadingContact') {
+      print('DEBUG: Force encoding unloadingContact: $map');
+      encoder.encodeMap(key, map);
+      return;
+    }
+
     if (!MapEquality().equals(oldMap, map)) {
       encoder.encodeMap(key, map);
     }

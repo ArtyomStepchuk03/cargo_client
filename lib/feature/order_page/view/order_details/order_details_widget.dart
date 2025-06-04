@@ -355,20 +355,11 @@ class OrderDetailsState extends State<OrderDetailsWidget>
       final serverAPI = DependencyHolder.of(context).network.serverAPI.orders;
       try {
         await serverAPI.update(widget.order, editedOrder);
-
         widget.order!.assign(editedOrder);
-
         Navigator.pop(context);
         setState(() => _editing = false);
-
         _mainBodyKey.currentState!.setEditing(false);
-        _mainBodyKey.currentState!.update();
-
         updateListBody();
-
-        if (mounted) {
-          setState(() {});
-        }
       } on Exception {
         Navigator.pop(context);
         showDefaultErrorDialog(context);
