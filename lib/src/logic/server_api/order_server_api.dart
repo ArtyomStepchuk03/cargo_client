@@ -187,6 +187,26 @@ class OrderServerAPI {
   }
 
   Future<void> create(Order order, User? user) async {
+    if (order.tonnage == null || order.tonnage! <= 0) {
+      throw ArgumentError('Order tonnage must be greater than 0');
+    }
+
+    if (order.articleBrand == null) {
+      throw ArgumentError('Article brand is required');
+    }
+
+    if (order.customer == null && user?.role != Role.customer) {
+      throw ArgumentError('Customer is required');
+    }
+
+    if (order.unloadingPoint == null) {
+      throw ArgumentError('Unloading point is required');
+    }
+
+    if (order.unloadingBeginDate == null) {
+      throw ArgumentError('Unloading begin date is required');
+    }
+
     String id;
     if (user?.role == Role.customer) {
       id = await _createForCustomer(order);
@@ -200,20 +220,26 @@ class OrderServerAPI {
     order.deleted = false;
     order.distributedTonnage = 0;
     order.finishedTonnage = 0;
-    order.undistributedTonnage = order.tonnage;
-    order.unfinishedTonnage = order.tonnage;
-    final fetchedData =
-        await parse.getById(serverManager.server!, Order.className, id);
-    final decoder = Decoder(fetchedData);
-    if (decoder.isValid()) {
-      order.createdAt = decoder.decodeCreatedAt();
-      order.number = decoder.decodeNumber('number') as int?;
-      order.author = User.decode(decoder.getDecoder('author'));
-      order.salePriceType =
-          decoder.decodeEnumeration('salePriceType', PriceType.values);
-      order.deliveryPriceType =
-          decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
-      order.status = decoder.decodeString('status');
+    order.undistributedTonnage = order.tonnage ?? 0;
+    order.unfinishedTonnage = order.tonnage ?? 0;
+
+    try {
+      final fetchedData =
+          await parse.getById(serverManager.server!, Order.className, id);
+      final decoder = Decoder(fetchedData);
+      if (decoder.isValid()) {
+        order.createdAt = decoder.decodeCreatedAt();
+        order.number = decoder.decodeNumber('number') as int?;
+        order.author = User.decode(decoder.getDecoder('author'));
+        order.salePriceType =
+            decoder.decodeEnumeration('salePriceType', PriceType.values);
+        order.deliveryPriceType =
+            decoder.decodeEnumeration('deliveryPriceType', PriceType.values);
+        order.status = decoder.decodeString('status');
+      }
+    } catch (e) {
+      print('Error fetching created order: $e');
+      throw Exception('Failed to fetch created order details');
     }
   }
 
@@ -475,21 +501,35 @@ class OrderServerAPI {
       serverManager.liveQueryManager?.unsubscribe(subscription);
 
   Future<String> _createForCustomer(Order order) async {
+    if (order.unloadingPoint?.id == null) {
+      throw ArgumentError('Unloading point ID is required for customer orders');
+    }
+
+    if (order.articleBrand?.id == null) {
+      throw ArgumentError('Article brand ID is required for customer orders');
+    }
+
     final parameters = {
-      'unloadingPointId': order.unloadingPoint?.id,
+      'unloadingPointId': order.unloadingPoint!.id,
       'unloadingBeginDate': order.unloadingBeginDate?.millisecondsSinceEpoch,
       'unloadingEndDate': order.unloadingEndDate?.millisecondsSinceEpoch,
-      'articleBrandId': order.articleBrand?.id,
+      'articleBrandId': order.articleBrand!.id,
       'tonnage': order.tonnage,
       'comment': order.comment,
     };
-    final result = await callCloudFunction(
-        serverManager.server!, 'Customer_makeOrder', parameters);
-    final id = result['id'];
-    if (id is! String) {
-      throw InvalidResponseException();
+
+    try {
+      final result = await callCloudFunction(
+          serverManager.server!, 'Customer_makeOrder', parameters);
+      final id = result['id'];
+      if (id is! String) {
+        throw InvalidResponseException();
+      }
+      return id;
+    } catch (e) {
+      print('Error in _createForCustomer: $e');
+      rethrow;
     }
-    return id;
   }
 
   parse.QueryBuilder? _makeListQuery(User? user, {OrderFilter? filter}) {

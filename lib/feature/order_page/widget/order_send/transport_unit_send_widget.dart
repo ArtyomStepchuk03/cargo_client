@@ -69,14 +69,16 @@ void _processOrderSending(BuildContext context, Order order, User user,
     final consistOrder = _isConsistOrder(order, user);
 
     if (consistOrder) {
+      Navigator.pop(context);
       final confirmed = await showContinueDialog(
           context, localizationUtil.needConsist,
           confirmButtonTitle: localizationUtil.agreeButton);
+
       if (confirmed) {
+        showDefaultActivityDialog(context);
         order.consistency = AgreeOrderType.agree().raw;
         await serverAPI.orders.consistOrder(order);
       } else {
-        Navigator.pop(context); // Закрытие диалога активности (если открыт)
         return;
       }
     }

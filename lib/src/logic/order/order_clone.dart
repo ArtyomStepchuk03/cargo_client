@@ -7,10 +7,11 @@ Order cloneOrder(Order other, User user) {
 
   order.articleShape = other.articleShape;
   order.articleBrand = other.articleBrand;
+
   order.tonnage = other.tonnage;
-  order.undistributedTonnage = other.tonnage;
+  order.undistributedTonnage = other.tonnage ?? 0;
   order.distributedTonnage = 0;
-  order.unfinishedTonnage = other.tonnage;
+  order.unfinishedTonnage = other.tonnage ?? 0;
   order.finishedTonnage = 0;
 
   if (user.role != Role.customer) {
@@ -52,25 +53,30 @@ Order cloneOrder(Order other, User user) {
 }
 
 Order cloneReservation(Order? other) {
-  var reservation = Order();
-  reservation.type = other?.type;
+  if (other == null) {
+    throw ArgumentError('Cannot clone null order');
+  }
 
-  reservation.articleShape = other?.articleShape;
-  reservation.articleBrand = other?.articleBrand;
-  reservation.tonnage = other?.tonnage;
-  reservation.undistributedTonnage = other?.tonnage;
+  var reservation = Order();
+  reservation.type = other.type;
+
+  reservation.articleShape = other.articleShape;
+  reservation.articleBrand = other.articleBrand;
+
+  reservation.tonnage = other.tonnage;
+  reservation.undistributedTonnage = other.tonnage ?? 0;
   reservation.distributedTonnage = 0;
-  reservation.unfinishedTonnage = other?.tonnage;
+  reservation.unfinishedTonnage = other.tonnage ?? 0;
   reservation.finishedTonnage = 0;
 
-  reservation.supplier = other?.supplier;
-  reservation.loadingPoint = other?.loadingPoint;
-  reservation.customer = other?.customer;
-  reservation.unloadingPoint = other?.unloadingPoint;
+  reservation.supplier = other.supplier;
+  reservation.loadingPoint = other.loadingPoint;
+  reservation.customer = other.customer;
+  reservation.unloadingPoint = other.unloadingPoint;
 
-  reservation.comment = other?.comment;
+  reservation.comment = other.comment;
 
-  reservation.unloadingBeginDate = other?.unloadingBeginDate;
+  reservation.unloadingBeginDate = other.unloadingBeginDate;
 
   return reservation;
 }

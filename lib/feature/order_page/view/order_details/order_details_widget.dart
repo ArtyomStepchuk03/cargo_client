@@ -377,18 +377,62 @@ class OrderDetailsState extends State<OrderDetailsWidget>
   }
 
   void _showAddWidget(BuildContext context) async {
-    if (!await checkVersionForOrderAddition(context)) {
-      return;
-    }
-    final newOrder = await Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) =>
-              AddOrderPage.clone(user: widget.user!, order: widget.order!),
-          fullscreenDialog: true,
-        ));
-    if (newOrder != null && widget.listBodyState != null) {
-      widget.listBodyState!.addOrder(newOrder);
+    try {
+      if (!await checkVersionForOrderAddition(context)) {
+        return;
+      }
+
+      if (widget.order == null) {
+        await showErrorDialog(context, 'Не удалось получить данные заказа');
+        return;
+      }
+
+      if (widget.user == null) {
+        await showErrorDialog(
+            context, 'Не удалось получить данные пользователя');
+        return;
+      }
+
+      if (widget.order!.tonnage == null || widget.order!.tonnage! <= 0) {
+        await showErrorDialog(
+            context, 'Невозможно клонировать заказ: не указан тоннаж');
+        return;
+      }
+
+      if (widget.order!.articleBrand == null) {
+        await showErrorDialog(
+            context, 'Невозможно клонировать заказ: не указан артикул');
+        return;
+      }
+
+      if (widget.order!.customer == null &&
+          widget.user!.role != Role.customer) {
+        await showErrorDialog(
+            context, 'Невозможно клонировать заказ: не указан заказчик');
+        return;
+      }
+
+      if (widget.order!.unloadingPoint == null) {
+        await showErrorDialog(context,
+            'Невозможно клонировать заказ: не указана точка разгрузки');
+        return;
+      }
+
+      final newOrder = await Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                AddOrderPage.clone(user: widget.user!, order: widget.order!),
+            fullscreenDialog: true,
+          ));
+
+      if (newOrder != null && widget.listBodyState != null) {
+        widget.listBodyState!.addOrder(newOrder);
+      }
+    } catch (e) {
+      print('Error in _showAddWidget: $e');
+      await showErrorDialog(
+          context, 'Произошла ошибка при клонировании заказа');
     }
   }
 

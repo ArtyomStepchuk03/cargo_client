@@ -21,7 +21,7 @@ void _processOrderSending(
     BuildContext context, Order? order, User? user, Carrier? carrier) async {
   final localizationUtil = LocalizationUtil.of(context);
   final dependencyState = DependencyHolder.of(context);
-  final serverAPI = dependencyState!.network.serverAPI.orders;
+  final serverAPI = dependencyState.network.serverAPI.orders;
 
   showDefaultActivityDialog(context);
 
@@ -39,12 +39,17 @@ void _processOrderSending(
     final shouldConsist = _shouldConsist(order, user);
 
     if (shouldConsist) {
+      Navigator.pop(context);
       final consist = await showContinueDialog(
           context, localizationUtil.needConsist,
           confirmButtonTitle: localizationUtil.agreeButton);
+
       if (consist) {
+        showDefaultActivityDialog(context);
         order?.consistency = AgreeOrderType.agree().raw;
         await serverAPI.consistOrder(order);
+      } else {
+        return;
       }
     }
 
