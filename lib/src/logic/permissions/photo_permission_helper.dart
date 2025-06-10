@@ -5,23 +5,18 @@ import 'package:permission_handler/permission_handler.dart';
 class PhotoPermissionHelper {
   static Future<bool> requestPhotoPermission(BuildContext context) async {
     try {
-      // Сначала пробуем прямо вызвать ImagePicker - это заставит iOS показать системный диалог
       final ImagePicker picker = ImagePicker();
 
-      // Попытка выбрать изображение покажет системный диалог разрешений
       final XFile? image = await picker.pickImage(
         source: ImageSource.gallery,
         maxWidth: 1,
         maxHeight: 1,
       );
 
-      // Если пользователь выбрал изображение или просто дал разрешение, это успех
       if (image != null) {
         return true;
       }
 
-      // Если image == null, это может означать отмену или отказ
-      // Проверяем статус разрешения через permission_handler
       PermissionStatus status = await Permission.photos.status;
 
       if (status.isGranted) {
@@ -29,7 +24,6 @@ class PhotoPermissionHelper {
       }
 
       if (status.isDenied) {
-        // Пробуем запросить разрешение еще раз
         status = await Permission.photos.request();
         return status.isGranted;
       }
@@ -43,7 +37,6 @@ class PhotoPermissionHelper {
     } catch (e) {
       print('Ошибка при запросе разрешения на фото: $e');
 
-      // Fallback: пробуем через permission_handler
       PermissionStatus status = await Permission.photos.status;
 
       if (status.isGranted) {
@@ -108,10 +101,8 @@ class PhotoPermissionHelper {
         false;
   }
 
-  // Альтернативный метод для принудительного запроса разрешений
   static Future<bool> forceRequestPhotoPermission(BuildContext context) async {
     try {
-      // Основной запрос разрешения на фото
       PermissionStatus status = await Permission.photos.status;
 
       if (status.isGranted) {
@@ -125,7 +116,6 @@ class PhotoPermissionHelper {
         }
       }
 
-      // Если все еще нет доступа, показываем инструкцию
       if (status.isPermanentlyDenied || status.isDenied) {
         return await _showDetailedInstructionDialog(context);
       }

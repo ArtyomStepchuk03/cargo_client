@@ -13,17 +13,14 @@ export 'package:gal/gal.dart';
 export 'package:permission_handler/permission_handler.dart';
 
 class PhotoSaveService {
-  /// Сохраняет фотографию из URL в галерею устройства
   static Future<PhotoSaveResult> savePhotoToGallery(
       String photoUrl, String fileName) async {
     try {
-      // Проверяем и запрашиваем разрешения
       final permissionResult = await _requestStoragePermission();
       if (!permissionResult.granted) {
         return PhotoSaveResult.error(permissionResult.errorMessage);
       }
 
-      // Загружаем фото с сервера
       final response = await http.get(
         Uri.parse(photoUrl),
         headers: {'User-Agent': 'Manager Mobile Client'},
@@ -40,7 +37,6 @@ class PhotoSaveService {
         return PhotoSaveResult.error('Получен пустой файл');
       }
 
-      // Сохраняем во временную папку приложения для возможности открытия
       String? tempFilePath;
       try {
         final tempDir = await getTemporaryDirectory();
@@ -51,13 +47,11 @@ class PhotoSaveService {
         print('Не удалось сохранить во временную папку: $e');
       }
 
-      // Сохраняем в галерею (Gal.putImageBytes возвращает void)
       await Gal.putImageBytes(
         bytes,
         name: '$fileName.jpg',
       );
 
-      // Возвращаем успех с путем к временному файлу
       return PhotoSaveResult.success(tempFilePath);
     } on GalException catch (e) {
       return PhotoSaveResult.error(
@@ -149,7 +143,6 @@ class PhotoSaveService {
       }
     }
 
-    // Если не удалось открыть конкретное фото, открываем галерею
     return await _openGallery();
   }
 

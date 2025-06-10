@@ -4,25 +4,20 @@ import 'package:permission_handler/permission_handler.dart';
 
 import 'app.dart';
 
-// Добавьте этот класс в main.dart
 class PermissionInitializer {
   static Future<void> initializePermissions() async {
     try {
-      // Инициализируем разрешения при запуске приложения
       await Permission.photos.status;
       await Permission.camera.status;
 
-      // Это заставит iOS показать разрешения в настройках
       print('Разрешения инициализированы');
     } catch (e) {
       print('Ошибка инициализации разрешений: $e');
     }
   }
 
-  // Вызывайте этот метод при первом использовании камеры/фото
   static Future<void> ensurePhotoPermissionsVisible() async {
     try {
-      // Запрашиваем разрешения, чтобы они появились в настройках
       await [
         Permission.photos,
         Permission.camera,
@@ -33,7 +28,6 @@ class PermissionInitializer {
   }
 }
 
-// Добавьте этот виджет
 class PermissionAwareApp extends StatefulWidget {
   final Widget child;
 
@@ -60,7 +54,6 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  // Инициализируем разрешения при старте приложения
   await PermissionInitializer.initializePermissions();
 
   runApp(PermissionAwareApp(child: App()));
