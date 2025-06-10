@@ -678,7 +678,7 @@ class OrderDetailsState extends State<OrderDetailsWidget>
     if (widget.user?.canEditOrders() == false) {
       return false;
     }
-    if (widget.user?.role == Role.dispatcher &&
+    if (widget.user?.role == Role.logistician &&
         widget.order!.isActionsAllowedForDispatcher(widget.user) == false) {
       return false;
     }

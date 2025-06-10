@@ -5,6 +5,7 @@ import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -39,12 +40,25 @@ class PhotoSaveService {
         return PhotoSaveResult.error('Получен пустой файл');
       }
 
+      // Сохраняем во временную папку приложения для возможности открытия
+      String? tempFilePath;
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/$fileName.jpg');
+        await tempFile.writeAsBytes(bytes);
+        tempFilePath = tempFile.path;
+      } catch (e) {
+        print('Не удалось сохранить во временную папку: $e');
+      }
+
+      // Сохраняем в галерею (Gal.putImageBytes возвращает void)
       await Gal.putImageBytes(
         bytes,
         name: '$fileName.jpg',
       );
 
-      return PhotoSaveResult.success(null); // Успешно, путь не возвращается
+      // Возвращаем успех с путем к временному файлу
+      return PhotoSaveResult.success(tempFilePath);
     } on GalException catch (e) {
       return PhotoSaveResult.error(
           'Ошибка библиотеки галереи: ${e.type.message}');
@@ -67,7 +81,7 @@ class PhotoSaveService {
             return PermissionResult.granted();
           } else if (status == PermissionStatus.permanentlyDenied) {
             return PermissionResult.error(
-                'Доступ к фото запрещен навсегда. Включите в настройках приложения');
+                'Доступ к фото запрещен. Включите в настройках приложения');
           } else {
             return PermissionResult.error('Отказано в доступе к фото');
           }
@@ -78,7 +92,7 @@ class PhotoSaveService {
             return PermissionResult.granted();
           } else if (status == PermissionStatus.permanentlyDenied) {
             return PermissionResult.error(
-                'Доступ к хранилищу запрещен навсегда. Включите в настройках приложения');
+                'Доступ к хранилищу запрещен. Включите в настройках приложения');
           } else {
             return PermissionResult.error('Отказано в доступе к хранилищу');
           }
@@ -117,38 +131,81 @@ class PhotoSaveService {
     }
   }
 
-  /// Пытается открыть галерею
-  static Future<bool> openGallery([String? photoPath]) async {
+  /// Открывает фото или галерею
+  static Future<bool> openPhotoOrGallery([String? tempFilePath]) async {
+    // Сначала пытаемся открыть конкретное фото из временной папки
+    if (tempFilePath != null && tempFilePath.isNotEmpty) {
+      try {
+        final file = File(tempFilePath);
+        if (await file.exists()) {
+          final uri = Uri.file(tempFilePath);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+            return true;
+          }
+        }
+      } catch (e) {
+        print('Не удалось открыть временное фото: $e');
+      }
+    }
+
+    // Если не удалось открыть конкретное фото, открываем галерею
+    return await _openGallery();
+  }
+
+  /// Открывает галерею
+  static Future<bool> _openGallery() async {
     try {
       if (Platform.isAndroid) {
-        // На Android пытаемся открыть галерею через разные варианты
+        // Пытаемся открыть галерею различными способами
         final galleryIntents = [
           'content://media/external/images/media',
           'content://media/internal/images/media',
         ];
 
-        for (final galleryUrl in galleryIntents) {
+        for (final intent in galleryIntents) {
           try {
-            final uri = Uri.parse(galleryUrl);
+            final uri = Uri.parse(intent);
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
               return true;
             }
           } catch (e) {
-            // Продолжаем попытки с другими URL
+            continue;
           }
         }
-      } else if (Platform.isIOS) {
-        // На iOS пытаемся открыть приложение Фото
-        const photosUrl = 'photos-redirect://';
-        final uri = Uri.parse(photosUrl);
-        if (await canLaunchUrl(uri)) {
+
+        // Последняя попытка - открыть через стандартный интент просмотра изображений
+        try {
+          final uri = Uri.parse('content://media/external/images/media');
           await launchUrl(uri, mode: LaunchMode.externalApplication);
           return true;
+        } catch (e) {
+          return false;
         }
+      } else if (Platform.isIOS) {
+        // Для iOS пытаемся открыть приложение Фото
+        final photoAppSchemes = [
+          'photos-redirect://',
+          'photos://',
+        ];
+
+        for (final scheme in photoAppSchemes) {
+          try {
+            final uri = Uri.parse(scheme);
+            if (await canLaunchUrl(uri)) {
+              await launchUrl(uri, mode: LaunchMode.externalApplication);
+              return true;
+            }
+          } catch (e) {
+            continue;
+          }
+        }
+        return false;
       }
       return false;
     } catch (e) {
+      print('Ошибка открытия галереи: $e');
       return false;
     }
   }
@@ -172,11 +229,11 @@ class PhotoSaveService {
               label: localizationOpen,
               textColor: Colors.white,
               onPressed: () async {
-                final opened = await openGallery(result.savedPath);
+                final opened = await openPhotoOrGallery(result.savedPath);
                 if (!opened && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Не удалось открыть галерею'),
+                      content: Text('Не удалось открыть фото'),
                       backgroundColor: Colors.orange,
                       duration: Duration(seconds: 2),
                     ),
@@ -226,4 +283,82 @@ class PermissionResult {
         errorMessage = null;
 
   PermissionResult.error(this.errorMessage) : granted = false;
+}
+
+class PhotoPermissionHelper {
+  static Future<bool> requestPhotoPermission(BuildContext context) async {
+    // Проверяем текущий статус разрешения
+    PermissionStatus status = await Permission.photos.status;
+
+    if (status.isGranted) {
+      return true;
+    }
+
+    if (status.isDenied) {
+      // Запрашиваем разрешение
+      status = await Permission.photos.request();
+
+      if (status.isGranted) {
+        return true;
+      }
+    }
+
+    if (status.isPermanentlyDenied) {
+      // Показываем диалог с предложением открыть настройки
+      return await _showSettingsDialog(context);
+    }
+
+    return false;
+  }
+
+  static Future<bool> requestCameraPermission(BuildContext context) async {
+    PermissionStatus status = await Permission.camera.status;
+
+    if (status.isGranted) {
+      return true;
+    }
+
+    if (status.isDenied) {
+      status = await Permission.camera.request();
+
+      if (status.isGranted) {
+        return true;
+      }
+    }
+
+    if (status.isPermanentlyDenied) {
+      return await _showSettingsDialog(context);
+    }
+
+    return false;
+  }
+
+  static Future<bool> _showSettingsDialog(BuildContext context) async {
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Разрешение необходимо'),
+              content: Text(
+                'Для работы с фотографиями необходимо предоставить доступ к галерее. '
+                'Перейдите в настройки приложения и включите доступ к фото.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('Отмена'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    Navigator.of(context).pop(true);
+                    await openAppSettings();
+                  },
+                  child: Text('Настройки'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false;
+  }
 }

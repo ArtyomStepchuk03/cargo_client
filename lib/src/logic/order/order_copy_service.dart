@@ -48,6 +48,11 @@ class OrderCopyService {
     final l = LocalizationUtil.of(context);
     final List<String> lines = [];
 
+    if (order.customer != null) {
+      final customer = short.formatCustomerSafe(context, order.customer);
+      lines.add('${l.customer}: $customer');
+    }
+
     lines.add(
         '${l.unloadingPoint}: ${short.formatUnloadingPointSafe(context, order.unloadingPoint)}');
 

@@ -11,7 +11,40 @@ import 'package:manager_mobile_client/feature/main_page/main_screen.dart';
 
 import 'feature/auth_page/auth_page.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
+  @override
+  State<App> createState() => _AppState();
+}
+
+class _AppState extends State<App> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Когда приложение возвращается из настроек, можно проверить разрешения
+    if (state == AppLifecycleState.resumed) {
+      _checkPermissionsAfterSettings();
+    }
+  }
+
+  void _checkPermissionsAfterSettings() async {
+    // Этот метод вызывается когда пользователь возвращается из настроек
+    // Можно добавить логику для обновления состояния разрешений
+    print('Приложение возобновлено - проверяем разрешения');
+  }
+
   @override
   Widget build(BuildContext context) {
     return DependencyHolder(

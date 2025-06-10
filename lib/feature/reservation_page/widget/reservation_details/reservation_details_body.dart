@@ -160,7 +160,7 @@ class ReservationDetailsBodyState extends State<ReservationDetailsBody> {
                 : reservation!.unloadingPoint,
             user: widget.user,
             editing: _editing,
-            onUpdate: _handleUnloadingContactChanged, // Используем новый метод
+            onUpdate: _handleUnloadingContactChanged,
           ),
         ),
       ],

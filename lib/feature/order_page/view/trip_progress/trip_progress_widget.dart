@@ -124,6 +124,16 @@ class TripProgressState extends State<TripProgressWidget> {
   List<Widget> _buildPhotoActionButtons(TripHistoryRecord record, int index) {
     final buttons = <Widget>[];
 
+    if (record.photo != null) {
+      buttons.add(
+        IconButton(
+          onPressed: () => _savePhoto(record),
+          icon: Icon(Icons.download),
+          tooltip: LocalizationUtil.of(context).save,
+        ),
+      );
+    }
+
     if (widget.user?.role == Role.administrator ||
         widget.user?.role == Role.logistician ||
         widget.user?.role == Role.manager) {
@@ -141,16 +151,6 @@ class TripProgressState extends State<TripProgressWidget> {
           tooltip: 'Удалить фото',
         ),
       ]);
-    }
-
-    if (record.photo != null) {
-      buttons.add(
-        IconButton(
-          onPressed: () => _savePhoto(record),
-          icon: Icon(Icons.download),
-          tooltip: LocalizationUtil.of(context).save,
-        ),
-      );
     }
 
     return buttons;
@@ -330,6 +330,24 @@ class TripProgressState extends State<TripProgressWidget> {
         PhotoSaveResult.error(localizationUtil.photoSaveError),
         '',
         '',
+      );
+      return;
+    }
+
+    // Проверяем разрешение на сохранение в галерею
+    final hasPermission =
+        await PhotoPermissionHelper.requestPhotoPermission(context);
+
+    if (!hasPermission) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Для сохранения фото необходимо предоставить доступ к галерее'),
+          action: SnackBarAction(
+            label: 'Настройки',
+            onPressed: () => openAppSettings(),
+          ),
+        ),
       );
       return;
     }

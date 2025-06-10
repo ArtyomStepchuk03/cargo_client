@@ -178,12 +178,14 @@ bool _shouldMarkAsRequiresAction(Order? reservation) {
 }
 
 bool _shouldMarkAsNew(Order? reservation) {
-  if (reservation?.status != OrderStatus.customerRequest) {
+  if (reservation?.status == OrderStatus.ready) {
     return false;
   }
-  if (reservation?.carrierOffers != null &&
-      reservation!.carrierOffers!.isNotEmpty) {
-    return false;
+
+  if (reservation?.status == OrderStatus.customerRequest ||
+      reservation?.status == OrderStatus.inWork) {
+    return true;
   }
-  return true;
+
+  return false;
 }

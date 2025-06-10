@@ -43,7 +43,7 @@ class User extends Identifiable<String> {
   User();
 
   static User? decode(Decoder decoder) {
-    if (!decoder.isValid()) {
+    if (decoder.isValid() != true) {
       return null;
     }
     final decoded = User();
@@ -83,7 +83,7 @@ extension UserPermissions on User {
       return true;
     }
     if (role == Role.dispatcher) {
-      return carrier!.orderPermissions!.update!;
+      return carrier?.orderPermissions?.update == true;
     }
     if (role == Role.customer) {
       return true;
@@ -96,7 +96,7 @@ extension UserPermissions on User {
       return true;
     }
     if (role == Role.dispatcher) {
-      return carrier!.orderPermissions!.delete!;
+      return carrier?.orderPermissions?.delete == true;
     }
     return false;
   }
@@ -106,7 +106,7 @@ extension UserPermissions on User {
       return true;
     }
     if (role == Role.dispatcher) {
-      return carrier!.orderPermissions!.salePrice!;
+      return carrier?.orderPermissions?.salePrice == true;
     }
     return false;
   }
@@ -126,7 +126,7 @@ extension UserPermissions on User {
       return true;
     }
     if (role == Role.customer) {
-      return customer!.permissions!.driverPhoneNumber;
+      return customer?.permissions?.driverPhoneNumber == true;
     }
     return false;
   }

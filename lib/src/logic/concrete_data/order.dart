@@ -286,11 +286,13 @@ extension OrderUtility on Order {
   }
 
   CarrierOffer? getCarrierOffer(Carrier? carrier) {
-    if (carrierOffers == null) {
+    if (carrier == null || carrierOffers == null || carrierOffers!.isEmpty) {
       return null;
     }
-    return carrierOffers
-        ?.firstWhere((carrierOffer) => carrierOffer?.carrier == carrier);
+
+    final matchingOffers =
+        carrierOffers!.where((offer) => offer?.carrier == carrier);
+    return matchingOffers.isNotEmpty ? matchingOffers.first : null;
   }
 
   OrderHistoryRecord? getTakenIntoWorkHistoryRecord() {
