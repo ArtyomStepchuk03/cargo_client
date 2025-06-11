@@ -1,357 +1,305 @@
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:gal/gal.dart';
 import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:url_launcher/url_launcher.dart';
 
-export 'package:gal/gal.dart';
-export 'package:permission_handler/permission_handler.dart';
+enum PhotoSaveResultType { success, error, permissionDenied }
+
+class PhotoSaveResult {
+  final PhotoSaveResultType type;
+  final String message;
+  final String? filePath;
+
+  PhotoSaveResult._({
+    required this.type,
+    required this.message,
+    this.filePath,
+  });
+
+  factory PhotoSaveResult.success(String message, {String? filePath}) {
+    return PhotoSaveResult._(
+      type: PhotoSaveResultType.success,
+      message: message,
+      filePath: filePath,
+    );
+  }
+
+  factory PhotoSaveResult.error(String message) {
+    return PhotoSaveResult._(
+      type: PhotoSaveResultType.error,
+      message: message,
+    );
+  }
+
+  factory PhotoSaveResult.permissionDenied(String message) {
+    return PhotoSaveResult._(
+      type: PhotoSaveResultType.permissionDenied,
+      message: message,
+    );
+  }
+
+  bool get isSuccess => type == PhotoSaveResultType.success;
+  bool get isError => type == PhotoSaveResultType.error;
+  bool get isPermissionDenied => type == PhotoSaveResultType.permissionDenied;
+}
 
 class PhotoSaveService {
+  /// Сохраняет фото по URL в галерею
   static Future<PhotoSaveResult> savePhotoToGallery(
-      String photoUrl, String fileName) async {
+    String imageUrl,
+    String fileName,
+  ) async {
     try {
-      final permissionResult = await _requestStoragePermission();
-      if (!permissionResult.granted) {
-        return PhotoSaveResult.error(permissionResult.errorMessage);
+      // Проверяем разрешения для iOS
+      if (Platform.isIOS) {
+        final hasPermission = await _checkIOSPhotoPermission();
+        if (!hasPermission) {
+          return PhotoSaveResult.permissionDenied(
+            'Для сохранения фото необходимо предоставить доступ к галерее в настройках',
+          );
+        }
       }
 
-      final response = await http.get(
-        Uri.parse(photoUrl),
-        headers: {'User-Agent': 'Manager Mobile Client'},
-      ).timeout(Duration(seconds: 30));
-
+      // Скачиваем изображение
+      final response = await http.get(Uri.parse(imageUrl));
       if (response.statusCode != 200) {
         return PhotoSaveResult.error(
-            'Не удалось загрузить фото (код: ${response.statusCode})');
+          'Не удалось загрузить изображение: HTTP ${response.statusCode}',
+        );
       }
 
       final Uint8List bytes = response.bodyBytes;
 
-      if (bytes.isEmpty) {
-        return PhotoSaveResult.error('Получен пустой файл');
-      }
-
-      String? tempFilePath;
-      try {
-        final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/$fileName.jpg');
-        await tempFile.writeAsBytes(bytes);
-        tempFilePath = tempFile.path;
-      } catch (e) {
-        print('Не удалось сохранить во временную папку: $e');
-      }
-
+      // Сохраняем с помощью Gal
       await Gal.putImageBytes(
         bytes,
-        name: '$fileName.jpg',
+        name: fileName,
       );
 
-      return PhotoSaveResult.success(tempFilePath);
+      return PhotoSaveResult.success(
+        'Фото успешно сохранено в галерею',
+        filePath: fileName,
+      );
     } on GalException catch (e) {
+      // Обрабатываем специфичные ошибки Gal
+      return _handleGalException(e);
+    } catch (e) {
       return PhotoSaveResult.error(
-          'Ошибка библиотеки галереи: ${e.type.message}');
-    } on SocketException {
-      return PhotoSaveResult.error('Нет подключения к интернету');
-    } on http.ClientException {
-      return PhotoSaveResult.error('Ошибка загрузки фото');
+        'Ошибка при сохранении фото: ${e.toString()}',
+      );
     }
   }
 
-  static Future<PermissionResult> _requestStoragePermission() async {
+  /// Проверяет разрешения для iOS более правильным способом
+  static Future<bool> _checkIOSPhotoPermission() async {
     try {
-      if (Platform.isAndroid) {
-        final androidVersion = await _getAndroidVersion();
+      // Сначала пробуем сохранить тестовое изображение
+      // Это более надежный способ проверки для iOS 14+
+      const testBytes = [
+        137,
+        80,
+        78,
+        71,
+        13,
+        10,
+        26,
+        10,
+        0,
+        0,
+        0,
+        13,
+        73,
+        72,
+        68,
+        82,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        1,
+        8,
+        6,
+        0,
+        0,
+        0,
+        31,
+        21,
+        196,
+        137,
+        0,
+        0,
+        0,
+        11,
+        73,
+        68,
+        65,
+        84,
+        120,
+        156,
+        99,
+        248,
+        15,
+        0,
+        0,
+        1,
+        0,
+        1,
+        0,
+        24,
+        221,
+        142,
+        175,
+        0,
+        0,
+        0,
+        0,
+        73,
+        69,
+        78,
+        68,
+        174,
+        66,
+        96,
+        130
+      ]; // Минимальный PNG 1x1 pixel
 
-        // Для Android 13+ нужно разрешение на фото
-        if (androidVersion >= 33) {
-          final status = await Permission.photos.request();
-          if (status == PermissionStatus.granted) {
-            return PermissionResult.granted();
-          } else if (status == PermissionStatus.permanentlyDenied) {
-            return PermissionResult.error(
-                'Доступ к фото запрещен. Включите в настройках приложения');
-          } else {
-            return PermissionResult.error('Отказано в доступе к фото');
-          }
-        } else {
-          // Для более старых версий Android
-          final status = await Permission.storage.request();
-          if (status == PermissionStatus.granted) {
-            return PermissionResult.granted();
-          } else if (status == PermissionStatus.permanentlyDenied) {
-            return PermissionResult.error(
-                'Доступ к хранилищу запрещен. Включите в настройках приложения');
-          } else {
-            return PermissionResult.error('Отказано в доступе к хранилищу');
-          }
-        }
-      } else if (Platform.isIOS) {
-        // Для iOS запрашиваем доступ к фото
-        final status = await Permission.photosAddOnly.request();
-        if (status == PermissionStatus.granted) {
-          return PermissionResult.granted();
-        } else if (status == PermissionStatus.permanentlyDenied) {
-          return PermissionResult.error(
-              'Доступ к фото запрещен. Включите в настройках iOS');
-        } else {
-          return PermissionResult.error('Отказано в доступе к библиотеке фото');
-        }
-      }
-      return PermissionResult.error('Неподдерживаемая платформа');
-    } catch (e) {
-      return PermissionResult.error(
-          'Ошибка проверки разрешений: ${e.toString()}');
-    }
-  }
+      await Gal.putImageBytes(
+        Uint8List.fromList(testBytes),
+        name: 'test_permission_${DateTime.now().millisecondsSinceEpoch}',
+      );
 
-  /// Получает версию Android используя device_info_plus
-  static Future<int> _getAndroidVersion() async {
-    try {
-      if (Platform.isAndroid) {
-        final deviceInfo = DeviceInfoPlugin();
-        final androidInfo = await deviceInfo.androidInfo;
-        return androidInfo.version.sdkInt;
-      }
-      return 0;
-    } catch (e) {
-      // Fallback на современную версию если не удалось определить
-      return 33;
-    }
-  }
-
-  /// Открывает фото или галерею
-  static Future<bool> openPhotoOrGallery([String? tempFilePath]) async {
-    // Сначала пытаемся открыть конкретное фото из временной папки
-    if (tempFilePath != null && tempFilePath.isNotEmpty) {
-      try {
-        final file = File(tempFilePath);
-        if (await file.exists()) {
-          final uri = Uri.file(tempFilePath);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-            return true;
-          }
-        }
-      } catch (e) {
-        print('Не удалось открыть временное фото: $e');
-      }
-    }
-
-    return await _openGallery();
-  }
-
-  /// Открывает галерею
-  static Future<bool> _openGallery() async {
-    try {
-      if (Platform.isAndroid) {
-        // Пытаемся открыть галерею различными способами
-        final galleryIntents = [
-          'content://media/external/images/media',
-          'content://media/internal/images/media',
-        ];
-
-        for (final intent in galleryIntents) {
-          try {
-            final uri = Uri.parse(intent);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-              return true;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
-
-        // Последняя попытка - открыть через стандартный интент просмотра изображений
-        try {
-          final uri = Uri.parse('content://media/external/images/media');
-          await launchUrl(uri, mode: LaunchMode.externalApplication);
-          return true;
-        } catch (e) {
-          return false;
-        }
-      } else if (Platform.isIOS) {
-        // Для iOS пытаемся открыть приложение Фото
-        final photoAppSchemes = [
-          'photos-redirect://',
-          'photos://',
-        ];
-
-        for (final scheme in photoAppSchemes) {
-          try {
-            final uri = Uri.parse(scheme);
-            if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-              return true;
-            }
-          } catch (e) {
-            continue;
-          }
-        }
+      return true;
+    } on GalException catch (e) {
+      // Если ошибка связана с разрешениями
+      if (e.type == GalExceptionType.accessDenied) {
         return false;
       }
-      return false;
+      // Для других ошибок Gal считаем, что разрешение есть
+      return true;
     } catch (e) {
-      print('Ошибка открытия галереи: $e');
-      return false;
+      // Fallback к старому методу проверки разрешений
+      return await _fallbackPermissionCheck();
     }
   }
 
-  /// Показывает Snackbar с результатом сохранения
+  /// Резервный метод проверки разрешений
+  static Future<bool> _fallbackPermissionCheck() async {
+    try {
+      final status = await Permission.photos.status;
+
+      // На iOS 14+ даже limited доступ позволяет сохранять новые фото
+      if (Platform.isIOS) {
+        return status.isGranted || status.isLimited;
+      }
+
+      return status.isGranted;
+    } catch (e) {
+      // Если не можем проверить разрешения, пробуем сохранить
+      return true;
+    }
+  }
+
+  /// Обрабатывает исключения от библиотеки Gal
+  static PhotoSaveResult _handleGalException(GalException e) {
+    switch (e.type) {
+      case GalExceptionType.accessDenied:
+        return PhotoSaveResult.permissionDenied(
+          'Доступ к галерее запрещен. Предоставьте разрешение в настройках',
+        );
+      case GalExceptionType.notEnoughSpace:
+        return PhotoSaveResult.error(
+          'Недостаточно места на устройстве',
+        );
+      case GalExceptionType.notSupportedFormat:
+        return PhotoSaveResult.error(
+          'Неподдерживаемый формат изображения',
+        );
+      case GalExceptionType.unexpected:
+      default:
+        return PhotoSaveResult.error(
+          'Неожиданная ошибка при сохранении: ${e.platformException?.message ?? e.toString()}',
+        );
+    }
+  }
+
+  /// Показывает снэкбар с результатом сохранения
   static void showSaveResultSnackbar(
     BuildContext context,
     PhotoSaveResult result,
-    String localizationMessage,
-    String localizationOpen,
+    String successMessage,
+    String actionLabel,
   ) {
-    final snackBar = SnackBar(
-      content: Text(
-        result.isSuccess ? localizationMessage : result.errorMessage!,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
+    Color backgroundColor;
+    IconData icon;
+    String message;
+    SnackBarAction? action;
+
+    switch (result.type) {
+      case PhotoSaveResultType.success:
+        backgroundColor = Colors.green;
+        icon = Icons.check_circle;
+        message = successMessage.isNotEmpty ? successMessage : result.message;
+        // Добавляем кнопку "Открыть" для успешного сохранения
+        if (actionLabel.isNotEmpty) {
+          action = SnackBarAction(
+            label: actionLabel,
+            textColor: Colors.white,
+            onPressed: () => _openGallery(),
+          );
+        }
+        break;
+      case PhotoSaveResultType.permissionDenied:
+        backgroundColor = Colors.orange;
+        icon = Icons.warning;
+        message = result.message;
+        if (actionLabel.isNotEmpty) {
+          action = SnackBarAction(
+            label: actionLabel,
+            textColor: Colors.white,
+            onPressed: () => openAppSettings(),
+          );
+        }
+        break;
+      case PhotoSaveResultType.error:
+        backgroundColor = Colors.red;
+        icon = Icons.error;
+        message = result.message;
+        break;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(icon, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: backgroundColor,
+        action: action,
+        duration: Duration(seconds: result.isSuccess ? 3 : 4),
       ),
-      backgroundColor: result.isSuccess ? Colors.green : Colors.red,
-      action: result.isSuccess
-          ? SnackBarAction(
-              label: localizationOpen,
-              textColor: Colors.white,
-              onPressed: () async {
-                final opened = await openPhotoOrGallery(result.savedPath);
-                if (!opened && context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Не удалось открыть фото'),
-                      backgroundColor: Colors.orange,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
-            )
-          : null,
-      duration: Duration(seconds: result.isSuccess ? 4 : 6),
     );
-
-    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
-  /// Открывает настройки приложения для изменения разрешений
-  static Future<bool> openAppSettings() async {
+  /// Открывает галерею устройства
+  static Future<void> _openGallery() async {
     try {
-      return await openAppSettings();
+      await Gal.open();
     } catch (e) {
-      return false;
+      print('Не удалось открыть галерею: $e');
     }
   }
 }
 
-/// Результат операции сохранения фото
-class PhotoSaveResult {
-  final bool isSuccess;
-  final String? savedPath;
-  final String? errorMessage;
-
-  PhotoSaveResult.success(this.savedPath)
-      : isSuccess = true,
-        errorMessage = null;
-
-  PhotoSaveResult.error(this.errorMessage)
-      : isSuccess = false,
-        savedPath = null;
-}
-
-/// Результат проверки разрешений
-class PermissionResult {
-  final bool granted;
-  final String? errorMessage;
-
-  PermissionResult.granted()
-      : granted = true,
-        errorMessage = null;
-
-  PermissionResult.error(this.errorMessage) : granted = false;
-}
-
-class PhotoPermissionHelper {
-  static Future<bool> requestPhotoPermission(BuildContext context) async {
-    // Проверяем текущий статус разрешения
-    PermissionStatus status = await Permission.photos.status;
-
-    if (status.isGranted) {
-      return true;
-    }
-
-    if (status.isDenied) {
-      // Запрашиваем разрешение
-      status = await Permission.photos.request();
-
-      if (status.isGranted) {
-        return true;
-      }
-    }
-
-    if (status.isPermanentlyDenied) {
-      // Показываем диалог с предложением открыть настройки
-      return await _showSettingsDialog(context);
-    }
-
-    return false;
-  }
-
-  static Future<bool> requestCameraPermission(BuildContext context) async {
-    PermissionStatus status = await Permission.camera.status;
-
-    if (status.isGranted) {
-      return true;
-    }
-
-    if (status.isDenied) {
-      status = await Permission.camera.request();
-
-      if (status.isGranted) {
-        return true;
-      }
-    }
-
-    if (status.isPermanentlyDenied) {
-      return await _showSettingsDialog(context);
-    }
-
-    return false;
-  }
-
-  static Future<bool> _showSettingsDialog(BuildContext context) async {
-    return await showDialog<bool>(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: Text('Разрешение необходимо'),
-              content: Text(
-                'Для работы с фотографиями необходимо предоставить доступ к галерее. '
-                'Перейдите в настройки приложения и включите доступ к фото.',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: Text('Отмена'),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    Navigator.of(context).pop(true);
-                    await openAppSettings();
-                  },
-                  child: Text('Настройки'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        false;
-  }
+// Добавляем функцию для открытия настроек (если её нет)
+Future<void> openAppSettings() async {
+  await Permission.photos.request();
 }

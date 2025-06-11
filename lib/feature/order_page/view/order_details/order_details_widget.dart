@@ -690,6 +690,12 @@ class OrderDetailsState extends State<OrderDetailsWidget>
       return offer == null;
     }
 
+    if (widget.user?.role == Role.logistician) {
+      if (offer?.trip?.stage == TripStage.unloaded) {
+        return false;
+      }
+    }
+
     return true;
   }
 

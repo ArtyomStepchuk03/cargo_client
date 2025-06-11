@@ -14,6 +14,7 @@ import 'package:manager_mobile_client/src/logic/concrete_data/user.dart';
 import 'package:manager_mobile_client/src/logic/external/image_picker.dart';
 import 'package:manager_mobile_client/src/logic/external/photo_save_service.dart';
 import 'package:manager_mobile_client/src/logic/order/entrance_coordinate_mismatch.dart';
+import 'package:manager_mobile_client/src/logic/permissions/photo_permission_helper.dart';
 import 'package:manager_mobile_client/util/format/date.dart';
 import 'package:manager_mobile_client/util/format/stage.dart';
 import 'package:manager_mobile_client/util/localization_util.dart';
@@ -287,15 +288,29 @@ class TripProgressState extends State<TripProgressWidget> {
   void _pickImage(TripHistoryRecord record, int index) async {
     final newFile = await ImagePicker().pickImage(
         source: ImageSource.gallery,
-        maxHeight: 1600,
-        maxWidth: 1600,
-        imageQuality: 80);
+        maxHeight: 1024, // Уменьшил для Xiaomi
+        maxWidth: 1024, // Уменьшил для Xiaomi
+        imageQuality: 70); // Уменьшил для Xiaomi
     if (newFile == null) {
       return;
     }
 
     try {
-      String base64Image = base64Encode(await newFile.readAsBytes());
+      // Читаем файл и проверяем его размер
+      final fileBytes = await newFile.readAsBytes();
+
+      // Ограничение на 5 МБ для лучшей совместимости с Xiaomi
+      if (fileBytes.length > 5 * 1024 * 1024) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Файл слишком большой. Максимальный размер: 5 МБ'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
+      String base64Image = base64Encode(fileBytes);
       final serverAPI = DependencyHolder.of(context).network.serverAPI.trips;
       await serverAPI.updatePhoto(record, base64Image);
       await widget.onUpdate();
@@ -303,6 +318,7 @@ class TripProgressState extends State<TripProgressWidget> {
         updatedPhotos[index] = File(newFile.path);
       });
     } catch (e) {
+      print('Ошибка при обработке изображения: $e');
       showDefaultErrorDialog(context);
     }
   }
@@ -386,6 +402,7 @@ class TripProgressState extends State<TripProgressWidget> {
         );
       }
     } catch (e) {
+      print('Ошибка при сохранении фото: $e');
       if (mounted) Navigator.of(context).pop();
 
       if (mounted) {
