@@ -1,32 +1,60 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-<uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Основные разрешения -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.CALL_PHONE"/>
 
+    <!-- Разрешения для работы с файлами и медиа -->
     <!-- Для записи в внешнее хранилище (Android < 13) -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <!-- Для чтения внешнего хранилища -->
+    <!-- Для чтения внешнего хранилища (Android < 13) -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
 
-    <!-- Для Android 13+ - доступ к медиафайлам -->
+    <!-- Для Android 13+ - доступ к изображениям -->
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
 
-    <!-- Для доступа к управлению медиафайлами -->
+    <!-- Для Android 13+ - доступ к видео -->
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <!-- Для доступа к управлению медиафайлами (только если действительно необходимо) -->
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
     <!-- Проверка состояния внешнего хранилища -->
     <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
+    <!-- Запросы для открытия внешних приложений -->
     <queries>
+        <!-- Для телефонных звонков -->
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="tel" />
         </intent>
+
+        <!-- Для открытия галереи -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:mimeType="image/*" />
+        </intent>
+
+        <!-- Для открытия файлового менеджера -->
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="content" />
+        </intent>
+
+        <!-- Для Google Photos -->
+        <package android:name="com.google.android.apps.photos" />
+
+        <!-- Для стандартной галереи Samsung -->
+        <package android:name="com.sec.android.gallery3d" />
+
+        <!-- Для стандартной галереи -->
+        <package android:name="com.android.gallery" />
     </queries>
 
     <!-- io.flutter.app.FlutterApplication is an android.app.Application that
@@ -36,7 +64,9 @@
          FlutterApplication and put your custom class here. -->
     <application
         android:label="Каргодил Заказ"
-        android:icon="@mipmap/ic_launcher">
+        android:icon="@mipmap/ic_launcher"
+        android:requestLegacyExternalStorage="true">
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -45,12 +75,14 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
+
             <meta-data
                 android:name="io.flutter.embedding.android.SplashScreenDrawable"
                 android:resource="@drawable/launch_background" />
             <meta-data
                 android:name="io.flutter.embedding.android.NormalTheme"
                 android:resource="@style/NormalTheme" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -60,17 +92,37 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <!-- Мета-данные Flutter -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
+
+        <!-- Fabric API Key -->
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="f8487c55d029354fb0a72854853a1ecf1ec870fc"
-            />
-        <meta-data android:name="com.google.android.geo.API_KEY"
+            android:value="f8487c55d029354fb0a72854853a1ecf1ec870fc" />
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyAPWau_f1LeAaDLfesK-tYtqfYwKTQ92d4"/>
+
+        <!-- Firebase уведомления -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_icon"
             android:resource="@drawable/ic_notification" />
+
+
+        <!-- Провайдер файлов для безопасного обмена файлами -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>
