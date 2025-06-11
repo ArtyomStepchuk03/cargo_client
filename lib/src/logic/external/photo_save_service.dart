@@ -56,7 +56,8 @@ class PhotoSaveService {
   }
 
   /// Сохраняет изображение с учетом версии Android
-  static Future<String?> _saveImageToGallery(Uint8List bytes, String fileName) async {
+  static Future<String?> _saveImageToGallery(
+      Uint8List bytes, String fileName) async {
     try {
       // Убеждаемся, что у файла есть расширение
       String finalFileName = fileName;
@@ -91,10 +92,12 @@ class PhotoSaveService {
   }
 
   /// Сохранение для Android 10+ (scoped storage)
-  static Future<String?> _saveImageScoped(Uint8List bytes, String fileName) async {
+  static Future<String?> _saveImageScoped(
+      Uint8List bytes, String fileName) async {
     try {
       // Сохраняем в папку Android/media/com.macsoftex.cargodeal_manager/
-      final String mediaPath = '/storage/emulated/0/Android/media/com.macsoftex.cargodeal_manager';
+      final String mediaPath =
+          '/storage/emulated/0/Android/media/com.macsoftex.cargodeal_manager';
       final Directory mediaDir = Directory(mediaPath);
 
       if (!await mediaDir.exists()) {
@@ -105,7 +108,6 @@ class PhotoSaveService {
       final File file = File(filePath);
       await file.writeAsBytes(bytes);
       print('Saved to Android/media: $filePath');
-
       return filePath;
     } catch (e) {
       print('Failed to save to Android/media: $e');
@@ -124,7 +126,6 @@ class PhotoSaveService {
       final File file = File(filePath);
       await file.writeAsBytes(bytes);
       print('Saved to public Pictures: $filePath');
-
       return filePath;
     } catch (e) {
       print('Failed to save to public Pictures: $e');
@@ -148,7 +149,8 @@ class PhotoSaveService {
   }
 
   /// Сохранение для старых версий Android (до API 29)
-  static Future<String?> _saveImageLegacy(Uint8List bytes, String fileName) async {
+  static Future<String?> _saveImageLegacy(
+      Uint8List bytes, String fileName) async {
     // Попробуем сохранить в стандартную папку Pictures
     try {
       final String publicPicturesPath = '/storage/emulated/0/Pictures';
@@ -210,12 +212,14 @@ class PhotoSaveService {
 
       return PermissionResult.error('Неподдерживаемая платформа');
     } catch (e) {
-      return PermissionResult.error('Ошибка проверки разрешений: ${e.toString()}');
+      return PermissionResult.error(
+          'Ошибка проверки разрешений: ${e.toString()}');
     }
   }
 
   /// Обрабатывает статус разрешения
-  static PermissionResult _handlePermissionStatus(PermissionStatus status, String permissionType) {
+  static PermissionResult _handlePermissionStatus(
+      PermissionStatus status, String permissionType) {
     switch (status) {
       case PermissionStatus.granted:
         return PermissionResult.granted();
@@ -246,56 +250,15 @@ class PhotoSaveService {
   static Future<bool> openGallery([String? photoPath]) async {
     try {
       if (Platform.isAndroid) {
-        // Если есть путь к конкретному фото, пытаемся открыть его
-        if (photoPath != null) {
-          // Способ 1: Пытаемся открыть фото через file:// схему
-          try {
-            final Uri fileUri = Uri.parse('file://$photoPath');
-            if (await canLaunchUrl(fileUri)) {
-              await launchUrl(fileUri, mode: LaunchMode.externalApplication);
-              return true;
-            }
-          } catch (e) {
-            print('Failed to open via file:// scheme: $e');
-          }
-
-          // Способ 2: Открываем папку с фото
-          try {
-            final String fileName = photoPath.split('/').last;
-            final String directory = photoPath.replaceAll('/$fileName', '');
-
-            // Пытаемся открыть файловый менеджер в конкретной папке
-            String contentPath = directory.replaceAll('/storage/emulated/0/', '');
-            if (contentPath.startsWith('Android/media/')) {
-              contentPath = contentPath.replaceAll('Android/media/', 'Android%2Fmedia%2F');
-            }
-
-            final Uri dirUri = Uri.parse('content://com.android.externalstorage.documents/document/primary:$contentPath');
-            if (await canLaunchUrl(dirUri)) {
-              await launchUrl(dirUri, mode: LaunchMode.externalApplication);
-              return true;
-            }
-          } catch (e) {
-            print('Failed to open directory: $e');
-          }
-
-          // Способ 3: Показываем уведомление с путем к файлу
-          print('Фото сохранено: $photoPath');
-        }
-
-        // Fallback: открываем обычную галерею
-        final List<String> galleryIntents = [
-          // Пытаемся открыть Google Photos
-          'https://photos.google.com/',
-          // Стандартная галерея
+        // Пытаемся открыть галерею разными способами
+        final List<String> galleryUrls = [
           'content://media/external/images/media',
-          // Файловый менеджер
           'content://com.android.externalstorage.documents/',
         ];
 
-        for (final galleryIntent in galleryIntents) {
+        for (final galleryUrl in galleryUrls) {
           try {
-            final Uri uri = Uri.parse(galleryIntent);
+            final Uri uri = Uri.parse(galleryUrl);
             if (await canLaunchUrl(uri)) {
               await launchUrl(uri, mode: LaunchMode.externalApplication);
               return true;
@@ -304,22 +267,8 @@ class PhotoSaveService {
             continue;
           }
         }
-
       } else if (Platform.isIOS) {
-        // На iOS пытаемся открыть конкретное фото если есть путь
-        if (photoPath != null) {
-          try {
-            final Uri fileUri = Uri.file(photoPath);
-            if (await canLaunchUrl(fileUri)) {
-              await launchUrl(fileUri, mode: LaunchMode.externalApplication);
-              return true;
-            }
-          } catch (e) {
-            print('Failed to open specific photo on iOS: $e');
-          }
-        }
-
-        // Fallback: открываем приложение Фото
+        // Открываем приложение Фото на iOS
         const photosUrl = 'photos-redirect://';
         final uri = Uri.parse(photosUrl);
         if (await canLaunchUrl(uri)) {
@@ -329,18 +278,17 @@ class PhotoSaveService {
       }
       return false;
     } catch (e) {
-      print('Failed to open gallery: $e');
       return false;
     }
   }
 
   /// Показывает результат сохранения в Snackbar
   static void showSaveResultSnackbar(
-      BuildContext context,
-      PhotoSaveResult result,
-      String successMessage,
-      String openButtonText,
-      ) {
+    BuildContext context,
+    PhotoSaveResult result,
+    String successMessage,
+    String openButtonText,
+  ) {
     final snackBar = SnackBar(
       content: Text(
         result.isSuccess ? successMessage : result.errorMessage!,
@@ -350,62 +298,61 @@ class PhotoSaveService {
       backgroundColor: result.isSuccess ? Colors.green : Colors.red,
       action: result.isSuccess
           ? SnackBarAction(
-        label: openButtonText,
-        textColor: Colors.white,
-        onPressed: () async {
-          final opened = await openGallery(result.savedPath);
-          if (!opened && context.mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('Не удалось открыть галерею'),
-                backgroundColor: Colors.orange,
-                duration: Duration(seconds: 2),
-              ),
-            );
-          }
-        },
-      )
+              label: openButtonText,
+              textColor: Colors.white,
+              onPressed: () async {
+                final opened = await openGallery(result.savedPath);
+                if (!opened && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Не удалось открыть галерею'),
+                      backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                }
+              },
+            )
           : null,
       duration: Duration(seconds: result.isSuccess ? 4 : 6),
     );
 
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }ScaffoldMessenger.of(context).showSnackBar(snackBar);
-}
+  }
 
-/// Открывает настройки приложения
-static Future<bool> openAppSettings() async {
-try {
-return await openAppSettings();
-} catch (e) {
-return false;
-}
-}
+  /// Открывает настройки приложения
+  static Future<bool> openAppSettings() async {
+    try {
+      return await openAppSettings();
+    } catch (e) {
+      return false;
+    }
+  }
 }
 
 /// Результат операции сохранения фото
 class PhotoSaveResult {
-final bool isSuccess;
-final String? savedPath;
-final String? errorMessage;
+  final bool isSuccess;
+  final String? savedPath;
+  final String? errorMessage;
 
-PhotoSaveResult.success(this.savedPath)
-    : isSuccess = true,
-errorMessage = null;
+  PhotoSaveResult.success(this.savedPath)
+      : isSuccess = true,
+        errorMessage = null;
 
-PhotoSaveResult.error(this.errorMessage)
-    : isSuccess = false,
-savedPath = null;
+  PhotoSaveResult.error(this.errorMessage)
+      : isSuccess = false,
+        savedPath = null;
 }
 
 /// Результат проверки разрешений
 class PermissionResult {
-final bool granted;
-final String? errorMessage;
+  final bool granted;
+  final String? errorMessage;
 
-PermissionResult.granted()
-    : granted = true,
-errorMessage = null;
+  PermissionResult.granted()
+      : granted = true,
+        errorMessage = null;
 
-PermissionResult.error(this.errorMessage) : granted = false;
+  PermissionResult.error(this.errorMessage) : granted = false;
 }
