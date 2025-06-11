@@ -27,7 +27,6 @@ dependencies:
   firebase_messaging: ^15.2.4
   geocoding: ^3.0.0
 
-  gal: ^2.3.0
   permission_handler: ^11.3.1
   device_info_plus: ^10.1.2
 
